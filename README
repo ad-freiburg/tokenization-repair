@@ -1,9 +1,6 @@
 1) Get the code
 
-	a) via AD-SVN
-		svn co https://ad-svn.informatik.uni-freiburg.de/student-projects/matthias-hertel/paper <YOUR CODE DIRECTORY>
-	b) via git
-		git clone https://github.com/mostafa-mahmoud/tokenization-repair.git <YOUR CODE DIRECTORY>
+	git clone https://github.com/ad-freiburg/tokenization-repair.git <YOUR CODE DIRECTORY>
 
 2) Get the models and data
 
@@ -12,16 +9,11 @@
 	b) If you are on a machine from the lab, do nothing.
 
 3) Build the Docker container
-	
-	1) go to the code directory
-		a) if you got the code from git
-			cd <YOUR CODE DIRECTORY>/matthias-hertel
-		b) if you got the code from ad-svn
-			cd <YOUR CODE DIRECTORY>
-	
-	2) build the container
-		docker build -t tokenization-repair .
-		(Use wharfer instead of docker if you are an a machine from the lab.)
+
+	cd <YOUR CODE DIRECTORY>
+	docker build -t tokenization-repair .
+
+	(Use wharfer instead of docker if you are an a machine from the lab.)
 
 4) Start the Docker container
 
