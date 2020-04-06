@@ -45,7 +45,8 @@ class Benchmark:
                         'precision to add', 'recall to add', 'f1score to add',
                         'precision to del', 'recall to del', 'f1score to del',
                         'tp', 'fp', 'fn', 'tp to add', 'fp to add',
-                        'fn to add', 'tp to del', 'fp to del', 'fn to del', 'acc', 'duration']
+                        'fn to add', 'tp to del', 'fp to del', 'fn to del',
+                        'acc', 'duration']
 
     def __repr__(self):
         return self.fixer_repr
@@ -71,18 +72,10 @@ class Benchmark:
             Evaluation dictionary of the metric evaluations of the fixed file.
         """
         fixer = construct_and_load_fixer(self.config)
-        if len(key) == 3:
-            file_name, correct_text, corrupt_text = key
-            correct_text = cleanstr(correct_text)
-            corrupt_text = cleanstr(corrupt_text)
-            corrupt_path = file_name
-        else:
-            correct_path, corrupt_path = key
-
-            logger.log_debug(correct_path, corrupt_path)
-            correct_text = open(correct_path, 'r').read()
-            corrupt_text = open(corrupt_path, 'r').read()
-            _, file_name, ext = extract_file_name(corrupt_path)
+        file_name, correct_text, corrupt_text = key
+        correct_text = cleanstr(correct_text)
+        corrupt_text = cleanstr(corrupt_text)
+        corrupt_path = file_name
 
         row = {}
         comparisons = []
@@ -94,13 +87,11 @@ class Benchmark:
             return row
 
         # Fixing
-        logger.log_info("with %s Fixing.. " % str(fixer) +
-                        corrupt_path + '\n')
+        logger.log_info("with %s Fixing.. " % str(fixer) + corrupt_path + '\n')
         t0 = datetime.datetime.now()
         fixed_text = fixer.fix(corrupt_text)
         duration = datetime.datetime.now() - t0
-        logger.log_info('with %s Fixed.. %s\n' % (
-            str(fixer), corrupt_path))
+        logger.log_info('with %s Fixed.. %s\n' % (str(fixer), corrupt_path))
         caption = 'fixing %s with %s' % (file_name, str(fixer))
 
         # comparing
@@ -115,18 +106,17 @@ class Benchmark:
         logger.log_info('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
                         comparison)
         fixed_path = os.path.join(self.get_timestamp_folder_name(),
-                                  'fixed',
-                                  file_name + '_fixed.txt')
-        logger.log_debug(fixed_path)
+                                  'fixed', file_name + '_fixed.txt')
         with open_or_create_write_file(fixed_path) as fixed_file:
             fixed_file.write(fixed_text)
             fixed_file.close()
             logger.log_report('dumped fixed file into:', fixed_path)
 
-        metric_comparison, html_metriccomparison = evaluator.metric_comparison(
+        # metric results
+        metric_comparison, html_metric_comparison = evaluator.metric_comparison(
             row, self.metrics, modes=[TERMINAL, HTML])
         comparisons.append(metric_comparison)
-        html_comparisons.append(html_metriccomparison)
+        html_comparisons.append(html_metric_comparison)
         logger.log_report(metric_comparison)
 
         # Terminal dumps
@@ -220,6 +210,7 @@ class Benchmark:
         # return result
 
     def get_scores(self, df):
+
         def prf(tp, fp, fn):
             precision = tp / float(tp + fp + SMOOTHING)
             recall = tp / float(tp + fn + SMOOTHING)
@@ -229,7 +220,6 @@ class Benchmark:
             return precision, recall, fscore
 
         sums = df.sum(axis=0)
-        means = df.mean(axis=0)
         tp, fp, fn, tp_add, fp_add, fn_add, tp_del, fp_del, fn_del =\
             sums.values[9:18]
         precision, recall, fscore = prf(tp, fp, fn)
@@ -253,17 +243,14 @@ class Benchmark:
         csv_path = os.path.join(self.get_timestamp_folder_name(),
                                 'results.csv')
         open_or_create_write_file(csv_path)
-        results_df = pd.DataFrame()
         for chunk_id, files_collection in enumerate(gen_chunker(files, 50)):
             logger.start()
-            rows = list(map(self.run_benchmark, files_collection))
-            """
+            # rows = list(map(self.run_benchmark, files_collection))
             with multiprocessing.Pool(NUM_THREADS) as pool:
                 rows = list(pool.map(self.run_benchmark, files_collection))
                 pool.close()
                 pool.join()
                 del pool
-            """
             num_files += len(rows)
             for row in rows:
                 for fil, values in row.items():
@@ -273,24 +260,12 @@ class Benchmark:
             df = pd.DataFrame.from_dict(score_rows, columns=self.metrics, orient='index')
             df.to_csv(csv_path)
 
-            #(precision, recall, fscore, precision_add, recall_add,
-            # fscore_add, precision_del, recall_del, fscore_del) =\
             micro_scores = self.get_scores(df)
-
-            #logger.log_report(
-            #    "macro precision: %.7f, recall: %.7f, fscore: %.7f"
-            #    "To add macro precision: %.7f, recall: %.7f, fscore: %.7f"
-            #    "To del macro precision: %.7f, recall: %.7f, fscore: %.7f" % (
-            #    precision, recall, fscore, precision_add, recall_add,
-            #     fscore_add, precision_del, recall_del, fscore_del))
-
             mean_dict[' %d files, macro' % num_files] = np.array(
                 list(score_rows.values())).mean(axis=0)
-
             mean_dict[' %d files, micro' % num_files] = np.array(micro_scores)
-            logger.log_report('%d files, acc %.5f' % (num_files, df['acc'].mean()))
-            # logger.log_report(df.mean(axis=0))
 
+            logger.log_report('%d files, seq accuracy %.5f' % (num_files, df['acc'].mean()))
             self.summarize(mean_dict)
 
             logger.log_full_report_into_file(os.path.join(
@@ -298,6 +273,7 @@ class Benchmark:
                 'chunk%d_' % (chunk_id + 1)), keep_log=True)
             logger.log_full_report_into_file('%s-chunk%d_' % (
                 self.dump_dir, chunk_id + 1))
+
         logger.log_seperator()
         mean_dict[' %d files' % num_files] = np.array(
             list(score_rows.values())).mean(axis=0)

@@ -105,6 +105,7 @@ class RNNLanguageModel(CharacterModel):
 
     def make_generator(self, gen):
         # TODO
+        # TODO: also use new hidden state
         pass
 
     def train(self, train_data):
@@ -123,107 +124,97 @@ class RNNLanguageModel(CharacterModel):
         return self.model_repr
 
     def new_state(self, batch_size=1):
-        return [np.zeros((batch_size, self.rnn_units)) for _ in range(self.rnn_layers * 2)]
+        if self.rnn_type == 'LSTM':
+            return [np.zeros((batch_size, self.rnn_units))
+                    for _ in range(self.rnn_layers * 2)]
+        elif self.rnn_type == 'GRU':
+            # TODO: verify
+            return [np.zeros((batch_size, self.rnn_units))
+                    for _ in range(self.rnn_layers)]
 
-    def get_state(self, state):
-        if state is None:
-            return self.new_state()
-        if len(state) == self.rnn_layers * 2 + 1:
-            return state[1:]
-        else:
-            return state
-
-    def predict(self, text, state=None, return_state=False, encode=True):
-        #cached_prediction = self.predictions_cache.get_cached_value(text)
-        #if cached_prediction is not None:
-        #    return cached_prediction
-
+    def adjust_input(self, text, state, encode=True, include_pad=False):
         if encode:
             text_codes = self.str_codes(text)
         else:
             text_codes = text
 
-        if not text:
+        if len(text_codes) == 0 or include_pad:
             if self.direction == FORWARD:
-                text_codes = [SOS]
+                text_codes = [SOS] + text_codes.tolist()
             else:
-                text_codes = [EOS]
+                text_codes = text_codes.tolist() + [EOS]
+        text_codes = np.array(text_codes, dtype=np.uint8)
 
-        state = self.get_state(state)
         inp = [np.expand_dims(text_codes, axis=0)] + state
+        return inp
+
+    def predict(self, text='', state=None, dense_state=None, return_state=False,
+                return_dense_state=False,
+                encode=True, return_sequence=False, include_pad=False):
+        assert state is None or dense_state is None, "Only one of the states can be used"
+        assert not return_sequence or self.return_sequences, "Can't return sequence if the model doesn't"
+        assert not return_state or not return_dense_state, "Can't return both dense and non-dense states"
+
+        if state is None and dense_state is None:
+            state = self.new_state()
+        elif state is None:
+            state = dense_state[1:]
+
+        inp = self.adjust_input(text, state, encode=encode, include_pad=include_pad)
         outputs = self.model.predict(inp)
         probs, state = outputs[0][0], outputs[1:]
-        if self.return_sequences:
+        if not return_sequence and self.return_sequences:
             if self.direction == BACKWARD:
                 probs = probs[0]
             if self.direction == FORWARD:
                 probs = probs[-1]
-        #self.predictions_cache.add_cache_value(text, probs)
         if return_state:
             return probs, state
+        elif return_dense_state:
+            return [probs] + state
         else:
             return probs
 
-    def predict_seq(self, text, state=None, encode=True, include_pad=False):
-        preds = []
-        states = []
-        if state is None:
-            state = [np.zeros((1, self.rnn_units)) for _ in range(self.rnn_layers * 2)]
-            if self.direction == FORWARD:
-                inp = [np.array([[SOS]])] + state
-            else:
-                inp = [np.array([[EOS]])] + state
-            state = self.model.predict(inp)
-
-        if encode:
-            text_codes = self.str_codes(text)
-        else:
-            text_codes = text
-        text_codes = np.expand_dims(text_codes, axis=0)
-        # TODO: Reverse for backwards
-        for i in range(text_codes.shape[1]):
-            inp = [text_codes[:, i, None]] + state
-            outputs = self.model.predict(inp)
-            probs, state = outputs[0][0][0], outputs[1:]
-            preds.append(probs)
-            states.append(state)
+    def predict_seq(self, text):
+        predictions = [self.predict(return_dense_state=True)]
         if self.direction == BACKWARD:
-            preds = preds[::-1]
-            states = states[::-1]
-        return preds, states
+            text = text[::-1]
+        for c in text:
+            predictions.append(self.predict(c, dense_state=predictions[-1],
+                                            return_dense_state=True))
+        if self.direction == BACKWARD:
+            predictions = predictions[::-1]
+        return predictions
 
-    def predict_likelihood(self, text, state_with_last, encode=True):
-        # TODO: Handle previous predict
+    def predict_likelihood(self, text, state_with_last, small_context_size=3, encode=True):
         if encode:
             text_codes = self.str_codes(text)
         else:
             text_codes = text
+
+        if self.direction == BACKWARD:
+            text_codes = np.array([SOS] + text_codes.tolist(), dtype=text_codes.dtype)
+            text_codes = text_codes[-small_context_size:]
+        else:
+            text_codes = np.array(text_codes.tolist() + [EOS], dtype=text_codes.dtype)
+            text_codes = text_codes[:small_context_size]
+
         prev_pred, state = state_with_last[0], state_with_last[1:]
         inp = [np.expand_dims(text_codes, axis=0)] + state
         outputs = self.model.predict(inp)[0][0].tolist()
+
         if self.direction == BACKWARD:
-            preds = [prev_pred] + outputs[:1:-1]
+            preds = [prev_pred] + outputs[:0:-1]
             text_codes = text_codes[::-1]
         else:
             preds = [prev_pred] + outputs[:-1]
-        assert len(outputs) == len(text_codes)
+        assert len(preds) == len(text_codes)
+
         ans = 0
-        for i in range(len(outputs) - 1, -1, -1):
+        for i in range(len(preds) - 1, -1, -1):
             p = preds[i][text_codes[i]]
             ans = p * (ans + 1)
         return ans
-
-    def predict_char(self, text, char):
-        return self.predict(text)[self.char_code(char)]
-
-    def predict_end(self, text):
-        return self.predict(text)[EOS]
-
-    def predict_start(self, text):
-        return self.predict(text)[SOS]
-
-    def predict_unknown(self, text):
-        return self.predict(text)[UNK]
 
     def predict_top_n(self, text, n=1):
         probs = self.predict(text)
