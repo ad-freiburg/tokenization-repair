@@ -2,6 +2,9 @@ import numpy as np
 from keras.layers import Layer
 from utils.logger import logger
 from constants import MICRO_EPS
+import tensorflow as tf
+
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 class Sparse(Layer):
@@ -11,11 +14,14 @@ class Sparse(Layer):
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
+        from keras.constraints import MinMaxNorm, NonNeg, UnitNorm
         assert len(input_shape) == 2, 'Rank must be 1'
         from keras.initializers import Zeros, RandomNormal, glorot_uniform
         self.kernel = self.add_weight(name='kernel',
                                       shape=(input_shape[1],),
+                                      # initializer='he_normal',
                                       initializer=RandomNormal(1.0, 1 / np.sqrt(input_shape[1])),
+                                      # constraint=NonNeg(),
                                       trainable=True)
         self.bias = self.add_weight(name='bias',
                                     shape=(input_shape[1],),

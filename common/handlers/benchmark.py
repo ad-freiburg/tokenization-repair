@@ -9,6 +9,7 @@ Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 import csv
 import datetime
 import multiprocessing
+import re
 import os
 import warnings
 
@@ -73,8 +74,10 @@ class Benchmark:
         """
         fixer = construct_and_load_fixer(self.config)
         file_name, correct_text, corrupt_text = key
-        correct_text = cleanstr(correct_text)
-        corrupt_text = cleanstr(corrupt_text)
+        #correct_text = cleanstr(correct_text)
+        #corrupt_text = cleanstr(corrupt_text)
+        correct_text = re.sub(r' +', ' ', correct_text).strip()
+        corrupt_text = re.sub(r' +', ' ', corrupt_text).strip()
         corrupt_path = file_name
 
         row = {}

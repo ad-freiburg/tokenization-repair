@@ -41,6 +41,7 @@ class Reader:
                 yield line[:-1]
         return
 
+    """
     def read_valid_triples(self):
         return self.edits_generator(self.read_valid_pairs(), self.config.history_length)
 
@@ -58,3 +59,4 @@ class Reader:
 
                 yield before, current, after, action_code
         return
+    """

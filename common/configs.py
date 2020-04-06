@@ -126,10 +126,8 @@ def get_bicontext_fixer_config(beam_size=2,
         config.rnn_layers, config.fully_connected_layers,
         config.fully_connected_units, config.dropout_rate,
         config.perturbate, int(fix_delimiters_only))
-    config.tuner_load_dir = os.path.join(
+    config.tuner_dir = os.path.join(
         DEFAULT_MODEL_LOAD_DIR, 'tuner', config.tuner_repr)
-    config.tuner_save_dir = os.path.join(
-        DEFAULT_MODEL_DUMP_DIR, 'tuner', config.tuner_repr)
     config.dump_dir = os.path.join(DEFAULT_BENCHMARK_DUMP_DIR, config.fixer_repr)
     return config
 
@@ -140,7 +138,7 @@ def get_dp_config(**kwargs):
     raise NotImplementedError('')
 
 
-def get_fixer_config(fixer=FIXERS_ENUM.e2e_fixer, **kwargs):
+def get_fixer_config(fixer=FIXERS_ENUM.bicontext_fixer, **kwargs):
     if fixer == FIXERS_ENUM.dp_fixer:
         return get_dp_config(**kwargs)
     else:

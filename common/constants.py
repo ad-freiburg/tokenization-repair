@@ -48,7 +48,7 @@ SAMPLE_VOCAB_SIZE = 0  # 30000
 #  Constants
 # CACHE = True
 BATCH_SIZE = 256#4096 * 2
-NUM_THREADS = 8  # max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
+NUM_THREADS = 4  # max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
 DEFAULT_RANDOM_SEED = 41
 
 # constants

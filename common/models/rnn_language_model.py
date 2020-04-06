@@ -45,6 +45,8 @@ class RNNLanguageModel(CharacterModel):
             self.load_or_create_model()
 
     def load_or_create_model(self):
+        import tensorflow as tf
+        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
         if not self.load_model(self.model_load_path):
             from models.custom_layers import Onehot
             from keras.layers import (
