@@ -203,7 +203,7 @@ class RNNLanguageModel(CharacterModel):
         self.debugger.insert(final_state, res)
 
     def _predict(self, inp):
-        hinp = hashstate
+        hinp = hashstate(inp)
         outputs = self.cacher.get_cached_value(hinp)
         if outputs is not None:
             return outputs

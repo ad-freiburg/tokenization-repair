@@ -76,7 +76,7 @@ class Tuner:
                     Y.append(y)
                     sz += len(x)
                     if last is None or sz > last + 1000:
-                        logger.log_debug(i, "/", total, "with",
+                        logger.log_debug('%d/%d' % (i + 1, total), "with",
                                          sz, "examples so far..")
                         last = sz
                 pool.close()
@@ -181,7 +181,8 @@ class RNNBicontextTextFixer:
             4.154702, -5.471141, 1.381059, 1.3617834, 2.301759,
             2.3024273, 1.7338722, 1.7320414, 0.36447698, 0.36808118]
         if self.use_default_weights:
-            logger.log_info('USING default weights..', self.weights, self.bias)
+            if not from_tuner:
+                logger.log_info('USING default weights..', self.weights, self.bias)
         else:
             try:
                 with open(os.path.join(config.tuner_dir, 'final-weights.pkl'), 'rb') as fl:
