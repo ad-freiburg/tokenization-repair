@@ -40,7 +40,7 @@ class RNNLanguageModel(CharacterModel):
         self.metrics = {self.output_name: [sparse_accuracy, sparse_top_k_categorical_acc()]}
 
         self.debugger = Debugger()  # TODO: remove debugger
-        self.cacher = Cacher(1000)
+        self.cacher = Cacher(4000)
 
         if self.inference:
             import tensorflow as tf
@@ -194,6 +194,22 @@ class RNNLanguageModel(CharacterModel):
             predictions = predictions[::-1]
         return predictions
 
+    def _predict_likelihood(self, text_codes, dense_state):
+        if self.direction == BACKWARD:
+            text_codes = text_codes[1:]
+            text_codes = text_codes[::-1]
+        else:
+            text_codes = text_codes[:-1]
+        predictions = [dense_state]
+        for c in text_codes:
+            predictions.append(self.predict(np.array([c], dtype=text_codes.dtype),
+                                            dense_state=predictions[-1],
+                                            return_dense_state=True,
+                                            encode=False))
+        predictions = predictions[1:]
+        predictions = [x[0] for x in predictions]
+        return predictions
+
     def push_debugger(self, initial_state, inp, final_state):
         prev = self.debugger.get(initial_state)
         if self.direction == BACKWARD:
@@ -213,7 +229,7 @@ class RNNLanguageModel(CharacterModel):
             self.push_debugger(inp[1:], inp, outputs[1:])
         return outputs
 
-    def predict_likelihood(self, text, state_with_last, small_context_size=3, encode=True):
+    def predict_likelihood(self, text, dense_state, small_context_size=2, encode=True):
         if encode:
             text_codes = self.str_codes(text)
         else:
@@ -226,23 +242,29 @@ class RNNLanguageModel(CharacterModel):
             text_codes = np.array(text_codes.tolist() + [EOS], dtype=text_codes.dtype)
             text_codes = text_codes[:small_context_size]
 
-        prev_pred, state = state_with_last[0], state_with_last[1:]
-        inp = [np.expand_dims(text_codes, axis=0)] + state
-        outputs = self._predict(inp)
-        outputs = outputs[0][0].tolist()
+        prev_pred, state = dense_state[0], dense_state[1:]
+        # inp = [np.expand_dims(text_codes, axis=0)] + state
+        # outputs = self._predict(inp)[0][0].tolist()
+        # outputs_a = self._predict_likelihood(text_codes, dense_state)
+        # assert np.allclose(outputs, outputs_a, rtol=1e-4, atol=1e-6), (np.shape(outputs), np.shape(outputs_a))
+        outputs = self._predict_likelihood(text_codes, dense_state)
 
         if self.direction == BACKWARD:
-            preds = [prev_pred] + outputs[:0:-1]
+            preds = [prev_pred] + outputs
             text_codes = text_codes[::-1]
         else:
-            preds = [prev_pred] + outputs[:-1]
+            preds = [prev_pred] + outputs
         assert len(preds) == len(text_codes)
 
-        ans = 0
-        for i in range(len(preds) - 1, -1, -1):
-            p = preds[i][text_codes[i]]
-            ans = p * (ans + 1)
-        return ans
+        ans = []
+        for t in range(len(preds)):
+            acc = 0
+            for i in range(len(preds) - 1 - t, -1, -1):
+                p = preds[i][text_codes[i]]
+                acc = p * (acc + 1)
+            ans.append(acc)  # / (len(preds) - t))
+        # logger.log_debug(ans)
+        return ans[0]
 
     def predict_top_n(self, text, n=1):
         probs = self.predict(text)

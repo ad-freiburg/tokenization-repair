@@ -11,6 +11,7 @@ import multiprocessing
 import os
 import warnings
 import _pickle as pickle
+from datetime import datetime
 from tqdm import tqdm
 
 from configs import get_language_model_config
@@ -35,18 +36,12 @@ class Tuner:
         self.tuner_dir = config.tuner_dir
 
     def get_data(self, pair):
+        # import tensorflow as tf
+        # tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
         fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
         return fixer.get_actions_probabilities(pair)
 
     def train_data(self, gen, total=10000):
-        import tensorflow as tf
-        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-        import keras.backend as K
-        from keras.layers import Input, Conv1D, Dense, Reshape
-        from keras.models import Model
-        from keras.optimizers import Adam, SGD, Adadelta
-        from keras.losses import sparse_categorical_crossentropy
-        from .custom_layers import Sparse
 
         weights_path = os.path.join(self.tuner_dir, 'final-weights.pkl')
         if os.path.isfile(weights_path):
@@ -69,9 +64,10 @@ class Tuner:
             Y = []
             sz = 0
             last = None
+            gen = take_first_n(gen, total)
             with multiprocessing.Pool(NUM_THREADS) as pool:
                 for i, (x, y) in tqdm(enumerate(pool.imap(
-                        self.get_data,take_first_n(gen, total))), total=total):
+                        self.get_data,gen)), total=total):
                     X.append(x)
                     Y.append(y)
                     sz += len(x)
@@ -88,6 +84,12 @@ class Tuner:
                 pickle.dump((X, Y), fl)
                 logger.log_info('dumping io data into', iodata_path,
                                 highlight=4)
+        import keras.backend as K
+        from keras.layers import Input, Conv1D, Dense, Reshape
+        from keras.models import Model
+        from keras.optimizers import Adam, SGD, Adadelta
+        from keras.losses import sparse_categorical_crossentropy
+        from .custom_layers import Sparse
 
         logger.log_debug(X.shape, Y.shape)
         inp = Input((10,))
@@ -238,10 +240,19 @@ class RNNBicontextTextFixer:
         correct_text, corrupt_text = pair
         all_probs = []
         all_labels = []
+        # _t = datetime.now()
+        # logger.log_debug(len(correct_text), len(corrupt_text))
         corrupt_states = self.backward_language_model.predict_seq(corrupt_text)
+        # logger.log_debug('backward prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
         correct_states = self.forward_language_model.predict_seq(correct_text)
+        # logger.log_debug('forward prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
+
         editops = detailed_edit_operations(corrupt_text, correct_text)
-        for idx_corrupt, idx_correct, correct_operation in editops:
+        # logger.log_debug('edits prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
+        for idx_corrupt, idx_correct, correct_operation in editops:  # tqdm(editops):
             if DEBUG_MODE:
                 logger.log_seperator()
                 logger.log_debug(
@@ -261,7 +272,10 @@ class RNNBicontextTextFixer:
             Xv_state = self.forward_language_model.predict(
                 v, dense_state=X_state, return_dense_state=True)
 
-            pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
+            pr_del = 0.
+            # TODO: This condition should be removed if it's needed for typo/non-typo fixing
+            if v in self.tokenization_delimiters or not self.fix_delimiters_only:
+                pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
             if v in self.tokenization_delimiters:
                 probs[0] = pr_del
             else:
@@ -288,8 +302,11 @@ class RNNBicontextTextFixer:
             pr_add1_sp = 0
             pr_add2_sp = 0
             for s in try_to_add:
+                if s == v == ' ':
+                    continue
                 Xs = X + s
                 sZ = s + Z
+
                 Xs_state = self.forward_language_model.predict(
                     s, dense_state=X_state, return_dense_state=True)
                 sZ_state = self.backward_language_model.predict(
@@ -351,6 +368,7 @@ class RNNBicontextTextFixer:
             all_probs.append(probs)
             all_labels.append([label])
             # return probs + MICRO_EPS, label
+        # logger.log_debug('XY predictions', (datetime.now() - _t).total_seconds())
         return np.array(all_probs), np.array(all_labels)
 
     def fix_step(self, text, future_states, score, before_context, dense_state,

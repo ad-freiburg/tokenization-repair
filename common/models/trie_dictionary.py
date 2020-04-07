@@ -151,7 +151,7 @@ class TrieDictionary:
         """
         count = 0
         for word in vocab:
-            threshold = 50
+            threshold = 55
             if '\t' in word:
                 word, freq = word.split('\t')
                 freq = int(freq)
