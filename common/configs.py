@@ -3,6 +3,7 @@ import os
 from constants import (
     BACKWARD, BATCH_SIZE, DEFAULT_DATASET,
     DEFAULT_DATA_LOAD_DIR, DEFAULT_MODEL_DUMP_DIR, DEFAULT_MODEL_LOAD_DIR,
+    DEFAULT_BENCHMARK,
     DEFAULT_ROOT_DIR, DEFAULT_BENCHMARK_DUMP_DIR, E2E_MODES_ENUM,
     FORWARD, HISTORY_LENGTH, MODELS_ENUM, FIXERS_ENUM, DATASETS_ENUM,
 )
@@ -29,7 +30,7 @@ class Config:
 # ############################################### Datasets
 
 
-def get_dataset_config(dataset=DEFAULT_DATASET, benchmark='0.1_0.1', **kwargs):
+def get_dataset_config(dataset=DEFAULT_DATASET, benchmark=DEFAULT_BENCHMARK, **kwargs):
     root_path = DEFAULT_DATA_LOAD_DIR
     benchmarks_root_path = os.path.join(root_path, 'tokenization-repair-paper', 'benchmarks_33')
     return Config(
@@ -142,9 +143,10 @@ def get_dp_config(**kwargs):
     config.damping_factor = 0.5
     config.window_siz = 8
     config.random_sample_files = False
-    config.fixer_repr = 'dpfixer_%s_a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
-        config.dataset, config.alpha, config.beta, config.gamma,
-        config.zeta, config.damping_factor, config.window_siz)
+    config.fixer_repr = '%s_%s_%s_a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
+        config.fixer, config.dataset, config.benchmark, config.alpha,
+        config.beta, config.gamma, config.zeta,
+        config.damping_factor, config.window_siz)
     config.dump_dir = os.path.join(DEFAULT_BENCHMARK_DUMP_DIR, config.fixer_repr)
     return config
 
