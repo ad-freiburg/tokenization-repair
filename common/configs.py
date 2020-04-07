@@ -102,7 +102,7 @@ def get_language_model_config(
     return config
 
 
-def get_bicontext_fixer_config(beam_size=2,
+def get_bicontext_fixer_config(beam_size=5,
                                use_look_forward=True,
                                fix_delimiters_only=True,
                                random_sample_files=False,
