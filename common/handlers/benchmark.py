@@ -74,19 +74,18 @@ class Benchmark:
         """
         fixer = construct_and_load_fixer(self.config)
         file_name, correct_text, corrupt_text = key
-        #correct_text = cleanstr(correct_text)
-        #corrupt_text = cleanstr(corrupt_text)
         correct_text = re.sub(r' +', ' ', correct_text).strip()
         corrupt_text = re.sub(r' +', ' ', corrupt_text).strip()
         corrupt_path = file_name
 
         row = {}
         comparisons = []
-        html_comparisons = []
+        # html_comparisons = []
         evaluator = MultiViewer()
         if len(correct_text) >= 12000:
             logger.log_info("%s is too big, won't fix.." % corrupt_path)
-            row[file_name] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            row[file_name] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             return row
 
         # Fixing
@@ -94,16 +93,18 @@ class Benchmark:
         t0 = datetime.datetime.now()
         fixed_text = fixer.fix(corrupt_text)
         duration = datetime.datetime.now() - t0
-        logger.log_info('with %s Fixed.. %s\n' % (str(fixer), corrupt_path))
         caption = 'fixing %s with %s' % (file_name, str(fixer))
 
         # comparing
-        metrics_vals, comparison, html_comparison = evaluator.evaluate(
+        # metrics_vals, comparison, html_comparison = evaluator.evaluate(
+        #     correct_text, corrupt_text, fixed_text,
+        #     modes=[TERMINAL, HTML], caption=caption)
+        metrics_vals, comparison = evaluator.evaluate(
             correct_text, corrupt_text, fixed_text,
-            modes=[TERMINAL, HTML], caption=caption)
+            modes=TERMINAL, caption=caption)
         row[file_name] = metrics_vals + (duration.total_seconds(),)
         comparisons.append(comparison)
-        html_comparisons.append(html_comparison)
+        # html_comparisons.append(html_comparison)
 
         # Fixed file
         logger.log_info('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
@@ -116,10 +117,12 @@ class Benchmark:
             logger.log_report('dumped fixed file into:', fixed_path)
 
         # metric results
-        metric_comparison, html_metric_comparison = evaluator.metric_comparison(
-            row, self.metrics, modes=[TERMINAL, HTML])
+        metric_comparison = evaluator.metric_comparison(
+            row, self.metrics, modes=TERMINAL)
+        # metric_comparison,html_metric_comparison= evaluator.metric_comparison(
+        #     row, self.metrics, modes=[TERMINAL, HTML])
         comparisons.append(metric_comparison)
-        html_comparisons.append(html_metric_comparison)
+        # html_comparisons.append(html_metric_comparison)
         logger.log_report(metric_comparison)
 
         # Terminal dumps
@@ -134,16 +137,16 @@ class Benchmark:
             logger.log_report('dumped comparison into:', comparison_path)
 
         # HTML dumps
-        html_comparisons = evaluator.merge_wrapped_pages(*html_comparisons,
-                                                         mode=HTML)
-        html_comparison_path = os.path.join(self.get_timestamp_folder_name(),
-                                            'comparisons', 'htmls',
-                                            file_name + '.html')
-        with open_or_create_write_file(html_comparison_path, 'w') as output:
-            output.write(cleanstr(html_comparisons))
-            output.close()
-            logger.log_report('dumped html comparison into:',
-                              html_comparison_path)
+        # html_comparisons = evaluator.merge_wrapped_pages(*html_comparisons,
+        #                                                  mode=HTML)
+        # html_comparison_path = os.path.join(self.get_timestamp_folder_name(),
+        #                                     'comparisons', 'htmls',
+        #                                     file_name + '.html')
+        # with open_or_create_write_file(html_comparison_path, 'w') as output:
+        #     output.write(cleanstr(html_comparisons))
+        #     output.close()
+        #     logger.log_report('dumped html comparison into:',
+        #                       html_comparison_path)
         return row
 
     def update_csv(self, rows, csv_path, files, first_row=False):
@@ -196,6 +199,9 @@ class Benchmark:
         """
         viewer = MultiViewer()
         logger.log_report(viewer.metric_comparison(mean_dict, self.metrics))
+        # self.summarize_html(mean_dict, viewer)
+
+    def summarize_html(self, mean_dict, viewer):
         html_comparison = viewer.metric_comparison(mean_dict, self.metrics,
                                                    modes=HTML)
         result = [html_comparison]
@@ -247,7 +253,7 @@ class Benchmark:
         csv_path = os.path.join(self.get_timestamp_folder_name(),
                                 'results.csv')
         open_or_create_write_file(csv_path)
-        for chunk_id, files_collection in enumerate(gen_chunker(files, 50)):
+        for chunk_id, files_collection in enumerate(gen_chunker(files, 200)):
             logger.start()
             # rows = list(map(self.run_benchmark, files_collection))
             with multiprocessing.Pool(NUM_THREADS) as pool:
@@ -259,8 +265,8 @@ class Benchmark:
             for row in rows:
                 for fil, values in row.items():
                     score_rows[fil] = values
-            # pd.DataFrame()
-            # self.update_csv(rows, csv_path, files_collection, first_row=(chunk_id == 0))
+            # self.update_csv(rows, csv_path, files_collection,
+            #                 first_row=(chunk_id == 0))
             df = pd.DataFrame.from_dict(score_rows, columns=self.metrics, orient='index')
             df.to_csv(csv_path)
 

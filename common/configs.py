@@ -141,7 +141,7 @@ def get_dp_config(**kwargs):
     config.gamma = 1
     config.zeta = 2
     config.damping_factor = 0.5
-    config.window_siz = 8
+    config.window_siz = 5
     config.random_sample_files = False
     config.fixer_repr = '%s_%s_%s_a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
         config.fixer, config.dataset, config.benchmark, config.alpha,

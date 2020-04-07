@@ -456,7 +456,7 @@ class MultiViewer:
             return ''
 
     # Functions for all modes
-    def get_comparison_table(self, table, columns, R1=46, R2=16):
+    def get_comparison_table(self, table, columns, R1=26, R2=16):
         """
         Comparison table of the metrics
 
