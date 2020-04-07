@@ -3,8 +3,11 @@ import numpy as np
 
 from .character_model import CharacterModel
 from constants import BACKWARD, FORWARD, NUM_THREADS, EOS, UNK, SOS
+from utils.cacher import Cacher, Debugger
 from utils.logger import logger
-# from utils.cacher import Cacher
+
+
+DEBUG_MODE = False
 
 
 class RNNLanguageModel(CharacterModel):
@@ -36,7 +39,9 @@ class RNNLanguageModel(CharacterModel):
         from models.custom_layers import sparse_accuracy, sparse_top_k_categorical_acc
         self.metrics = {self.output_name: [sparse_accuracy, sparse_top_k_categorical_acc()]}
 
-        # self.predictions_cache = Cacher(500)
+        self.debugger = Debugger()  # TODO: remove debugger
+        self.cacher = Cacher(1000)
+
         if self.inference:
             import tensorflow as tf
             with tf.device('/cpu:0'):
@@ -163,13 +168,14 @@ class RNNLanguageModel(CharacterModel):
             state = dense_state[1:]
 
         inp = self.adjust_input(text, state, encode=encode, include_pad=include_pad)
-        outputs = self.model.predict(inp)
+        outputs = self._predict(inp)
         probs, state = outputs[0][0], outputs[1:]
         if not return_sequence and self.return_sequences:
             if self.direction == BACKWARD:
                 probs = probs[0]
             if self.direction == FORWARD:
                 probs = probs[-1]
+
         if return_state:
             return probs, state
         elif return_dense_state:
@@ -188,6 +194,25 @@ class RNNLanguageModel(CharacterModel):
             predictions = predictions[::-1]
         return predictions
 
+    def push_debugger(self, initial_state, inp, final_state):
+        prev = self.debugger.get(initial_state)
+        if self.direction == BACKWARD:
+            res = self.codes_to_str(inp[0][0]) + prev
+        elif self.direction == FORWARD:
+            res = prev + self.codes_to_str(inp[0][0])
+        self.debugger.insert(final_state, res)
+
+    def _predict(self, inp):
+        hinp = hashstate(inp)
+        outputs = self.cacher.get_cached_value(hinp)
+        if outputs is not None:
+            return outputs
+        outputs = self.model.predict(inp)
+        self.cacher.add_cache_value(hinp, outputs)
+        if DEBUG_MODE:
+            self.push_debugger(inp[1:], inp, outputs[1:])
+        return outputs
+
     def predict_likelihood(self, text, state_with_last, small_context_size=3, encode=True):
         if encode:
             text_codes = self.str_codes(text)
@@ -203,7 +228,8 @@ class RNNLanguageModel(CharacterModel):
 
         prev_pred, state = state_with_last[0], state_with_last[1:]
         inp = [np.expand_dims(text_codes, axis=0)] + state
-        outputs = self.model.predict(inp)[0][0].tolist()
+        outputs = self._predict(inp)
+        outputs = outputs[0][0].tolist()
 
         if self.direction == BACKWARD:
             preds = [prev_pred] + outputs[:0:-1]

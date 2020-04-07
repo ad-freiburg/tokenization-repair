@@ -235,6 +235,7 @@ class Benchmark:
         """
         Run the benchmark on all the files.
         """
+        logger.log_report('starting', self.fixer_repr)
         score_rows = {}
         mean_dict = {}
         files = self.reader.read_test_pairs()

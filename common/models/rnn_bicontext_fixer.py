@@ -7,7 +7,6 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-import functools
 import multiprocessing
 import os
 import warnings
@@ -15,10 +14,9 @@ import _pickle as pickle
 from tqdm import tqdm
 
 from configs import get_language_model_config
-from .rnn_language_model import RNNLanguageModel
+from .rnn_language_model import RNNLanguageModel, DEBUG_MODE
 from constants import (
-    DECODER_DICT,
-    NUM_THREADS, EPS, MICRO_EPS, MODELS_ENUM,
+    DECODER_DICT, NUM_THREADS, EPS, MICRO_EPS, MODELS_ENUM,
     TYPO_ADD, TYPO_DEL, TYPO_NOCHANGE)
 from utils.context_container import ContextContainer
 from utils.edit_operations import detailed_edit_operations
@@ -28,7 +26,6 @@ from utils.utils import beam_search, take_first_n, makedirs
 import numpy as np
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 warnings.filterwarnings("ignore")
 
 
@@ -73,12 +70,14 @@ class Tuner:
             sz = 0
             last = None
             with multiprocessing.Pool(NUM_THREADS) as pool:
-                for i, (x, y) in tqdm(enumerate(pool.imap(self.get_data, take_first_n(gen, total))), total=total):
+                for i, (x, y) in tqdm(enumerate(pool.imap(
+                        self.get_data,take_first_n(gen, total))), total=total):
                     X.append(x)
                     Y.append(y)
                     sz += len(x)
                     if last is None or sz > last + 1000:
-                        logger.log_debug(i, "/", total, "with", sz, "examples so far..")
+                        logger.log_debug(i, "/", total, "with",
+                                         sz, "examples so far..")
                         last = sz
                 pool.close()
                 pool.join()
@@ -205,11 +204,34 @@ class RNNBicontextTextFixer:
         """
         return self.fixer_repr
 
-    def predict_occurence(self, str_before, str_after, dense_state_before, dense_state_after):
-        return np.log(
-            self.forward_language_model.predict_likelihood(str_after, dense_state_before) + MICRO_EPS) +\
-            np.log(self.backward_language_model.predict_likelihood(str_before, dense_state_after) + MICRO_EPS)
+    def predict_occurence(self, str_before, str_after, dense_state_before,
+                          dense_state_after, debug_tag=''):
+        res_forward = np.log(self.forward_language_model.predict_likelihood(
+            str_after, dense_state_before) + MICRO_EPS)
+        res_backward = np.log(self.backward_language_model.predict_likelihood(
+            str_before, dense_state_after) + MICRO_EPS)
+        if debug_tag:
+            self.debug_occurence(str_before, str_after, dense_state_before,
+                                 dense_state_after, debug_tag,
+                                 res_forward, res_backward)
+        return res_forward + res_backward
 
+    def debug_occurence(self, str_before, str_after, dense_state_before,
+                        dense_state_after, debug_tag,
+                        res_forward, res_backward):
+        if DEBUG_MODE:
+            backward_next = self.backward_language_model.debugger.get(
+                dense_state_after[1:])
+            forward_next = self.forward_language_model.debugger.get(
+                dense_state_before[1:])
+            logger.log_debug(
+                "\n%s\n'%s'$$'%s'\n'%s'\t%.8f\n'%s'\t%.8f\n%.8f" % (
+                    debug_tag, str_before, str_after,
+                    backward_next, res_backward,
+                    forward_next, res_forward,
+                    res_backward + res_forward
+                ))
+            logger.log_seperator()
 
     def get_actions_probabilities(self, pair):
         correct_text, corrupt_text = pair
@@ -219,6 +241,12 @@ class RNNBicontextTextFixer:
         correct_states = self.forward_language_model.predict_seq(correct_text)
         editops = detailed_edit_operations(corrupt_text, correct_text)
         for idx_corrupt, idx_correct, correct_operation in editops:
+            if DEBUG_MODE:
+                logger.log_seperator()
+                logger.log_debug(
+                    "\n" + "\033[31m" + correct_text[:idx_correct] +
+                    '|\033[0m' + corrupt_text[idx_corrupt:] + "\n" +
+                    str(correct_operation), highlight=4)
             probs = np.zeros((10,))
             X = correct_text[max(0, idx_correct - self.history_length): idx_correct]
             Y = corrupt_text[idx_corrupt + 1: idx_corrupt + self.history_length + 1]
@@ -232,14 +260,14 @@ class RNNBicontextTextFixer:
             Xv_state = self.forward_language_model.predict(
                 v, dense_state=X_state, return_dense_state=True)
 
-            pr_del = self.predict_occurence(X, Y, X_state, Y_state)
+            pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
             if v in self.tokenization_delimiters:
                 probs[0] = pr_del
             else:
                 probs[1] = pr_del
             # ###############################################################
-            pr_nochg1 = self.predict_occurence(Xv, Y, Xv_state, Y_state)
-            pr_nochg2 = self.predict_occurence(X, Z, X_state, Z_state)
+            pr_nochg1 = self.predict_occurence(Xv, Y, Xv_state, Y_state, 'NOP1')
+            pr_nochg2 = self.predict_occurence(X, Z, X_state, Z_state, 'NOP2')
             if v in self.tokenization_delimiters:
                 probs[2] = pr_nochg1
                 probs[3] = pr_nochg2
@@ -266,8 +294,8 @@ class RNNBicontextTextFixer:
                 sZ_state = self.backward_language_model.predict(
                     s, dense_state=Z_state, return_dense_state=True)
 
-                pr_add1 = self.predict_occurence(X, sZ, X_state, sZ_state)
-                pr_add2 = self.predict_occurence(Xs, Z, Xs_state, Z_state)
+                pr_add1 = self.predict_occurence(X, sZ, X_state, sZ_state, 'ADD1 ' + s)
+                pr_add2 = self.predict_occurence(Xs, Z, Xs_state, Z_state, 'ADD2 ' + s)
                 if s in self.tokenization_delimiters:
                     pr_add1_sp = max(pr_add1_sp, pr_add1)
                     pr_add2_sp = max(pr_add2_sp, pr_add2)
@@ -354,15 +382,22 @@ class RNNBicontextTextFixer:
         Xv = X + v
         Y = text[cur_pos + 1: cur_pos + self.history_length + 1]
         Z = text[cur_pos: cur_pos + self.history_length + 1]
+        if DEBUG_MODE:
+            logger.log_seperator()
+            logger.log_debug(score, last_op, added, highlight=2)
+            logger.log_debug("\n", before_context.get_context() + '|' +
+                             text[cur_pos:], highlight=4)
 
         # ###############################################################
         if not self.fix_delimiters_only or v in self.tokenization_delimiters:
-            pr_del = self.predict_occurence(X, Y, dense_state, future_states[cur_pos + 1])
+            pr_del = self.predict_occurence(X, Y, dense_state,
+                                            future_states[cur_pos + 1], 'DEL')
             if v in self.tokenization_delimiters:
                 pr_del = pr_del * self.weights[0] + self.bias[0]
             else:
                 pr_del = pr_del * self.weights[1] + self.bias[1]
-            yield score - pr_del, before_context_copy.copy(), dense_state, cur_pos + 1, res_text, TYPO_DEL, 0
+            yield (score - pr_del, before_context_copy.copy(), dense_state,
+                   cur_pos + 1, res_text, TYPO_DEL, 0)
 
         # ###############################################################
 
@@ -371,8 +406,10 @@ class RNNBicontextTextFixer:
 
         dense_state_new = self.forward_language_model.predict(
             v, dense_state=dense_state, return_dense_state=True)
-        pr_nochg1 = self.predict_occurence(Xv, Y, dense_state_new, future_states[cur_pos + 1])
-        pr_nochg2 = self.predict_occurence(X, Z, dense_state, future_states[cur_pos])
+        pr_nochg1 = self.predict_occurence(Xv, Y, dense_state_new,
+                                           future_states[cur_pos + 1], 'NOP1')
+        pr_nochg2 = self.predict_occurence(X, Z, dense_state,
+                                           future_states[cur_pos], 'NOP2')
         if v in self.tokenization_delimiters:
             pr_nochg1 = pr_nochg1 * self.weights[2] + self.bias[2]
             pr_nochg2 = pr_nochg2 * self.weights[3] + self.bias[3]
@@ -386,11 +423,11 @@ class RNNBicontextTextFixer:
 
         # ###############################################################
 
-        if added > 2:
+        if added > 0:
             return
         try_to_add = {' '}
         if not self.fix_delimiters_only:
-            # TODO: Handle differently using dense_state
+            # TODO: Add more candidates using dense_state
             pass
             # try_to_addF = self.forward_language_model.predict_top_n(
             #     X.get_context())
@@ -399,6 +436,8 @@ class RNNBicontextTextFixer:
             # try_to_add = set(try_to_addF) | set(try_to_addB) | {' '}
 
         for s in try_to_add:
+            if v == s == ' ':
+                continue
             pr_add_forward = np.log(MICRO_EPS)
             if self.use_look_forward:
                 for shift in range(1, 3):
@@ -424,8 +463,8 @@ class RNNBicontextTextFixer:
             dense_state_new = self.forward_language_model.predict(
                 s, dense_state=dense_state, return_dense_state=True)
 
-            pr_add1 = self.predict_occurence(X, sZ, dense_state, future_state_new)
-            pr_add2 = self.predict_occurence(Xs, Z, dense_state_new, future_states[cur_pos])
+            pr_add1 = self.predict_occurence(X, sZ, dense_state, future_state_new, 'ADD1 ' + s)
+            pr_add2 = self.predict_occurence(Xs, Z, dense_state_new, future_states[cur_pos], 'ADD2' + s)
             if s in self.tokenization_delimiters:
                 pr_add1 = pr_add1 * self.weights[6] + self.bias[6]
                 pr_add2 = pr_add2 * self.weights[7] + self.bias[7]
@@ -434,7 +473,7 @@ class RNNBicontextTextFixer:
                 pr_add2 = pr_add2 * self.weights[9] + self.bias[9]
             pr_add = pr_add1 + pr_add2
 
-            if self.use_look_forward and (pr_add_forward > pr_add or pr_add < -30):
+            if self.use_look_forward and (pr_add < pr_add_forward or pr_add < -30):
                 pr_add = np.log(MICRO_EPS)
 
             before_context = before_context_copy.copy()
