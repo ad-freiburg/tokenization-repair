@@ -16,15 +16,22 @@ VIRTUAL_RUNNER = None  # WHARFER  # None or RISEML
 
 
 # DEFAULT_GRAPHS_DUMP_DIR = '/output/'
-DEFAULT_MODEL_DUMP_DIR = 'dumps'
-DEFAULT_MODEL_LOAD_DIR = 'dumps'
 #DEFAULT_DATA_LOAD_DIR = '/Users/thrax/thesis_benchmarks/benchmarks/'
 #DEFAULT_DATA_LOAD_DIR = '/local/hdd/exports/data/matthias-hertel/'
 
 #DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper/dumps'
 #DEFAULT_DATA_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper'
+
+DEFAULT_MODEL_DUMP_DIR = 'dumps'
+DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
+
+if os.path.isdir('/nfs/students/mostafa-mohamed/paper_v2'):
+    DEFAULT_MODEL_DUMP_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
+    DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
+    DEFAULT_DATA_LOAD_DIR = '/nfs/students/matthias-hertel'
+    DEFAULT_BENCHMARK_DUMP_DIR = '/nfs/students/mostafa-mohamed/paper_v2/benchmark_dumps'
 
 try:
     from polyaxon_client.tracking import get_outputs_path

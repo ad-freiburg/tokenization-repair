@@ -4,7 +4,7 @@ import numpy as np
 from .character_model import CharacterModel
 from constants import BACKWARD, FORWARD, NUM_THREADS, EOS, UNK, SOS
 from utils.logger import logger
-from utils.cacher import Cacher
+# from utils.cacher import Cacher
 
 
 class RNNLanguageModel(CharacterModel):
@@ -36,7 +36,7 @@ class RNNLanguageModel(CharacterModel):
         from models.custom_layers import sparse_accuracy, sparse_top_k_categorical_acc
         self.metrics = {self.output_name: [sparse_accuracy, sparse_top_k_categorical_acc()]}
 
-        self.predictions_cache = Cacher(500)
+        # self.predictions_cache = Cacher(500)
         if self.inference:
             import tensorflow as tf
             with tf.device('/cpu:0'):

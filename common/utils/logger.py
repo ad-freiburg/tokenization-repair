@@ -256,9 +256,10 @@ class Logger:
             last_stored_buffer = self.stored_buffer[0]
         else:
             last_stored_buffer = self.stored_buffer.pop()
-        with open_or_create_write_file(output_file) as output:
-            output.write(cleanstr(last_stored_buffer + threads_summary))
-            output.close()
+        #FIXME: no extra logs
+        #with open_or_create_write_file(output_file) as output:
+        #    output.write(cleanstr(last_stored_buffer + threads_summary))
+        #    output.close()
 
         output_file = os.path.join(directory, file_name + file_ext)
         self.log_report('SUMMARY: Logging buffer into %s' % output_file)

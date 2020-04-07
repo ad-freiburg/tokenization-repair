@@ -54,19 +54,32 @@ class Tuner:
         weights_path = os.path.join(self.tuner_dir, 'final-weights.pkl')
         if os.path.isfile(weights_path):
             with open(weights_path, 'rb') as fl:
-                return pickle.load(fl)
+                res = pickle.load(fl)
+                logger.log_info('loaded weights from', weights_path,
+                                highlight=4)
+                return res
 
+        logger.start()
         iodata_path = os.path.join(self.tuner_dir, 'iodata.pkl')
         if os.path.isfile(iodata_path):
             with open(iodata_path, 'rb') as fl:
                 X, Y = pickle.load(fl)
+                logger.log_info('loaded io data from', iodata_path,
+                                highlight=4)
         else:
+            logger.log_info('constructing iodata', highlight=4)
             X = []
             Y = []
-            with multiprocessing.Pool(4) as pool:
-                for x, y in tqdm(pool.imap(self.get_data, take_first_n(gen, total)), total=total):
+            sz = 0
+            last = None
+            with multiprocessing.Pool(NUM_THREADS) as pool:
+                for i, (x, y) in tqdm(enumerate(pool.imap(self.get_data, take_first_n(gen, total))), total=total):
                     X.append(x)
                     Y.append(y)
+                    sz += len(x)
+                    if last is None or sz > last + 1000:
+                        logger.log_debug(i, "/", total, "with", sz, "examples so far..")
+                        last = sz
                 pool.close()
                 pool.join()
             X = np.concatenate(X, axis=0)
@@ -74,6 +87,8 @@ class Tuner:
             makedirs(iodata_path)
             with open(iodata_path, 'wb') as fl:
                 pickle.dump((X, Y), fl)
+                logger.log_info('dumping io data into', iodata_path,
+                                highlight=4)
 
         logger.log_debug(X.shape, Y.shape)
         inp = Input((10,))
@@ -105,17 +120,19 @@ class Tuner:
             loss, acc = model.train_on_batch(X, Y)
             if epoch % 400 == 1:
                 logger.log_debug('\n', sparse.get_weights()[0], '\n', sparse.get_weights()[1])
+                logger.log_report("loss:", loss, "acc:", acc, highlight=2)
             bar.set_postfix(loss=loss, acc=acc)
             bar.refresh()
-        # model.fit(X, Y, batch_size=X.shape[0], verbose=1, epochs=10000)
 
         loss, acc = model.evaluate(X, Y, verbose=0)
-        logger.log_info('loss:', loss, 'acc:', acc, highlight=2)
+        logger.log_report('loss:', loss, 'acc:', acc, highlight=2)
 
         weights, bias = sparse.get_weights()
         makedirs(weights_path)
         with open(weights_path, 'wb') as fl:
             pickle.dump((weights, bias), fl)
+            logger.log_info("logged weights into", weights_path, highlight=4)
+        logger.log_full_report_into_file(weights_path)
 
         return weights, bias
 
