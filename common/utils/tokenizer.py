@@ -6,8 +6,8 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-from util.constants import ALPHABET, charset_of, TOKENIZATION_DELIMITERS
-from util.token import Token
+from constants import ALPHABET, charset_of  #, TOKENIZATION_DELIMITERS
+from .token import Token
 
 
 class Tokenizer:
@@ -29,7 +29,7 @@ class Tokenizer:
         return self
 
     def is_token_char(self, char):
-        return ((not self.use_alpha and char not in TOKENIZATION_DELIMITERS) or
+        return ((not self.use_alpha and char not in ' \t') or
                 (self.use_alpha and char in ALPHABET))
 
     def __next__(self):

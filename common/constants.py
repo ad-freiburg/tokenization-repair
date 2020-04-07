@@ -22,12 +22,14 @@ VIRTUAL_RUNNER = None  # WHARFER  # None or RISEML
 #DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper/dumps'
 #DEFAULT_DATA_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper'
 
+DEFAULT_ROOT_DIR = '.'
 DEFAULT_MODEL_DUMP_DIR = 'dumps'
 DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
 
 if os.path.isdir('/nfs/students/mostafa-mohamed/paper_v2'):
+    DEFAULT_ROOT_DIR = '/nfs/students/mostafa-mohamed/paper_v2'
     DEFAULT_MODEL_DUMP_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
     DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
     DEFAULT_DATA_LOAD_DIR = '/nfs/students/matthias-hertel'
@@ -98,6 +100,7 @@ CORRUPTION_CHOICES_CHANCES = dict(zip(CORRUPTION_CHOICES, (4, 1, 2, 4)))
 BACKWARD = 'backward'
 FORWARD = 'forward'
 
+SPECIAL = "()[]{}!?,;:.\"-#$%&*+/<=>@\\^_`|~"
 
 #  Flags
 DEBUG = True
@@ -111,6 +114,18 @@ UNK = ENCODER_DICT['UNK']
 SOS = ENCODER_DICT['SOS']
 EOS = ENCODER_DICT['EOS']
 DECODER_DICT = [k for _, k in sorted([(v, k) for k, v in ENCODER_DICT.items()])]
+__SPECIAL = [21, 22, 26, 39, 45, 46, 47, 66, 67, 69, 70, 71, 75, 77, 78, 80,
+            82, 83, 84, 85, 86, 87, 89, 90, 92, 95, 98, 99, 102, 103,
+            107, 110, 111, 118, 120, 131, 134, 137, 143, 147, 149, 172, 173,
+            186, 191, 193, 197]
+ALPHABET = [v for k, v in enumerate(DECODER_DICT) if k not in __SPECIAL and k < 200 and k != 0]
+SPECIAL = [v for k, v in enumerate(DECODER_DICT) if k in __SPECIAL and k < 200]
+
+
+def charset_of(c):
+    if c in ALPHABET: return 1
+    if c in SPECIAL: return 2
+    return -1
 
 
 def encode(string):

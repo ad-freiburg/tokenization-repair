@@ -3,9 +3,8 @@ import os
 from constants import (
     BACKWARD, BATCH_SIZE, DEFAULT_DATASET,
     DEFAULT_DATA_LOAD_DIR, DEFAULT_MODEL_DUMP_DIR, DEFAULT_MODEL_LOAD_DIR,
-    DEFAULT_BENCHMARK_DUMP_DIR, E2E_MODES_ENUM,
+    DEFAULT_ROOT_DIR, DEFAULT_BENCHMARK_DUMP_DIR, E2E_MODES_ENUM,
     FORWARD, HISTORY_LENGTH, MODELS_ENUM, FIXERS_ENUM, DATASETS_ENUM,
-
 )
 
 
@@ -43,7 +42,8 @@ def get_dataset_config(dataset=DEFAULT_DATASET, benchmark='0.1_0.1', **kwargs):
         valid_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'development', 'corrupt.txt'),
         test_correct_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'correct.txt'),
         test_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'corrupt.txt'),
-        vocab_path=os.path.join('/nfs/students/mostafa-mohamed/paper_v2', 'vocab.txt'),
+        vocab_path=os.path.join(DEFAULT_ROOT_DIR, 'vocab.txt'),
+        dictionary_path=os.path.join(DEFAULT_ROOT_DIR, 'dictionary.pkl'),
     )
 
 
@@ -133,9 +133,20 @@ def get_bicontext_fixer_config(beam_size=2,
 
 
 def get_dp_config(**kwargs):
-    # TODO
-    return get_bicontext_fixer_config()
-    raise NotImplementedError('')
+    config = get_dataset_config(**kwargs)
+    config.fixer = FIXERS_ENUM.dp_fixer
+    config.alpha = 1.15
+    config.beta = 0.1
+    config.gamma = 1
+    config.zeta = 2
+    config.damping_factor = 0.5
+    config.window_siz = 8
+    config.random_sample_files = False
+    config.fixer_repr = 'dpfixer_%s_a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
+        config.dataset, config.alpha, config.beta, config.gamma,
+        config.zeta, config.damping_factor, config.window_siz)
+    config.dump_dir = os.path.join(DEFAULT_BENCHMARK_DUMP_DIR, config.fixer_repr)
+    return config
 
 
 def get_fixer_config(fixer=FIXERS_ENUM.bicontext_fixer, **kwargs):

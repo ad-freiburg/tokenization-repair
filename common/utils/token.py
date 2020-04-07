@@ -6,7 +6,6 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-from util.constants import TOKENIZATION_DELIMITERS
 
 
 class Token:
@@ -50,7 +49,7 @@ class Token:
         if not word:
             return word
         st = next((idx for idx, c in enumerate(word)
-                   if c not in TOKENIZATION_DELIMITERS) or len(word))
+                   if c not in ' ') or len(word))
         en = next((len(word) - idx for idx, c in enumerate(reversed(word))
-                   if c not in TOKENIZATION_DELIMITERS) or len(word))
+                   if c not in ' ') or len(word))
         return word[st:en]

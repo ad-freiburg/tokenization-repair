@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
+import _pickle as pickle
+
 from optparse import OptionParser
 
 from configs import get_fixer_config
 from constants import FIXERS_ENUM
 from handlers.benchmark import Benchmark
 from utils.logger import logger
+
+
+def export_dict(config):
+    from models.trie_dictionary import TrieDictionary
+    dictionary = TrieDictionary(config)
+    with open(config.dictionary_path, 'wb') as fl:
+        pickle.dump(dictionary, fl)
+        logger.log_info('exported dictionary into', config.dictionary_path)
 
 
 if __name__ == '__main__':
@@ -43,6 +53,7 @@ if __name__ == '__main__':
         config = get_fixer_config(fixer=FIXERS_ENUM.bicontext_fixer, use_look_forward=True)
     if dpfixer:
         config = get_fixer_config(fixer=FIXERS_ENUM.dp_fixer)
+        export_dict(config)
 
     benchmark = Benchmark(config)
     benchmark.run()

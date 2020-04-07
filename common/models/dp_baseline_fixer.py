@@ -6,7 +6,9 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-from configs import default_algorithmic_fixer_config
+import _pickle as pickle
+
+from .trie_dictionary import TrieDictionary
 from constants import EPS, NEG_INFINITY, SPLIT_ENUM, USE_WHOLE_ENUM
 from utils.logger import logger
 from utils.token import Token
@@ -18,18 +20,15 @@ class DPFixer:
     """
     Text fixer using the dynamic programming approach on tokens.
     """
-    def __init__(self, config=default_algorithmic_fixer_config):
-        self.dictionary_config = config.dictionary_config
+    def __init__(self, config):
         self.window_siz = config.window_siz
-        self.dictionary = self.dictionary_config.construct()
-        self.dataset_dict = config.dataset_dict
+        self.fixer_repr = config.fixer_repr
+        with open(config.dictionary_path, 'rb') as fl:
+            self.dictionary = pickle.load(fl)
+            logger.log_info('loaded dictionary from:', config.dictionary_path)
 
     def __repr__(self):
-        suff = ''
-        if hasattr(self, 'dataset_dict'):
-            # Append the description of the model or architecture as a suffix
-            suff = '_' + data_desc(self.dataset_dict)
-        return self.__class__.__name__ + suff
+        return self.fixer_repr
 
     def retokenise(self, token):
         """

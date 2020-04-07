@@ -9,17 +9,16 @@ Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 import math
 
-from configs import default_trie_dictionary_config
-from util.constants import EPS, SPECIAL
-from util.logger import logger
-from util.token import Token
+from constants import EPS, SPECIAL
+from utils.logger import logger
+from utils.token import Token
 
 
 class TrieDictionary:
     """
     Dictionary object to hold the dictionary of a language.
     """
-    def __init__(self, config=default_trie_dictionary_config):
+    def __init__(self, config):
         """
         Construct a dictionary.
 
@@ -42,9 +41,8 @@ class TrieDictionary:
         self.beta = config.beta
         self.gamma = config.gamma
         self.zeta = config.zeta
-        for path in config.dictionary_paths:
-            logger.log_info("Loading Trie dictionary from: ", path)
-            self.load_words_from_file(path)
+        self.load_words_from_file(config.vocab_path)
+        logger.log_info("Loaded Trie dictionary from:", config.vocab_path)
 
     def construct_parents(self, node=0):
         self.marked_children[node] = 0
@@ -237,8 +235,6 @@ class TrieDictionary:
         :param str word: The new word
         """
         word, freq = word
-        if idx == 0:
-            self.all_words[word] = self.all_words.get(word, 0) + 1
         if len(word) > 1 or word == 'a':
             if idx >= len(word):
                 self.marked[root] = len(word)
@@ -385,8 +381,8 @@ class TrieDictionary:
         #     score *= score  # self.density(len(typo)) * score
         # return (score * ((len(token.get_word()) / 15.0) ** 2 + 0.05),
         #         Token(typo, token.get_split()))
-        return (score * (w * w * self.alpha + w * self.beta + self.gamma),
-                Token(typo, token.get_split()))
+        return (score * (w * w * self.alpha + w * self.beta + self.gamma), token)
+                #Token(typo, token.get_split()))
 
     def trim(self, word):
         """

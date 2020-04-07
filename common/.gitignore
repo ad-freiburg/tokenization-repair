@@ -1,3 +1,13 @@
 *.swp
 *.swo
 *__pycache__
+.idea/
+benchmark_dumps/
+benchmarks_root/
+deprecated/
+dumps/
+dumps_backup/
+iodata.p
+iodata.pkl
+logs/
+polyaxon.yml

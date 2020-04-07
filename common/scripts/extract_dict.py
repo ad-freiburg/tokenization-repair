@@ -23,10 +23,10 @@ if __name__ == '__main__':
                 vocab[word] = vocab.get(word, 0) + cnt
         pool.close()
         pool.join()
-    vocab = sorted([word for word, cnt in vocab.items() if cnt > 2])
+    vocab = sorted([(word, cnt) for word, cnt in vocab.items() if cnt > 2])
 
     logger.log_report("writing into:", config.vocab_path)
     with open(config.vocab_path, 'w') as fl:
-        for word in tqdm(vocab):
-            fl.write(word + '\n')
+        for word, cnt in tqdm(vocab):
+            fl.write("%s\t%d\n" % (word, cnt))
     logger.log_report("done.. wrote all into:", config.vocab_path)
