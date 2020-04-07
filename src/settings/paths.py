@@ -81,11 +81,16 @@ WIKI_DECODER_DICT = DICT_FOLDER + "ix2char.pkl"
 # decision thresholds
 DECISION_THRESHOLD_FILE = DICT_FOLDER + "new_decision_thresholds.pkl"
 SINGLE_RUN_DECISION_THRESHOLD_FILE = DICT_FOLDER + "single_run_decision_thresholds.pkl"
-
 # beam search penalties
 BEAM_SEARCH_PENALTY_FILE = DICT_FOLDER + "beam_search_penalties.pkl"
 # token frequencies
 TOKEN_FREQUENCY_DICT = DICT_FOLDER + "token_frequencies.pkl"
+# unigrams
+UNIGRAM_DELIM_FREQUENCY_DICT = DICT_FOLDER + "unigram_delim_frequencies.pkl"
+UNIGRAM_NO_DELIM_FREQUENCY_DICT = DICT_FOLDER + "unigram_no_delim_frequencies.pkl"
+MOST_FREQUENT_UNIGRAMS_DICT = DICT_FOLDER + "unigrams_most_frequent_%i.pkl"
+# bigrams
+BIGRAM_HOLDER = DICT_FOLDER + "bigram_holder.pkl"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"

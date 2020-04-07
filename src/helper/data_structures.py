@@ -81,3 +81,9 @@ def unique_on_sorted(sorted_list: List) -> List:
         if unique_elements[-1] != elem:
             unique_elements.append(elem)
     return unique_elements
+
+
+def select_most_frequent(dictionary: Dict[Any, int], n: int) -> Dict[Any, int]:
+    sorted = sort_dict_by_value(dictionary)
+    dictionary = {key: value for key, value in sorted[:n]}
+    return dictionary

@@ -38,7 +38,6 @@ if __name__ == "__main__":
                            corrupt,
                            predicted,
                            evaluate_ed=False)
-
         evaluator.print_sequence()
 
     print_evaluator(evaluator)
