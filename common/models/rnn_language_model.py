@@ -3,7 +3,7 @@ import numpy as np
 
 from .character_model import CharacterModel
 from constants import BACKWARD, FORWARD, NUM_THREADS, EOS, UNK, SOS
-from utils.cacher import Cacher, Debugger
+from utils.cacher import Cacher, Debugger, hashstate
 from utils.logger import logger
 
 
@@ -203,7 +203,7 @@ class RNNLanguageModel(CharacterModel):
         self.debugger.insert(final_state, res)
 
     def _predict(self, inp):
-        hinp = hashstate(inp)
+        hinp = hashstate
         outputs = self.cacher.get_cached_value(hinp)
         if outputs is not None:
             return outputs

@@ -40,7 +40,6 @@ class Cacher:
         :param key: key of the function
         :param value: Value of the function for the given key
         """
-        key = hashstate(key)
         self.cache_dict[key] = value
         new_id = len(self.ids_dict)
         self.ids_dict[key] = new_id
@@ -56,7 +55,6 @@ class Cacher:
             The value corresponding to the cached key,
             or None if it doesn't exist
         """
-        key = hashstate(key)
         if key in self.cache_dict.keys():
             val = self.cache_dict[key]
             self.add_cache_value(key, val)
