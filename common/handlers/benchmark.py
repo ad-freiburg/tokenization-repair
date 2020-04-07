@@ -108,7 +108,7 @@ class Benchmark:
 
         # Fixed file
         logger.log_info('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
-                        comparison, '\nFixing had a duration of',
+                        comparison, 'with a duration of',
                         int(round(duration.total_seconds())), 's')
         fixed_path = os.path.join(self.get_timestamp_folder_name(),
                                   'fixed', file_name + '_fixed.txt')
@@ -276,7 +276,7 @@ class Benchmark:
                 list(score_rows.values())).mean(axis=0)
             mean_dict[' %d files, micro' % num_files] = np.array(micro_scores)
 
-            logger.log_report('%d files, seq accuracy %.5f, avg. duration %.2f' % (
+            logger.log_report('%d files, seq accuracy %.5f, avg. duration %.2fs' % (
                 num_files, df['acc'].mean(), df['duration'].mean()))
             self.summarize(mean_dict)
 
