@@ -43,7 +43,7 @@ def get_dataset_config(dataset=DEFAULT_DATASET, benchmark='0.1_0.1', **kwargs):
         valid_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'development', 'corrupt.txt'),
         test_correct_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'correct.txt'),
         test_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'corrupt.txt'),
-        vocab_path=os.path.join(root_path, dataset, 'vocab.txt'),
+        vocab_path=os.path.join('/nfs/students/mostafa-mohamed/paper_v2', 'vocab.txt'),
     )
 
 
