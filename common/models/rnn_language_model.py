@@ -1,3 +1,4 @@
+import os
 import gc
 import numpy as np
 
@@ -42,72 +43,80 @@ class RNNLanguageModel(CharacterModel):
         self.debugger = Debugger()  # TODO: remove debugger
         self.cacher = Cacher(4000)
 
+        """
         if self.inference:
             import tensorflow as tf
             with tf.device('/cpu:0'):
                 self.load_or_create_model()
         else:
             self.load_or_create_model()
+        """
+        self.load_or_create_model()
 
     def load_or_create_model(self):
         import tensorflow as tf
-        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-        if not self.load_model(self.model_load_path):
-            from models.custom_layers import Onehot
-            from keras.layers import (
-                Activation, Input, LSTM, GRU, Dropout,
-                Dense, TimeDistributed, Lambda)
-            from keras.models import Model
+        tf.logging.set_verbosity(tf.logging.ERROR)
+        # if not self.load_model(self.model_load_path):
+        from models.custom_layers import Onehot
+        from keras.layers import (
+            Activation, Input, LSTM, GRU, Dropout,
+            Dense, TimeDistributed, Lambda)
+        from keras.models import Model
 
-            inp = Input((None,))
-            rnn_layer = Onehot(self.alphabet_size)(inp)
-            initial_states = [
-                (Input((self.rnn_units,)), Input((self.rnn_units,)))
-                for layer in range(self.rnn_layers)]
-            output_states = []
-            flat_initial_states = []
-            for initial_state in initial_states:
-                flat_initial_states.extend(initial_state)
+        inp = Input((None,))
+        rnn_layer = Onehot(self.alphabet_size)(inp)
+        initial_states = [
+            (Input((self.rnn_units,)), Input((self.rnn_units,)))
+            for layer in range(self.rnn_layers)]
+        output_states = []
+        flat_initial_states = []
+        for initial_state in initial_states:
+            flat_initial_states.extend(initial_state)
 
-            for i in range(self.rnn_layers):
-                ret_seq = self.return_sequences or i < self.rnn_layers - 1
-                go_backwards = (i == 0) and (self.direction == BACKWARD)
-                rnn_cell = {'GRU': GRU, 'LSTM': LSTM}[self.rnn_type]
-                rnn_layer, state_c, state_h= rnn_cell(
-                    self.rnn_units,
-                    #, initial_state=initial_states[i])
-                    return_sequences=ret_seq, return_state=True,
-                    go_backwards=go_backwards)(rnn_layer, initial_state=initial_states[i])
-                output_states.extend([state_c, state_h])
-                # print(state_c.shape, state_h.shape)
+        for i in range(self.rnn_layers):
+            ret_seq = self.return_sequences or i < self.rnn_layers - 1
+            go_backwards = (i == 0) and (self.direction == BACKWARD)
+            rnn_cell = {'GRU': GRU, 'LSTM': LSTM}[self.rnn_type]
+            rnn_layer, state_c, state_h= rnn_cell(
+                self.rnn_units,
+                #, initial_state=initial_states[i])
+                return_sequences=ret_seq, return_state=True,
+                go_backwards=go_backwards)(rnn_layer, initial_state=initial_states[i])
+            output_states.extend([state_c, state_h])
+            # print(state_c.shape, state_h.shape)
 
-            dense_layer = Dropout(self.dropout_rate)(rnn_layer)
+        dense_layer = Dropout(self.dropout_rate)(rnn_layer)
 
-            for _ in range(self.fully_connected_layers):
-                if self.return_sequences:
-                    dense_layer = TimeDistributed(Dense(
-                        self.fully_connected_units,
-                        activation='relu'))(dense_layer)
-                else:
-                    dense_layer = Dense(
-                        self.fully_connected_units,
-                        activation='relu')(dense_layer)
-
+        for _ in range(self.fully_connected_layers):
             if self.return_sequences:
                 dense_layer = TimeDistributed(Dense(
-                    self.alphabet_size), name='logits')(dense_layer)
+                    self.fully_connected_units,
+                    activation='relu'))(dense_layer)
             else:
                 dense_layer = Dense(
-                    self.alphabet_size, name='logits')(dense_layer)
+                    self.fully_connected_units,
+                    activation='relu')(dense_layer)
 
-            if self.direction == BACKWARD:
-                dense_layer = Lambda(lambda x: x[:, ::-1, :], name='reverse')(
-                    dense_layer)
-            output = Activation('softmax', name=self.output_name)(dense_layer)
+        if self.return_sequences:
+            dense_layer = TimeDistributed(Dense(
+                self.alphabet_size), name='logits')(dense_layer)
+        else:
+            dense_layer = Dense(
+                self.alphabet_size, name='logits')(dense_layer)
 
-            self.model = Model([inp] + flat_initial_states, outputs=[output] + output_states,
-                               name='%s_LM' % self.direction)
+        if self.direction == BACKWARD:
+            dense_layer = Lambda(lambda x: x[:, ::-1, :], name='reverse')(
+                dense_layer)
+        output = Activation('softmax', name=self.output_name)(dense_layer)
 
+        self.model = Model([inp] + flat_initial_states, outputs=[output] + output_states,
+                           name='%s_LM' % self.direction)
+
+        if os.path.isfile(self.model_load_path):
+            self.model.load_weights(self.model_load_path)
+            logger.log_info('loaded weights from', self.model_load_path, highlight=2)
+        else:
+            logger.log_error('weights not found..', self.model_load_path, highlight=1)
         self.compile()
 
     def make_generator(self, gen):

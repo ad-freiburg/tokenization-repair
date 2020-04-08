@@ -4,7 +4,7 @@ from utils.logger import logger
 from constants import MICRO_EPS
 import tensorflow as tf
 
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 class Sparse(Layer):

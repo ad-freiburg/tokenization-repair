@@ -5,6 +5,7 @@ import socket
 import _pickle as pickle
 # from os.path import join
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 USERNAME = getpass.getuser()
 HOSTNAME = socket.gethostname()

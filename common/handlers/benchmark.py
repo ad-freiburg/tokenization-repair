@@ -256,12 +256,14 @@ class Benchmark:
         open_or_create_write_file(csv_path)
         for chunk_id, files_collection in enumerate(gen_chunker(files, 200)):
             logger.start()
-            # rows = list(map(self.run_benchmark, files_collection))
-            with multiprocessing.Pool(NUM_THREADS) as pool:
-                rows = list(pool.map(self.run_benchmark, files_collection))
-                pool.close()
-                pool.join()
-                del pool
+            if NUM_THREADS == 1:
+                rows = list(map(self.run_benchmark, files_collection))
+            else:
+                with multiprocessing.Pool(NUM_THREADS) as pool:
+                    rows = list(pool.map(self.run_benchmark, files_collection))
+                    pool.close()
+                    pool.join()
+                    del pool
             num_files += len(rows)
             for row in rows:
                 for fil, values in row.items():

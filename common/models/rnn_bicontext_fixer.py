@@ -35,11 +35,18 @@ class Tuner:
     def __init__(self, config):
         self.config = config
         self.tuner_dir = config.tuner_dir
+        if NUM_THREADS == 1:
+            self.fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        else:
+            self.fixer = None
 
     def get_data(self, pair):
         # import tensorflow as tf
-        # tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-        fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        # tf.logging.set_verbosity(tf.logging.ERROR)
+        if self.fixer is None:
+            fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        else:
+            fixer = self.fixer
         return fixer.get_actions_probabilities(pair)
 
     def train_data(self, gen, total=10000):
@@ -67,8 +74,21 @@ class Tuner:
             last = None
             gen = take_first_n(gen, total)
             # chunksize = (total + 4 * NUM_THREADS - 1) // (4 * NUM_THREADS)
-            with closing(multiprocessing.Pool(NUM_THREADS, maxtasksperchild=4)) as pool:
-                for i, (x, y) in tqdm(enumerate(pool.imap(
+            if NUM_THREADS > 1:
+                with closing(multiprocessing.Pool(NUM_THREADS, maxtasksperchild=4)) as pool:
+                    for i, (x, y) in tqdm(enumerate(pool.imap(
+                            self.get_data, gen)), total=total):
+                        X.append(x)
+                        Y.append(y)
+                        sz += len(x)
+                        if last is None or sz > last + 10000:
+                            logger.log_debug('%d/%d' % (i + 1, total), "with",
+                                             sz, "examples so far..")
+                            last = sz
+                    pool.close()
+                    pool.join()
+            else:
+                for i, (x, y) in tqdm(enumerate(map(
                         self.get_data, gen)), total=total):
                     X.append(x)
                     Y.append(y)
@@ -77,8 +97,6 @@ class Tuner:
                         logger.log_debug('%d/%d' % (i + 1, total), "with",
                                          sz, "examples so far..")
                         last = sz
-                pool.close()
-                pool.join()
             X = np.concatenate(X, axis=0)
             Y = np.concatenate(Y, axis=0)
             makedirs(iodata_path)
