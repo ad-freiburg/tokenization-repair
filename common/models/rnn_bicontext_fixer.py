@@ -11,6 +11,7 @@ import multiprocessing
 import os
 import warnings
 import _pickle as pickle
+from contextlib import closing
 from datetime import datetime
 from tqdm import tqdm
 
@@ -65,9 +66,10 @@ class Tuner:
             sz = 0
             last = None
             gen = take_first_n(gen, total)
-            with multiprocessing.Pool(NUM_THREADS) as pool:
+            chunksize = (total + 4 * NUM_THREADS - 1) // (4 * NUM_THREADS)
+            with closing(multiprocessing.Pool(NUM_THREADS)) as pool:
                 for i, (x, y) in tqdm(enumerate(pool.imap(
-                        self.get_data,gen)), total=total):
+                        self.get_data, gen, chunksize=chunksize)), total=total):
                     X.append(x)
                     Y.append(y)
                     sz += len(x)
