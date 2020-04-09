@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.helper.pickle import load_object
 from src.settings import paths
 from src.helper.data_structures import select_most_frequent
@@ -28,7 +30,7 @@ def load_most_frequent(n):
 
 
 class UnigramHolder:
-    def __init__(self, n=None):
+    def __init__(self, n: Optional[int] = None):
         self.frequencies = load_most_frequent(n)
 
     def __len__(self):

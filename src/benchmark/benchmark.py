@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from enum import Enum
 import numpy as np
@@ -6,6 +6,10 @@ import numpy as np
 from src.settings import paths
 from src.helper.files import read_lines, make_directory_recursive
 from src.benchmark.subset import Subset
+
+
+NOISE_LEVELS = [0, 0.1, 0.2]
+ERROR_PROBABILITIES = list(np.arange(0.1, 1.1, 0.1)) + [np.inf]
 
 
 class BenchmarkFiles(Enum):
@@ -93,4 +97,12 @@ def get_benchmark(noise_level: float,
 
 
 def get_error_probabilities():
-    return list(np.arange(0.1, 1.1, 0.1)) + [np.inf]
+    return ERROR_PROBABILITIES
+
+
+def all_benchmarks(subset: Subset) -> List[Benchmark]:
+    benchmarks = []
+    for n in NOISE_LEVELS:
+        for p in ERROR_PROBABILITIES:
+            benchmarks.append(get_benchmark(n, p, subset))
+    return benchmarks

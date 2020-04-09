@@ -1,6 +1,15 @@
 from typing import Tuple, List, Optional
 
 
+def unify_spaces(sequence: str) -> str:
+    """
+    Replace all kinds of spaces by normal spaces.
+    """
+    snippets = sequence.split()
+    unified = ' '.join(snippets)
+    return unified
+
+
 def map_positions(sequence1: str,
                   sequence2: str) -> Tuple[List[Optional[int]], List[Optional[int]]]:
     """
