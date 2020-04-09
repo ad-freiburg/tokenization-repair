@@ -6,7 +6,6 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-import numpy as np
 
 
 class ContextContainer:
@@ -15,7 +14,7 @@ class ContextContainer:
     """
     def __init__(self, history_siz, context=''):
         self.history_siz = history_siz
-        self.context = np.string_('')
+        self.context = ''
         self.append_context(context)
 
     def __repr__(self):
@@ -28,7 +27,7 @@ class ContextContainer:
         :param str context: New context
         :returns: self
         """
-        context = np.string_(context[:self.history_siz])
+        context = context[:self.history_siz]  # TODO: copy()
         if len(context) >= self.history_siz:
             self.context = context
         else:
@@ -58,7 +57,7 @@ class ContextContainer:
         >>> ContextContainer(6, 'hello').append_context('wor').get_context()
         'llowor'
         """
-        context = np.string_(context[-self.history_siz:])
+        context = context[-self.history_siz:]  # TODO: copy
         if len(context) >= self.history_siz:
             self.context = context
         else:
@@ -104,7 +103,7 @@ class ContextContainer:
         :rtype: str
         :returns: The contained context
         """
-        return self.context.decode()
+        return self.context  # .decode()
 
     def copy(self):
         """
@@ -113,4 +112,4 @@ class ContextContainer:
         :rtype: ContextContainer
         :returns: A copy of the object
         """
-        return ContextContainer(self.history_siz, self.context)
+        return ContextContainer(self.history_siz, self.context[:])

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import _pickle as pickle
 
 from optparse import OptionParser
@@ -11,10 +12,11 @@ from utils.logger import logger
 
 def export_dict(config):
     from models.trie_dictionary import TrieDictionary
-    dictionary = TrieDictionary(config)
-    with open(config.dictionary_path, 'wb') as fl:
-        pickle.dump(dictionary, fl)
-        logger.log_info('exported dictionary into', config.dictionary_path)
+    if not os.path.isfile(config.dictionary_path):
+        dictionary = TrieDictionary(config)
+        with open(config.dictionary_path, 'wb') as fl:
+            pickle.dump(dictionary, fl)
+            logger.log_info('exported dictionary into', config.dictionary_path)
 
 
 if __name__ == '__main__':

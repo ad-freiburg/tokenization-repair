@@ -7,18 +7,18 @@ Copyright 2017-2018, University of Freiburg.
 
 Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
-import functools
 import multiprocessing
 import os
 import warnings
 import _pickle as pickle
+from contextlib import closing
+from datetime import datetime
 from tqdm import tqdm
 
 from configs import get_language_model_config
-from .rnn_language_model import RNNLanguageModel
+from .rnn_language_model import RNNLanguageModel, DEBUG_MODE
 from constants import (
-    DECODER_DICT,
-    NUM_THREADS, EPS, MICRO_EPS, MODELS_ENUM,
+    DECODER_DICT, NUM_THREADS, EPS, MICRO_EPS, MODELS_ENUM,
     TYPO_ADD, TYPO_DEL, TYPO_NOCHANGE)
 from utils.context_container import ContextContainer
 from utils.edit_operations import detailed_edit_operations
@@ -28,7 +28,6 @@ from utils.utils import beam_search, take_first_n, makedirs
 import numpy as np
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 warnings.filterwarnings("ignore")
 
 
@@ -36,20 +35,21 @@ class Tuner:
     def __init__(self, config):
         self.config = config
         self.tuner_dir = config.tuner_dir
+        if NUM_THREADS == 1:
+            self.fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        else:
+            self.fixer = None
 
     def get_data(self, pair):
-        fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        # import tensorflow as tf
+        # tf.logging.set_verbosity(tf.logging.ERROR)
+        if self.fixer is None:
+            fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
+        else:
+            fixer = self.fixer
         return fixer.get_actions_probabilities(pair)
 
     def train_data(self, gen, total=10000):
-        import tensorflow as tf
-        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-        import keras.backend as K
-        from keras.layers import Input, Conv1D, Dense, Reshape
-        from keras.models import Model
-        from keras.optimizers import Adam, SGD, Adadelta
-        from keras.losses import sparse_categorical_crossentropy
-        from .custom_layers import Sparse
 
         weights_path = os.path.join(self.tuner_dir, 'final-weights.pkl')
         if os.path.isfile(weights_path):
@@ -72,16 +72,31 @@ class Tuner:
             Y = []
             sz = 0
             last = None
-            with multiprocessing.Pool(NUM_THREADS) as pool:
-                for i, (x, y) in tqdm(enumerate(pool.imap(self.get_data, take_first_n(gen, total))), total=total):
+            gen = take_first_n(gen, total)
+            # chunksize = (total + 4 * NUM_THREADS - 1) // (4 * NUM_THREADS)
+            if NUM_THREADS > 1:
+                with closing(multiprocessing.Pool(NUM_THREADS, maxtasksperchild=4)) as pool:
+                    for i, (x, y) in tqdm(enumerate(pool.imap(
+                            self.get_data, gen)), total=total):
+                        X.append(x)
+                        Y.append(y)
+                        sz += len(x)
+                        if last is None or sz > last + 10000:
+                            logger.log_debug('%d/%d' % (i + 1, total), "with",
+                                             sz, "examples so far..")
+                            last = sz
+                    pool.close()
+                    pool.join()
+            else:
+                for i, (x, y) in tqdm(enumerate(map(
+                        self.get_data, gen)), total=total):
                     X.append(x)
                     Y.append(y)
                     sz += len(x)
                     if last is None or sz > last + 1000:
-                        logger.log_debug(i, "/", total, "with", sz, "examples so far..")
+                        logger.log_debug('%d/%d' % (i + 1, total), "with",
+                                         sz, "examples so far..")
                         last = sz
-                pool.close()
-                pool.join()
             X = np.concatenate(X, axis=0)
             Y = np.concatenate(Y, axis=0)
             makedirs(iodata_path)
@@ -89,6 +104,12 @@ class Tuner:
                 pickle.dump((X, Y), fl)
                 logger.log_info('dumping io data into', iodata_path,
                                 highlight=4)
+        import keras.backend as K
+        from keras.layers import Input, Conv1D, Dense, Reshape
+        from keras.models import Model
+        from keras.optimizers import Adam, SGD, Adadelta
+        from keras.losses import sparse_categorical_crossentropy
+        from .custom_layers import Sparse
 
         logger.log_debug(X.shape, Y.shape)
         inp = Input((10,))
@@ -182,7 +203,8 @@ class RNNBicontextTextFixer:
             4.154702, -5.471141, 1.381059, 1.3617834, 2.301759,
             2.3024273, 1.7338722, 1.7320414, 0.36447698, 0.36808118]
         if self.use_default_weights:
-            logger.log_info('USING default weights..', self.weights, self.bias)
+            if not from_tuner:
+                logger.log_info('USING default weights..', self.weights, self.bias)
         else:
             try:
                 with open(os.path.join(config.tuner_dir, 'final-weights.pkl'), 'rb') as fl:
@@ -205,20 +227,58 @@ class RNNBicontextTextFixer:
         """
         return self.fixer_repr
 
-    def predict_occurence(self, str_before, str_after, dense_state_before, dense_state_after):
-        return np.log(
-            self.forward_language_model.predict_likelihood(str_after, dense_state_before) + MICRO_EPS) +\
-            np.log(self.backward_language_model.predict_likelihood(str_before, dense_state_after) + MICRO_EPS)
+    def predict_occurence(self, str_before, str_after, dense_state_before,
+                          dense_state_after, debug_tag=''):
+        res_forward = np.log(self.forward_language_model.predict_likelihood(
+            str_after, dense_state_before) + MICRO_EPS)
+        res_backward = np.log(self.backward_language_model.predict_likelihood(
+            str_before, dense_state_after) + MICRO_EPS)
+        if debug_tag:
+            self.debug_occurence(str_before, str_after, dense_state_before,
+                                 dense_state_after, debug_tag,
+                                 res_forward, res_backward)
+        return res_forward + res_backward
 
+    def debug_occurence(self, str_before, str_after, dense_state_before,
+                        dense_state_after, debug_tag,
+                        res_forward, res_backward):
+        if DEBUG_MODE:
+            backward_next = self.backward_language_model.debugger.get(
+                dense_state_after[1:])
+            forward_next = self.forward_language_model.debugger.get(
+                dense_state_before[1:])
+            logger.log_debug(
+                "\n%s\n'%s'$$'%s'\n'%s'\t%.8f\n'%s'\t%.8f\n%.8f" % (
+                    debug_tag, str_before, str_after,
+                    backward_next, res_backward,
+                    forward_next, res_forward,
+                    res_backward + res_forward
+                ))
+            logger.log_seperator()
 
     def get_actions_probabilities(self, pair):
         correct_text, corrupt_text = pair
         all_probs = []
         all_labels = []
+        # _t = datetime.now()
+        # logger.log_debug(len(correct_text), len(corrupt_text))
         corrupt_states = self.backward_language_model.predict_seq(corrupt_text)
+        # logger.log_debug('backward prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
         correct_states = self.forward_language_model.predict_seq(correct_text)
+        # logger.log_debug('forward prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
+
         editops = detailed_edit_operations(corrupt_text, correct_text)
-        for idx_corrupt, idx_correct, correct_operation in editops:
+        # logger.log_debug('edits prediction', (datetime.now() - _t).total_seconds())
+        # _t = datetime.now()
+        for idx_corrupt, idx_correct, correct_operation in editops:  # tqdm(editops):
+            if DEBUG_MODE:
+                logger.log_seperator()
+                logger.log_debug(
+                    "\n" + "\033[31m" + correct_text[:idx_correct] +
+                    '|\033[0m' + corrupt_text[idx_corrupt:] + "\n" +
+                    str(correct_operation), highlight=4)
             probs = np.zeros((10,))
             X = correct_text[max(0, idx_correct - self.history_length): idx_correct]
             Y = corrupt_text[idx_corrupt + 1: idx_corrupt + self.history_length + 1]
@@ -232,14 +292,17 @@ class RNNBicontextTextFixer:
             Xv_state = self.forward_language_model.predict(
                 v, dense_state=X_state, return_dense_state=True)
 
-            pr_del = self.predict_occurence(X, Y, X_state, Y_state)
+            pr_del = 0.
+            # TODO: This condition should be removed if it's needed for typo/non-typo fixing
+            if v in self.tokenization_delimiters or not self.fix_delimiters_only:
+                pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
             if v in self.tokenization_delimiters:
                 probs[0] = pr_del
             else:
                 probs[1] = pr_del
             # ###############################################################
-            pr_nochg1 = self.predict_occurence(Xv, Y, Xv_state, Y_state)
-            pr_nochg2 = self.predict_occurence(X, Z, X_state, Z_state)
+            pr_nochg1 = self.predict_occurence(Xv, Y, Xv_state, Y_state, 'NOP1')
+            pr_nochg2 = self.predict_occurence(X, Z, X_state, Z_state, 'NOP2')
             if v in self.tokenization_delimiters:
                 probs[2] = pr_nochg1
                 probs[3] = pr_nochg2
@@ -259,15 +322,18 @@ class RNNBicontextTextFixer:
             pr_add1_sp = 0
             pr_add2_sp = 0
             for s in try_to_add:
+                if s == v == ' ':
+                    continue
                 Xs = X + s
                 sZ = s + Z
+
                 Xs_state = self.forward_language_model.predict(
                     s, dense_state=X_state, return_dense_state=True)
                 sZ_state = self.backward_language_model.predict(
                     s, dense_state=Z_state, return_dense_state=True)
 
-                pr_add1 = self.predict_occurence(X, sZ, X_state, sZ_state)
-                pr_add2 = self.predict_occurence(Xs, Z, Xs_state, Z_state)
+                pr_add1 = self.predict_occurence(X, sZ, X_state, sZ_state, 'ADD1 ' + s)
+                pr_add2 = self.predict_occurence(Xs, Z, Xs_state, Z_state, 'ADD2 ' + s)
                 if s in self.tokenization_delimiters:
                     pr_add1_sp = max(pr_add1_sp, pr_add1)
                     pr_add2_sp = max(pr_add2_sp, pr_add2)
@@ -322,125 +388,8 @@ class RNNBicontextTextFixer:
             all_probs.append(probs)
             all_labels.append([label])
             # return probs + MICRO_EPS, label
+        # logger.log_debug('XY predictions', (datetime.now() - _t).total_seconds())
         return np.array(all_probs), np.array(all_labels)
-
-    '''
-    def get_actions_probabilities(self, before_context, after_context,
-                                  current, correct_operation):
-        """
-        Generate probabilities vector of all possible actions of a given state,
-        and the corresponding output vector of decisions.
-        This will be used to feed input data for the tuner.
-
-        :param str before_context: Context before the being fixed character
-        :param str after_context: Context after the being fixed character
-        :param str current: character being fixed
-        :param ndarray correct_operation: correct operation
-        :rtype: pair(vector, vector)
-        :returns: Pair of probability and one-hot actions vectors
-        """
-        probs = np.zeros((10,))
-        v = current
-
-        X = before_context.copy()
-        Xv = X.copy()
-        Xv.append_context(v)
-        Y = after_context.copy()
-        Z = Y.copy()
-        Z.push_context(v)
-        # ###############################################################
-        pr_del = self.predict_occurence(X, Y)
-        if v in self.tokenization_delimiters or v == '-':
-            probs[0] = pr_del
-        else:
-            probs[1] = pr_del
-        # ###############################################################
-        pr_nochg1 = self.predict_occurence(Xv, Y)
-        pr_nochg2 = self.predict_occurence(X, Z)
-        if v in self.tokenization_delimiters:
-            probs[2] = pr_nochg1
-            probs[3] = pr_nochg2
-        else:
-            probs[4] = pr_nochg1
-            probs[5] = pr_nochg2
-
-        # ###############################################################
-        try_to_addF = self.forward_language_model.predict_top_n(
-            X.get_context())
-        try_to_addB = self.backward_language_model.predict_top_n(
-            Z.get_context())
-        try_to_add = set(try_to_addF) | set(try_to_addB) | {' '}
-        pr_add1_nosp, to_add1 = 0, None
-        pr_add2_nosp, to_add2 = 0, None
-        pr_add1_sp = 0
-        pr_add2_sp = 0
-        for s in try_to_add:
-            Xs = X.copy()
-            Xs.append_context(s)
-
-            sZ = Z.copy()
-            sZ.push_context(s)
-
-            pr_add1 = self.predict_occurence(X, sZ)
-            pr_add2 = self.predict_occurence(Xs, Z)
-            if s in self.tokenization_delimiters:
-                pr_add1_sp = max(pr_add1_sp, pr_add1)
-                pr_add2_sp = max(pr_add2_sp, pr_add2)
-            else:
-                if pr_add1 > pr_add1_nosp:
-                    pr_add1_nosp = pr_add1
-                    to_add1 = s
-                if pr_add2 > pr_add2_nosp:
-                    pr_add2_nosp = pr_add2
-                    to_add2 = s
-        if (isinstance(correct_operation, tuple) and
-                correct_operation[0] == TYPO_ADD and
-                correct_operation[1] not in self.tokenization_delimiters):
-            if to_add1 != correct_operation[1]:
-                # pr_add1_nosp = 0.0
-                pr_add1_nosp = 1.0
-            if to_add2 != correct_operation[1]:
-                # pr_add2_nosp = 0.0
-                pr_add2_nosp = 1.0
-        probs[6] = pr_add1_sp
-        probs[7] = pr_add2_sp
-        probs[8] = pr_add1_nosp
-        probs[9] = pr_add2_nosp
-        # ###############################################################
-
-        label = -1
-        if (correct_operation == TYPO_DEL and
-                (current in self.tokenization_delimiters or current == '-')):
-            # delete delimiter
-            label = 0
-        elif (correct_operation == TYPO_DEL and
-                current not in self.tokenization_delimiters and
-                current != '-'):
-            # delete char
-            label = 1
-        elif (correct_operation == TYPO_NOCHANGE and
-                current in self.tokenization_delimiters):
-            # keep delimiter
-            label = 2
-        elif (correct_operation == TYPO_NOCHANGE and
-                current not in self.tokenization_delimiters):
-            # keep char
-            label = 3
-        elif (isinstance(correct_operation, tuple) and
-                correct_operation[0] == TYPO_ADD and
-                correct_operation[1] in self.tokenization_delimiters):
-            # add delimiter
-            label = 4
-        elif (isinstance(correct_operation, tuple) and
-                correct_operation[0] == TYPO_ADD and
-                correct_operation[1] not in self.tokenization_delimiters):
-            # add char
-            label = 5
-        else:
-            assert False, 'invalid operation %s' % str(correct_operation)
-
-        return probs + MICRO_EPS, label
-    '''
 
     def fix_step(self, text, future_states, score, before_context, dense_state,
                  cur_pos, res_text, last_op, added=0):
@@ -472,15 +421,22 @@ class RNNBicontextTextFixer:
         Xv = X + v
         Y = text[cur_pos + 1: cur_pos + self.history_length + 1]
         Z = text[cur_pos: cur_pos + self.history_length + 1]
+        if DEBUG_MODE:
+            logger.log_seperator()
+            logger.log_debug(score, last_op, added, highlight=2)
+            logger.log_debug("\n", before_context.get_context() + '|' +
+                             text[cur_pos:], highlight=4)
 
         # ###############################################################
         if not self.fix_delimiters_only or v in self.tokenization_delimiters:
-            pr_del = self.predict_occurence(X, Y, dense_state, future_states[cur_pos + 1])
+            pr_del = self.predict_occurence(X, Y, dense_state,
+                                            future_states[cur_pos + 1], 'DEL')
             if v in self.tokenization_delimiters:
                 pr_del = pr_del * self.weights[0] + self.bias[0]
             else:
                 pr_del = pr_del * self.weights[1] + self.bias[1]
-            yield score - pr_del, before_context_copy.copy(), dense_state, cur_pos + 1, res_text, TYPO_DEL, 0
+            yield (score - pr_del, before_context_copy.copy(), dense_state,
+                   cur_pos + 1, res_text, TYPO_DEL, 0)
 
         # ###############################################################
 
@@ -489,8 +445,10 @@ class RNNBicontextTextFixer:
 
         dense_state_new = self.forward_language_model.predict(
             v, dense_state=dense_state, return_dense_state=True)
-        pr_nochg1 = self.predict_occurence(Xv, Y, dense_state_new, future_states[cur_pos + 1])
-        pr_nochg2 = self.predict_occurence(X, Z, dense_state, future_states[cur_pos])
+        pr_nochg1 = self.predict_occurence(Xv, Y, dense_state_new,
+                                           future_states[cur_pos + 1], 'NOP1')
+        pr_nochg2 = self.predict_occurence(X, Z, dense_state,
+                                           future_states[cur_pos], 'NOP2')
         if v in self.tokenization_delimiters:
             pr_nochg1 = pr_nochg1 * self.weights[2] + self.bias[2]
             pr_nochg2 = pr_nochg2 * self.weights[3] + self.bias[3]
@@ -504,11 +462,11 @@ class RNNBicontextTextFixer:
 
         # ###############################################################
 
-        if added > 2:
+        if added > 0:
             return
         try_to_add = {' '}
         if not self.fix_delimiters_only:
-            # TODO: Handle differently using dense_state
+            # TODO: Add more candidates using dense_state
             pass
             # try_to_addF = self.forward_language_model.predict_top_n(
             #     X.get_context())
@@ -517,6 +475,8 @@ class RNNBicontextTextFixer:
             # try_to_add = set(try_to_addF) | set(try_to_addB) | {' '}
 
         for s in try_to_add:
+            if v == s == ' ':
+                continue
             pr_add_forward = np.log(MICRO_EPS)
             if self.use_look_forward:
                 for shift in range(1, 3):
@@ -542,8 +502,8 @@ class RNNBicontextTextFixer:
             dense_state_new = self.forward_language_model.predict(
                 s, dense_state=dense_state, return_dense_state=True)
 
-            pr_add1 = self.predict_occurence(X, sZ, dense_state, future_state_new)
-            pr_add2 = self.predict_occurence(Xs, Z, dense_state_new, future_states[cur_pos])
+            pr_add1 = self.predict_occurence(X, sZ, dense_state, future_state_new, 'ADD1 ' + s)
+            pr_add2 = self.predict_occurence(Xs, Z, dense_state_new, future_states[cur_pos], 'ADD2' + s)
             if s in self.tokenization_delimiters:
                 pr_add1 = pr_add1 * self.weights[6] + self.bias[6]
                 pr_add2 = pr_add2 * self.weights[7] + self.bias[7]
@@ -552,7 +512,7 @@ class RNNBicontextTextFixer:
                 pr_add2 = pr_add2 * self.weights[9] + self.bias[9]
             pr_add = pr_add1 + pr_add2
 
-            if self.use_look_forward and (pr_add_forward > pr_add or pr_add < -30):
+            if self.use_look_forward and (pr_add < pr_add_forward or pr_add < -30):
                 pr_add = np.log(MICRO_EPS)
 
             before_context = before_context_copy.copy()

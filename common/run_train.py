@@ -30,7 +30,7 @@ def train_tuner(**kwargs):
     config = get_bicontext_fixer_config(**kwargs)
     reader = Reader(config)
     tuner = Tuner(config)
-    tuner.train_data(reader.read_valid_pairs(), total=30)
+    tuner.train_data(reader.read_valid_pairs(), total=550)
 
 
 if __name__ == '__main__':

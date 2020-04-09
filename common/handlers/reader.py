@@ -17,15 +17,21 @@ class Reader:
     def read_test_pairs(self):
         with open(self.config.test_correct_path, 'r') as correct_fil,\
                 open(self.config.test_corrupt_path, 'r') as corrupt_fil:
-            for idx, pair in enumerate(zip(correct_fil, corrupt_fil)):
+            data = sorted(list(enumerate(zip(correct_fil, corrupt_fil))),
+                          key=(lambda x: len(x[1][0])),
+                          reverse=True)
+            for idx, pair in data:
                 pair = pair[0][:-1], pair[1][:-1]
-                yield ('line_num_%.8d.txt' % idx,) + pair
+                yield ('line_num_%.6d.txt' % idx,) + pair
         return
 
     def read_valid_pairs(self):
         with open(self.config.valid_correct_path, 'r') as correct_fil,\
                 open(self.config.valid_corrupt_path, 'r') as corrupt_fil:
-            for idx, pair in enumerate(zip(correct_fil, corrupt_fil)):
+            data = sorted(list(enumerate(zip(correct_fil, corrupt_fil))),
+                          key=(lambda x: len(x[1][0])),
+                          reverse=True)
+            for idx, pair in data:
                 pair = pair[0][:-1], pair[1][:-1]
                 yield pair
         return

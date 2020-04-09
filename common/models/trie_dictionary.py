@@ -149,17 +149,21 @@ class TrieDictionary:
 
         :param list(str) vocab: List of words
         """
+        count = 0
         for word in vocab:
+            threshold = 55
             if '\t' in word:
                 word, freq = word.split('\t')
                 freq = int(freq)
             else:
-                freq = 16
-            if freq > 15:
+                freq = threshold + 1
+            if freq > threshold:
                 if len(word) > 2 and word[1:].lower() == word[1:]:
                     self.insert((word.lower(), freq))
                 else:
                     self.insert((word, freq))
+                count += 1
+        logger.log_info('inserted', count, '/', len(vocab), 'words...')
 
     def load_words_from_file(self, file_path):
         """

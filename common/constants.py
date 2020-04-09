@@ -5,6 +5,7 @@ import socket
 import _pickle as pickle
 # from os.path import join
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 USERNAME = getpass.getuser()
 HOSTNAME = socket.gethostname()
@@ -44,10 +45,8 @@ try:
     DEFAULT_MODEL_DUMP_DIR = os.path.join(get_outputs_path(), 'dumps')
     DEFAULT_BENCHMARK_DUMP_DIR = os.path.join(get_outputs_path(), 'benchmark_dumps')
 except Exception as err:
-    print(err)
-
-print('DATA:', USERNAME, HOSTNAME, DEFAULT_MODEL_DUMP_DIR, DEFAULT_MODEL_LOAD_DIR,
-      DEFAULT_DATA_LOAD_DIR, DEFAULT_BENCHMARK_DUMP_DIR)
+    pass
+    # print(err)
 
 
 # Hyperparameters
@@ -57,7 +56,7 @@ SAMPLE_VOCAB_SIZE = 0  # 30000
 #  Constants
 # CACHE = True
 BATCH_SIZE = 256#4096 * 2
-NUM_THREADS = 4  # max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
+NUM_THREADS = max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
 DEFAULT_RANDOM_SEED = 41
 
 # constants
@@ -172,10 +171,30 @@ MODELS_ENUM = Enum(forward_language_model='forward_LM',
                    backward_language_model='backward_LM',
                    e2e_model='e2e_model')
 BENCHMARKS_ENUM = [
-    '0.1_0.7', '0.2_0.8', '0.2_0.1', '0_0.2', '0.1_0.9', '0_0.5', '0.2_0.6',
-    '0_0.4', '0.2_0.7', '0_0.3', '0.1_0.8', '0.1_0.1', '0.2_0.9', '0.1_0.6',
-    '0.1_inf', '0.2_inf', '0._0.5', '0.1_0.3', '0_0.8', '0.1_0.4', '0_0.6',
-    '0.2_0.5', '0.2_0.2', '0_0.1', '0.2_0.3', '0.1_1', '0_0.7', '0.2_0.4',
-    '0.1_0.5', '0.1_0.2', '0_0.9', '0_1', '0.2_1', '0_inf']
+    '0_0.1', '0_0.2',
+    '0_0.3', '0_0.4',
+    '0_0.5', '0_0.6',
+    '0_0.7', '0_0.8',
+    '0_0.9', '0_1',
+    '0_inf',
+    '0.2_0.1', '0.2_0.2',
+    '0.2_0.3', '0.2_0.4',
+    '0.2_0.5', '0.2_0.6',
+    '0.2_0.7', '0.2_0.8',
+    '0.2_0.9', '0.2_1',
+    '0.2_inf',
+    '0.1_0.1', '0.1_0.2',
+    '0.1_0.3', '0.1_0.4',
+    '0.1_0.5', '0.1_0.6',
+    '0.1_0.7', '0.1_0.8',
+    '0.1_0.9', '0.1_1',
+    '0.1_inf',
+]
 
+
+DEFAULT_BENCHMARK = BENCHMARKS_ENUM[int(os.environ.get('TOKENIZATION_BENCHMARK', 0))]
 DEFAULT_DATASET = DATASETS_ENUM.wikipedia  #simple_wikipedia
+
+print('DATA:', USERNAME, HOSTNAME, DEFAULT_MODEL_DUMP_DIR, DEFAULT_MODEL_LOAD_DIR,
+      DEFAULT_DATA_LOAD_DIR, DEFAULT_BENCHMARK_DUMP_DIR, DEFAULT_BENCHMARK,
+      str(BENCHMARKS_ENUM.index(DEFAULT_BENCHMARK) + 1) + '/' + str(len(BENCHMARKS_ENUM)))

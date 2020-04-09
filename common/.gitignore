@@ -9,5 +9,7 @@ dumps/
 dumps_backup/
 iodata.p
 iodata.pkl
+vocab.txt
+dictionary.pkl
 logs/
 polyaxon.yml
