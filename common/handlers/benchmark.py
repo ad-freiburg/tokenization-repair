@@ -42,6 +42,9 @@ class Benchmark:
         self.construct_timestamp = datetime.datetime.now()
         self.fixer_repr = config.fixer_repr
         self.reader = Reader(config)
+        self.fixer = None
+        if NUM_THREADS == 1:
+            self.fixer = construct_and_load_fixer(self.config)
         self.metrics = ['precision', 'recall', 'f1score',
                         'precision to add', 'recall to add', 'f1score to add',
                         'precision to del', 'recall to del', 'f1score to del',
@@ -72,7 +75,10 @@ class Benchmark:
         :returns:
             Evaluation dictionary of the metric evaluations of the fixed file.
         """
-        fixer = construct_and_load_fixer(self.config)
+
+        fixer = self.fixer
+        if NUM_THREADS > 1:
+            fixer = construct_and_load_fixer(self.config)
         file_name, correct_text, corrupt_text = key
         correct_text = re.sub(r' +', ' ', correct_text).strip()
         corrupt_text = re.sub(r' +', ' ', corrupt_text).strip()

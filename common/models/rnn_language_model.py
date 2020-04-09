@@ -117,7 +117,10 @@ class RNNLanguageModel(CharacterModel):
             logger.log_info('loaded weights from', self.model_load_path, highlight=2)
         else:
             logger.log_error('weights not found..', self.model_load_path, highlight=1)
-        self.compile()
+        try:
+            self.compile()
+        except Exception as err:
+            logger.log_error("Couldn't compile model", err, highlight=1)
 
     def make_generator(self, gen):
         # TODO

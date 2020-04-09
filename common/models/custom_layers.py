@@ -20,7 +20,7 @@ class Sparse(Layer):
         self.kernel = self.add_weight(name='kernel',
                                       shape=(input_shape[1],),
                                       # initializer='he_normal',
-                                      initializer=RandomNormal(1.0, 1 / np.sqrt(input_shape[1])),
+                                      initializer=RandomNormal(1.0, 0.01),  # 1 / np.sqrt(input_shape[1])),
                                       # constraint=NonNeg(),
                                       trainable=True)
         self.bias = self.add_weight(name='bias',

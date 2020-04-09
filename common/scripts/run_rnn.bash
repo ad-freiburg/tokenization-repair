@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+export PYTHONPATH=/local/data/amin/python3_local/
 for x in {0..32}
 do
     export TOKENIZATION_BENCHMARK=$x
