@@ -39,7 +39,7 @@ def corrupt_linebreaks_to_spaces(original, corrupt):
     return original_space_only, corrupt_space_only
 
 
-def get_space_corruptions(original, corrupt):
+def get_space_corruptions(original, corrupt, ignore_other_insertions=False):
     o_i = 0
     c_i = 0
     corruptions = []
@@ -55,6 +55,8 @@ def get_space_corruptions(original, corrupt):
         elif c_i < len(corrupt) and corrupt[c_i] == ' ':
             # space inserted
             corruptions.append(Corruption(CorruptionType.INSERTION, c_i, ' '))
+            c_i += 1
+        elif ignore_other_insertions:
             c_i += 1
         else:
             raise Exception("Original and corrupt sequence differ at character inequal to space, " +

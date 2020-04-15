@@ -38,12 +38,27 @@ COLOUR_DICT = {
     "combined": "tab:blue",
     "softmax": "tab:orange",
     "sigmoid": "tab:green",
-    "beam_search": "tab:red"
+    "beam_search": "tab:red",
+    "bicontext": "tab:purple",
+    "google": "tab:brown",
+    "enchant": "tab:pink"
+}
+
+
+LINE_STYLES = {
+    "do_nothing": ('o', '-'),
+    "greedy": ('x', '-'),
+    "dynamic_bi": ('d', '-'),
+    "dp_fixer": ('P', '-'),
+    "google": ("$\mathrm{G}$", '-'),
+    "enchant": ("$\mathrm{E}$", '-')
 }
 
 
 def get_plotting_style(approach: str):
-    if approach.endswith("_robust"):
+    if approach in LINE_STYLES:
+        marker, linestyle = LINE_STYLES[approach]
+    elif approach.endswith("_robust"):
         marker = 'v'
         linestyle = "--"
     else:
@@ -57,6 +72,8 @@ def get_plotting_style(approach: str):
 
 
 if __name__ == "__main__":
+    SUBSET = Subset.TEST
+
     approaches = parameters["approaches"]
     metrics = parameters["metric"]
     if not isinstance(metrics, list):
@@ -79,9 +96,12 @@ if __name__ == "__main__":
             benchmark = get_benchmark_name(parameters["noise_level"], p)
             print(benchmark)
             for approach in approaches:
-                print('', approach)
-                value = results_holder.get(benchmark, Subset.TEST, approach, metric)
-                print(' ', metric, value)
+                if results_holder.contains(benchmark, SUBSET, approach, metric):
+                    print('', approach)
+                    value = results_holder.get(benchmark, SUBSET, approach, metric)
+                    print(' ', metric, value)
+                else:
+                    value = 0
                 values[approach][i] = value
 
         ax = plt.subplot(gs[subplot])
@@ -102,10 +122,11 @@ if __name__ == "__main__":
                    rotation=90)
 
         if metric == Metric.SEQUENCE_ACCURACY:
-            ax.set_ylim((0, 1))
+            ax.set_ylim((0, 1.01))
             ax.set_yticks(np.arange(0, 1.1, 0.1))
         elif metric == Metric.F1:
-            ax.set_ylim(0.65, 1.01)
+            ax.set_ylim(0, 1.01)
+            ax.set_yticks(np.arange(0, 1.1, 0.1))
 
         ax.set_xlabel("error probability")
         ax.set_ylabel(Y_LABELS[metric])

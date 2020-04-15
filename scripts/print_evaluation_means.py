@@ -14,6 +14,11 @@ APPROACHES = ["combined",
               "sigmoid_robust",
               "beam_search",
               "beam_search_robust",
+              "bicontext",
+              "dp_fixer",
+              "dynamic_bi",
+              "greedy",
+              "enchant",
               "do_nothing"]
 NAME_LEN = 21
 METRICS = [Metric.F1, Metric.SEQUENCE_ACCURACY]
@@ -30,7 +35,10 @@ if __name__ == "__main__":
             for metric in METRICS:
                 values = [holder.get(get_benchmark_name(noise_level, p), Subset.TEST, approach, metric)
                           for p in get_error_probabilities()]
-                mean = float(np.mean(values))
+                if 0 in values:
+                    mean = 0
+                else:
+                    mean = float(np.mean(values))
                 print_str += "& %.2f\\,\\%% " % (mean * 100)
         print_str += "\\\\"
         print(print_str)

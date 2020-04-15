@@ -48,7 +48,8 @@ class Evaluator:
             ground_truth_corruptions = get_space_corruptions(original_sequence, corrupt_sequence)
         # predicted corruptions
         if probability_predicted_corruption_pairs is None:
-            predicted_corruptions = get_space_corruptions(predicted_sequence, corrupt_sequence)
+            predicted_corruptions = get_space_corruptions(predicted_sequence, corrupt_sequence,
+                                                          ignore_other_insertions=True)
             probability_predicted_corruption_pairs = [(1, prediction) for prediction in predicted_corruptions]
         # edit distance
         if evaluate_ed:

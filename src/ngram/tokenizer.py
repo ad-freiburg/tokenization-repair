@@ -35,14 +35,21 @@ class Tokenizer:
         tokens = []
         pos = 0
         for t_i, snippet in enumerate(snippets):
-            append = False
             delimiter = False
 
             if sequence[pos] == thin_space:
-                append = True
+                tokens.append(Token(thin_space, False))
                 pos += 1
             if sequence[pos] == ' ':
                 delimiter = True
+                pos += 1
+            if sequence[pos] == thin_space:
+                tokens.append(Token(thin_space, delimiter))
+                delimiter = False
+                pos += 1
+
+            if delimiter and sequence[pos] == ' ':
+                tokens.append(Token('', delimiter))
                 pos += 1
 
             if sequence[pos] == '"':
@@ -52,14 +59,7 @@ class Tokenizer:
             else:
                 text = snippet
 
-            if append and delimiter:
-                tokens[-1].text += thin_space
-                tokens.append(Token(text, delimiter))
-            elif append:
-                appendix = thin_space + text
-                tokens[-1].text += appendix
-            else:
-                tokens.append(Token(text, delimiter))
+            tokens.append(Token(text, delimiter))
 
             pos += len(text)
         return tokens

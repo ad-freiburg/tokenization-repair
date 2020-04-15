@@ -33,8 +33,8 @@ class UnigramCorrector:
             right = text[i:]
             frequency = self.bigrams.get((left, right))
             if frequency > 0:
-                tokens =  [Token(left, token.delimiter_before),
-                           Token(right, True)]
+                tokens = [Token(left, token.delimiter_before),
+                          Token(right, True)]
                 candidates.append(CorrectionCandidate(frequency,
                                                       tokens,
                                                       False,

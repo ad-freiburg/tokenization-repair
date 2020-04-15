@@ -2,12 +2,9 @@ import sys
 
 import project
 from src.evaluation.evaluator import Evaluator
-from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles, get_benchmark_name, get_error_probabilities
+from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles, get_benchmark_name, NOISE_LEVELS, \
+    ERROR_PROBABILITIES
 from src.evaluation.results_holder import ResultsHolder, Metric
-
-
-NOISE_LEVELS = [0, 0.1, 0.2]
-ERROR_PROBABILITIES = get_error_probabilities()
 
 
 if __name__ == "__main__":

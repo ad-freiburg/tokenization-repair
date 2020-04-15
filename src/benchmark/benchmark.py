@@ -71,8 +71,11 @@ class Benchmark:
 
     def get_mean_runtime(self, predicted_file: str) -> float:
         lines = self.get_predicted_sequences(predicted_file)
-        runtime = float(lines[-1])
-        mean_runtime = runtime / (len(lines) - 1)
+        try:
+            runtime = float(lines[-1])
+            mean_runtime = runtime / (len(lines) - 1)
+        except ValueError:
+            mean_runtime = 0
         return mean_runtime
 
 

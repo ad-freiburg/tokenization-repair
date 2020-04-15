@@ -33,3 +33,9 @@ class ResultsHolder:
 
     def get(self, benchmark_name, benchmark_subset, approach_name, metric):
         return self.results[benchmark_name][benchmark_subset][approach_name][metric]
+
+    def contains(self, benchmark_name, benchmark_subset, approach_name, metric):
+        if approach_name not in self.results[benchmark_name][benchmark_subset] or \
+                metric not in self.results[benchmark_name][benchmark_subset][approach_name]:
+            return False
+        return True

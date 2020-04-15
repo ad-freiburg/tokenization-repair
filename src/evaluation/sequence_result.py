@@ -70,7 +70,7 @@ class SequenceResult:
         self.ed_before = ed_before
         self.ed_after = ed_after
         self.runtime = runtime
-        self.correct = predicted_sequence == original_sequence
+        self._set_is_correct()
 
     def tp(self, type=None):
         if type == CorruptionType.INSERTION:
@@ -145,6 +145,9 @@ class SequenceResult:
                 after,
                 probability))
         return '\n'.join(lines)
+
+    def _set_is_correct(self):
+        self.correct = self.num_fp() + self.num_fn() == 0
 
     def is_correct(self):
         return self.correct
