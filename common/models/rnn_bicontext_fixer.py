@@ -81,7 +81,7 @@ class Tuner:
                         X.append(x)
                         Y.append(y)
                         sz += len(x)
-                        if last is None or sz > last + 10000:
+                        if last is None or sz > last + 50000:
                             logger.log_debug('%d/%d' % (i + 1, total), "with",
                                              sz, "examples so far..")
                             last = sz
@@ -93,7 +93,7 @@ class Tuner:
                     X.append(x)
                     Y.append(y)
                     sz += len(x)
-                    if last is None or sz > last + 1000:
+                    if last is None or sz > last + 50000:
                         logger.log_debug('%d/%d' % (i + 1, total), "with",
                                          sz, "examples so far..")
                         last = sz
@@ -130,12 +130,12 @@ class Tuner:
         model = Model(inp, combiner(sparse(inp)))
         model.summary()
         combiner.set_weights([combiner_val])
-        lr = 0.1
-        decay = 0.01
+        lr = 0.01
+        decay = 5e-4
         model.compile(Adam(lr),
                       loss=sparse_categorical_crossentropy,
                       metrics=['sparse_categorical_accuracy'])
-        bar = tqdm(range(2000), ncols=120)
+        bar = tqdm(range(10000), ncols=120)
         for epoch in bar:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
             loss, acc = model.train_on_batch(X, Y)
@@ -279,7 +279,7 @@ class RNNBicontextTextFixer:
                     "\n" + "\033[31m" + correct_text[:idx_correct] +
                     '|\033[0m' + corrupt_text[idx_corrupt:] + "\n" +
                     str(correct_operation), highlight=4)
-            probs = np.zeros((10,))
+            probs = np.log(np.zeros((10,)) + MICRO_EPS)
             X = correct_text[max(0, idx_correct - self.history_length): idx_correct]
             Y = corrupt_text[idx_corrupt + 1: idx_corrupt + self.history_length + 1]
             v = corrupt_text[idx_corrupt: idx_corrupt + 1]
@@ -292,7 +292,7 @@ class RNNBicontextTextFixer:
             Xv_state = self.forward_language_model.predict(
                 v, dense_state=X_state, return_dense_state=True)
 
-            pr_del = 0.
+            pr_del = np.log(MICRO_EPS)
             # TODO: This condition should be removed if it's needed for typo/non-typo fixing
             if v in self.tokenization_delimiters or not self.fix_delimiters_only:
                 pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
@@ -317,10 +317,10 @@ class RNNBicontextTextFixer:
             #     Z.get_context())
             # try_to_add = set(try_to_addF) | set(try_to_addB) | {' '}
             try_to_add = {' '}
-            pr_add1_nosp, to_add1 = 0, None
-            pr_add2_nosp, to_add2 = 0, None
-            pr_add1_sp = 0
-            pr_add2_sp = 0
+            pr_add1_nosp, to_add1 = np.log(MICRO_EPS), None
+            pr_add2_nosp, to_add2 = np.log(MICRO_EPS), None
+            pr_add1_sp = np.log(MICRO_EPS)
+            pr_add2_sp = np.log(MICRO_EPS)
             for s in try_to_add:
                 if s == v == ' ':
                     continue
@@ -349,10 +349,10 @@ class RNNBicontextTextFixer:
                     correct_operation[1] not in self.tokenization_delimiters):
                 if to_add1 != correct_operation[1]:
                     # pr_add1_nosp = 0.0
-                    pr_add1_nosp = 1.0
+                    pr_add1_nosp = 0 #1.0
                 if to_add2 != correct_operation[1]:
                     # pr_add2_nosp = 0.0
-                    pr_add2_nosp = 1.0
+                    pr_add2_nosp = 0 #1.0
             probs[6] = pr_add1_sp
             probs[7] = pr_add2_sp
             probs[8] = pr_add1_nosp
