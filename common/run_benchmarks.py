@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import warnings
 import _pickle as pickle
 
 from optparse import OptionParser
@@ -7,7 +8,12 @@ from optparse import OptionParser
 from configs import get_fixer_config
 from constants import FIXERS_ENUM
 from handlers.benchmark import Benchmark
+from handlers.reader import Reader
+from models.rnn_bicontext_fixer import Tuner
 from utils.logger import logger
+
+warnings.filterwarnings("ignore")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def export_dict(config):
@@ -17,6 +23,12 @@ def export_dict(config):
         with open(config.dictionary_path, 'wb') as fl:
             pickle.dump(dictionary, fl)
             logger.log_info('exported dictionary into', config.dictionary_path)
+
+
+def train_tuner(config):
+    reader = Reader(config)
+    tuner = Tuner(config)
+    tuner.train_data(reader.read_valid_pairs(), total=550)
 
 
 if __name__ == '__main__':
@@ -52,7 +64,8 @@ if __name__ == '__main__':
     logger.set_full_debug(full_debug)
 
     if bicontext:
-        config = get_fixer_config(fixer=FIXERS_ENUM.bicontext_fixer, use_look_forward=True)
+        config = get_fixer_config(fixer=FIXERS_ENUM.bicontext_fixer)
+        train_tuner(config)
     if dpfixer:
         config = get_fixer_config(fixer=FIXERS_ENUM.dp_fixer)
         export_dict(config)

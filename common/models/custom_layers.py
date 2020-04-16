@@ -9,29 +9,39 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 class Sparse(Layer):
 
-    def __init__(self, **kwargs):
+    def __init__(self, use_kernel=True, use_bias=True, **kwargs):
         super(Sparse, self).__init__(**kwargs)
+        self.use_kernel = use_kernel
+        self.use_bias = use_bias
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
         from keras.constraints import MinMaxNorm, NonNeg, UnitNorm
-        assert len(input_shape) == 2, 'Rank must be 1'
+        # assert len(input_shape) == 2, 'Rank must be 1'
         from keras.initializers import Zeros, RandomNormal, glorot_uniform
-        self.kernel = self.add_weight(name='kernel',
-                                      shape=(input_shape[1],),
-                                      # initializer='he_normal',
-                                      initializer=RandomNormal(1.0, 0.01),  # 1 / np.sqrt(input_shape[1])),
-                                      # constraint=NonNeg(),
-                                      trainable=True)
-        self.bias = self.add_weight(name='bias',
-                                    shape=(input_shape[1],),
-                                    initializer=Zeros(),
-                                    trainable=True)
+        if self.use_kernel:
+            self.kernel = self.add_weight(name='kernel',
+                                          shape=input_shape[1:],
+                                          # initializer='he_normal',
+                                          initializer=RandomNormal(1.0, 0.2),  # 1 / np.sqrt(input_shape[1])),
+                                          # constraint=NonNeg(),
+                                          trainable=True)
+        if self.use_bias:
+            self.bias = self.add_weight(name='bias',
+                                        shape=input_shape[1:],
+                                        initializer=Zeros(),
+                                        trainable=True)
 
         super(Sparse, self).build(input_shape)  # Be sure to call this at the end
 
     def call(self, x):
-        return x * self.kernel + self.bias
+        out = x
+        if self.use_kernel:
+            out = out * self.kernel
+        if self.use_bias:
+            out = out + self.bias
+        return out
+        # return x * self.kernel + self.bias
 
     def compute_output_shape(self, input_shape):
         return input_shape

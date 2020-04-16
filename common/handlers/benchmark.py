@@ -12,6 +12,7 @@ import multiprocessing
 import re
 import os
 import warnings
+import _pickle as pickle
 
 import pandas as pd
 import numpy as np
@@ -43,6 +44,9 @@ class Benchmark:
         self.fixer_repr = config.fixer_repr
         self.reader = Reader(config)
         self.fixer = None
+        self.use_timestamp = True
+        if hasattr(config, 'use_timestamp'):
+            self.use_timestamp = config.use_timestamp
         if NUM_THREADS == 1:
             self.fixer = construct_and_load_fixer(self.config)
         self.metrics = ['precision', 'recall', 'f1score',
@@ -62,9 +66,12 @@ class Benchmark:
         :returns: Folder with timestamp string
         """
         tim = self.construct_timestamp
-        return '%s-D%.2d-%.2d_T%.2d-%.2d-%.2d' % (self.dump_dir, tim.day,
-                                                  tim.month, tim.hour,
-                                                  tim.minute, tim.second)
+        if self.use_timestamp:
+            return '%s-D%.2d-%.2d_T%.2d-%.2d-%.2d' % (self.dump_dir, tim.day,
+                                                      tim.month, tim.hour,
+                                                      tim.minute, tim.second)
+        else:
+            return self.dump_dir
 
     def run_benchmark(self, key):
         """
@@ -84,6 +91,10 @@ class Benchmark:
         corrupt_text = re.sub(r' +', ' ', corrupt_text).strip()
         corrupt_path = file_name
 
+        fixed_path = os.path.join(self.get_timestamp_folder_name(),
+                                  'fixed', file_name + '_fixed.txt')
+        pklfixed_path = os.path.join(self.get_timestamp_folder_name(),
+                                     'fixed', file_name + '_fixed.pkl')
         row = {}
         comparisons = []
         # html_comparisons = []
@@ -95,66 +106,76 @@ class Benchmark:
             return row
 
         # Fixing
-        logger.log_info("with %s Fixing.. " % str(fixer) + corrupt_path + '\n')
-        t0 = datetime.datetime.now()
-        fixed_text = fixer.fix(corrupt_text)
-        duration = datetime.datetime.now() - t0
-        caption = 'fixing %s with %s' % (file_name, str(fixer))
+        if os.path.isfile(pklfixed_path):
+            logger.log_info("already done", pklfixed_path)
+            with open(pklfixed_path, 'rb') as fl:
+                row = pickle.load(fl)
+            return row
+        else:
+            logger.log_info("with %s Fixing.. " % str(fixer) + corrupt_path + '\n')
+            t0 = datetime.datetime.now()
+            fixed_text = fixer.fix(corrupt_text)
+            duration = datetime.datetime.now() - t0
+            caption = 'fixing %s with %s' % (file_name, str(fixer))
 
-        # comparing
-        # metrics_vals, comparison, html_comparison = evaluator.evaluate(
-        #     correct_text, corrupt_text, fixed_text,
-        #     modes=[TERMINAL, HTML], caption=caption)
-        metrics_vals, comparison = evaluator.evaluate(
-            correct_text, corrupt_text, fixed_text,
-            modes=TERMINAL, caption=caption)
-        row[file_name] = metrics_vals + (duration.total_seconds(),)
-        comparisons.append(comparison)
-        # html_comparisons.append(html_comparison)
+            # comparing
+            # metrics_vals, comparison, html_comparison = evaluator.evaluate(
+            #     correct_text, corrupt_text, fixed_text,
+            #     modes=[TERMINAL, HTML], caption=caption)
+            metrics_vals, comparison = evaluator.evaluate(
+                correct_text, corrupt_text, fixed_text,
+                modes=TERMINAL, caption=caption)
+            row[file_name] = metrics_vals + (duration.total_seconds(),)
+            comparisons.append(comparison)
+            # html_comparisons.append(html_comparison)
 
-        # Fixed file
-        logger.log_info('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
-                        comparison, 'with a duration of',
-                        int(round(duration.total_seconds())), 's')
-        fixed_path = os.path.join(self.get_timestamp_folder_name(),
-                                  'fixed', file_name + '_fixed.txt')
-        with open_or_create_write_file(fixed_path) as fixed_file:
-            fixed_file.write(fixed_text)
-            fixed_file.close()
-            logger.log_report('dumped fixed file into:', fixed_path)
+            # Fixed file
+            # logger.log_info('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
+            print('with %s Fixed.. ' % str(fixer) + corrupt_path + '\n',
+                  comparison, 'with a duration of',
+                  int(round(duration.total_seconds())), 's')
+            with open_or_create_write_file(fixed_path) as fixed_file:
+                fixed_file.write(fixed_text)
+                fixed_file.close()
+                logger.log_report('dumped fixed file into:', fixed_path)
 
-        # metric results
-        metric_comparison = evaluator.metric_comparison(
-            row, self.metrics, modes=TERMINAL)
-        # metric_comparison,html_metric_comparison= evaluator.metric_comparison(
-        #     row, self.metrics, modes=[TERMINAL, HTML])
-        comparisons.append(metric_comparison)
-        # html_comparisons.append(html_metric_comparison)
-        logger.log_report(metric_comparison)
+            # metric results
+            metric_comparison = evaluator.metric_comparison(
+                row, self.metrics, modes=TERMINAL)
+            # metric_comparison,html_metric_comparison= evaluator.metric_comparison(
+            #     row, self.metrics, modes=[TERMINAL, HTML])
+            comparisons.append(metric_comparison)
+            # html_comparisons.append(html_metric_comparison)
+            print(metric_comparison)
+            # logger.log_report(metric_comparison)
 
-        # Terminal dumps
-        comparisons = evaluator.merge_wrapped_pages(*comparisons,
-                                                    mode=TERMINAL)
-        comparison_path = os.path.join(self.get_timestamp_folder_name(),
-                                       'comparisons', file_name + '.fix')
-        with open_or_create_write_file(comparison_path, 'w') as output:
-            output.write(cleanstr('Results of fixing: %s' % corrupt_path))
-            output.write(cleanstr(comparisons))
-            output.close()
-            logger.log_report('dumped comparison into:', comparison_path)
+            # Terminal dumps
+            """
+            comparisons = evaluator.merge_wrapped_pages(*comparisons,
+                                                        mode=TERMINAL)
+            comparison_path = os.path.join(self.get_timestamp_folder_name(),
+                                           'comparisons', file_name + '.fix')
+            with open_or_create_write_file(comparison_path, 'w') as output:
+                output.write(cleanstr('Results of fixing: %s' % corrupt_path))
+                output.write(cleanstr(comparisons))
+                output.close()
+                logger.log_report('dumped comparison into:', comparison_path)
+            """
 
-        # HTML dumps
-        # html_comparisons = evaluator.merge_wrapped_pages(*html_comparisons,
-        #                                                  mode=HTML)
-        # html_comparison_path = os.path.join(self.get_timestamp_folder_name(),
-        #                                     'comparisons', 'htmls',
-        #                                     file_name + '.html')
-        # with open_or_create_write_file(html_comparison_path, 'w') as output:
-        #     output.write(cleanstr(html_comparisons))
-        #     output.close()
-        #     logger.log_report('dumped html comparison into:',
-        #                       html_comparison_path)
-        return row
+            # HTML dumps
+            # html_comparisons = evaluator.merge_wrapped_pages(*html_comparisons,
+            #                                                  mode=HTML)
+            # html_comparison_path = os.path.join(self.get_timestamp_folder_name(),
+            #                                     'comparisons', 'htmls',
+            #                                     file_name + '.html')
+            # with open_or_create_write_file(html_comparison_path, 'w') as output:
+            #     output.write(cleanstr(html_comparisons))
+            #     output.close()
+            #     logger.log_report('dumped html comparison into:',
+            #                       html_comparison_path)
+            with open(pklfixed_path, 'wb') as fl:
+                pickle.dump(row, fl)
+            return row
 
     def update_csv(self, rows, csv_path, files, first_row=False):
         """
@@ -289,10 +310,12 @@ class Benchmark:
             self.summarize(mean_dict)
 
             logger.log_full_report_into_file(os.path.join(
-                self.get_timestamp_folder_name(),
-                'chunk%d_' % (chunk_id + 1)), keep_log=True)
-            logger.log_full_report_into_file('%s-chunk%d_' % (
-                self.dump_dir, chunk_id + 1))
+                self.get_timestamp_folder_name(), 'chunk'), keep_log=True)
+            #logger.log_full_report_into_file(os.path.join(
+            #    self.get_timestamp_folder_name(),
+            #    'chunk%d_' % (chunk_id + 1)), keep_log=True)
+            #logger.log_full_report_into_file('%s-chunk%d_' % (
+            #    self.dump_dir, chunk_id + 1))
 
         logger.log_seperator()
         mean_dict[' %d files' % num_files] = np.array(

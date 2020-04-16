@@ -29,12 +29,15 @@ DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
 
-if os.path.isdir('/nfs/students/mostafa-mohamed/paper_v2'):
-    DEFAULT_ROOT_DIR = '/nfs/students/mostafa-mohamed/paper_v2'
-    DEFAULT_MODEL_DUMP_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
-    DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper_v2/dumps'
-    DEFAULT_DATA_LOAD_DIR = '/nfs/students/matthias-hertel'
-    DEFAULT_BENCHMARK_DUMP_DIR = '/nfs/students/mostafa-mohamed/paper_v2/benchmark_dumps'
+for root in ['/nfs/students/mostafa-mohamed/paper_v2', '/project/p20gb/amin/']:
+    if os.path.isdir(root):
+        DEFAULT_ROOT_DIR = root
+        DEFAULT_MODEL_DUMP_DIR = os.path.join(root, 'dumps')
+        DEFAULT_MODEL_LOAD_DIR = os.path.join(root, 'dumps')
+        DEFAULT_DATA_LOAD_DIR = os.path.join(root, 'benchmarks_root')
+        DEFAULT_BENCHMARK_DUMP_DIR = os.path.join(root, 'benchmark_dumps')
+        print("located", root)
+        break
 
 try:
     from polyaxon_client.tracking import get_outputs_path
@@ -55,8 +58,8 @@ SAMPLE_VOCAB_SIZE = 0  # 30000
 
 #  Constants
 # CACHE = True
-BATCH_SIZE = 256#4096 * 2
-NUM_THREADS = max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
+BATCH_SIZE = 256  # 4096 * 2
+NUM_THREADS = 1  # max(min(8, multiprocessing.cpu_count()), multiprocessing.cpu_count() - 1)
 DEFAULT_RANDOM_SEED = 41
 
 # constants
@@ -163,7 +166,8 @@ class Enum:
             self.__setattr__(key, val)
 
 
-FIXERS_ENUM = Enum(bicontext_fixer='bicontext_fixer', dp_fixer='dp_fixer', e2e_fixer='e2e_fixer')
+FIXERS_ENUM = Enum(bicontext_fixer='bicontext_fixer', dp_fixer='dp_fixer',
+                   e2e_fixer='e2e_fixer', unidirctional_fixer='uni_fixer')
 DATASETS_ENUM = Enum(wikipedia='wikipedia', simple_wikipedia='SimpleWikipedia')
 E2E_MODES_ENUM = Enum(decision='decision_e2e', language='language_e2e',
                       full_e2e='full_e2e')
