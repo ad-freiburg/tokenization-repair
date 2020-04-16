@@ -103,16 +103,19 @@ def get_language_model_config(
 
 
 def get_bicontext_fixer_config(beam_size=5,
-                               bidir=False,
-                               lflen=1,
-                               use_look_forward=False,
                                fix_delimiters_only=True,
                                random_sample_files=False,
                                use_default_weights=False,
                                use_timestamp=False,
+
+                               bidir=True, # both those variables should be equivalent
+                               bidirectional_weights=True,
+                               lflen=1,
+
                                use_bias=True,
                                use_kernel=True,
-                               bidirectional_weights=False,
+                               use_look_forward=False,
+
                                **kwargs):
     if bidir:
         fixer = FIXERS_ENUM.bicontext_fixer
@@ -154,6 +157,7 @@ def get_bicontext_fixer_config(beam_size=5,
 
 
 def get_dp_config(alpha=1.15, beta=0.1, gamma=1, zeta=2, damping_factor=0.5,
+                  use_timestamp=False,
                   window_siz=5, random_sample_files=False, **kwargs):
     config = get_dataset_config(**kwargs)
     config.fixer = FIXERS_ENUM.dp_fixer
@@ -162,6 +166,7 @@ def get_dp_config(alpha=1.15, beta=0.1, gamma=1, zeta=2, damping_factor=0.5,
     config.gamma = gamma
     config.zeta = zeta
     config.damping_factor = damping_factor
+    config.use_timestamp = use_timestamp
     config.window_siz = window_siz
     config.random_sample_files = random_sample_files
     config.fixer_repr = '%s-%s-%s-a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (

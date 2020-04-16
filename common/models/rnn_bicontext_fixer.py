@@ -37,6 +37,7 @@ class Tuner:
         self.tuner_dir = config.tuner_dir
         self.use_kernel = config.use_kernel
         self.use_bias = config.use_bias
+        self.fix_delimiters_only = config.fix_delimiters_only
         if NUM_THREADS == 1:
             self.fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
         else:
@@ -106,53 +107,82 @@ class Tuner:
                 pickle.dump((X, Y), fl)
                 logger.log_info('dumping io data into', iodata_path,
                                 highlight=4)
+        return self.fit(X, Y)
+
+    def fit(self, X, Y):
+        weights_path = os.path.join(self.tuner_dir, 'final-weights.pkl')
         import keras.backend as K
-        from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda
+        from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda, Add
         from keras.models import Model
         from keras.optimizers import Adam, SGD, Adadelta
         from keras.losses import sparse_categorical_crossentropy
         from .custom_layers import Sparse
 
         logger.log_debug(X.shape, Y.shape)
+        logger.log_debug("\n", np.round(X.mean(axis=0), 5))
+        logger.log_debug("\n", np.round(X.std(axis=0), 5))
+
         inp = Input(X.shape[1:])
         sparse = Sparse(use_kernel=self.use_kernel, use_bias=self.use_bias)
         if X.ndim > 2:
             sum_layer = Lambda(lambda x: K.sum(x, axis=-1))
         else:
             sum_layer = Activation('linear')
-        combiner_val = np.array(
+        assert self.fix_delimiters_only, "The possibilities are not handled for non delimiters"
+        print(np.unique(Y[:, 0], return_counts=True))
+        combiner_val1 = np.array(
             [[1, 0, 0, 0, 0, 0],
-             [0, 1, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
              [0, 0, 1, 0, 0, 0],
              [0, 0, 1, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0]])
+        combiner_val2 = np.array(
+            [[0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
              [0, 0, 0, 1, 0, 0],
              [0, 0, 0, 1, 0, 0],
              [0, 0, 0, 0, 1, 0],
              [0, 0, 0, 0, 1, 0],
-             [0, 0, 0, 0, 0, 1],
-             [0, 0, 0, 0, 0, 1]])
-        combiner = Dense(6, use_bias=False, activation='softmax')
-        combiner.trainable = False
-        model = Model(inp, combiner(sum_layer(sparse(inp))))
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0]])
+        combiner1 = Dense(6, use_bias=False, activation='softmax', name='dels')
+        combiner2 = Dense(6, use_bias=False, activation='softmax', name='adds')
+        combiner1.trainable = False
+        combiner2.trainable = False
+        s = sum_layer(sparse(inp))
+        s = [combiner1(s), combiner2(s)]
+        s = Add()(s)
+        model = Model(inp, s)
         model.summary()
-        combiner.set_weights([combiner_val])
-        lr = 0.01
-        decay = 5e-4
-        model.compile(Adam(lr),
-                      loss=sparse_categorical_crossentropy,
-                      metrics=['sparse_categorical_accuracy'])
-        bar = tqdm(range(10000), ncols=120)
+        combiner1.set_weights([combiner_val1])
+        combiner2.set_weights([combiner_val2])
+        lr = 0.1
+        decay = 5e-3
+        model.compile(
+            Adam(lr),
+            loss=sparse_categorical_crossentropy,
+            metrics=['sparse_categorical_accuracy'])
+        bar = tqdm(range(10000), ncols=160)
         for epoch in bar:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
-            loss, acc = model.train_on_batch(X, Y)
+            vals = model.train_on_batch(X, Y)
+            names = [name.replace('sparse_categorical_accuracy', 'acc') for name in model.metrics_names]
+            dicts = dict(zip(names, vals))
             if epoch % 400 == 1:
                 #w = np.round(np.array(sparse.get_weights()).T, 5)
                 #logger.log_debug('\n', sparse.get_weights()[0], '\n', sparse.get_weights()[1])
                 #logger.log_info('\n', w)
                 for arr in sparse.get_weights():
-                    logger.log_debug("\n" + str(np.round(arr, 5)))
-                logger.log_report("loss:", loss, "acc:", acc, highlight=2)
-            bar.set_postfix(loss=loss, acc=acc)
+                    logger.log_debug("\n" + str(np.round(arr, 3)))
+                #logger.log_report("loss:", loss, "acc:", acc, highlight=2)
+            bar.set_postfix(**dicts)#loss=loss, acc=acc)
             bar.refresh()
 
         loss, acc = model.evaluate(X, Y, verbose=0)

@@ -29,7 +29,7 @@ DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
 
-for root in ['/nfs/students/mostafa-mohamed/paper_v2', '/project/p20gb/amin/']:
+for root in ['/nfs/students/mostafa-mohamed/paper', '/project/p20gb/amin/']:
     if os.path.isdir(root):
         DEFAULT_ROOT_DIR = root
         DEFAULT_MODEL_DUMP_DIR = os.path.join(root, 'dumps')

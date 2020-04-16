@@ -16,7 +16,7 @@ class Sparse(Layer):
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
-        from keras.constraints import MinMaxNorm, NonNeg, UnitNorm
+        from keras.constraints import MinMaxNorm, NonNeg, UnitNorm, MaxNorm
         # assert len(input_shape) == 2, 'Rank must be 1'
         from keras.initializers import Zeros, RandomNormal, glorot_uniform
         if self.use_kernel:
@@ -25,11 +25,14 @@ class Sparse(Layer):
                                           # initializer='he_normal',
                                           initializer=RandomNormal(1.0, 0.2),  # 1 / np.sqrt(input_shape[1])),
                                           # constraint=NonNeg(),
+                                          # constraint=UnitNorm(axis=list(range(len(input_shape[1:])))),
                                           trainable=True)
         if self.use_bias:
             self.bias = self.add_weight(name='bias',
                                         shape=input_shape[1:],
                                         initializer=Zeros(),
+                                        # constraint=MaxNorm(10, axis=list(range(len(input_shape[1:])))),
+                                        # constraint=UnitNorm(axis=list(range(len(input_shape[1:])))),
                                         trainable=True)
 
         super(Sparse, self).build(input_shape)  # Be sure to call this at the end
