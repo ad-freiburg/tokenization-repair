@@ -28,7 +28,7 @@ def export_dict(config):
 def train_tuner(config):
     reader = Reader(config)
     tuner = Tuner(config)
-    tuner.train_data(reader.read_valid_pairs(), total=550)
+    tuner.train_data(reader.read_valid_pairs())#, total=550)
 
 
 if __name__ == '__main__':
