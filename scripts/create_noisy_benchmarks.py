@@ -13,8 +13,8 @@ from src.settings import paths
 
 
 SEED = 3010
-NOISE_LEVELS = [0.1, 0.2]
-ERROR_PROBABILITIES = list(np.arange(0.1, 1.1, 0.1)) + [np.inf]
+NOISE_LEVELS = [0, 0.1]
+ERROR_PROBABILITIES = [0.1, 1, np.inf]
 
 
 def insert_noise(sequences: List[str],
@@ -49,9 +49,10 @@ def benchmark_directories(noise_level: float,
     else:
         p_str = "%.1f" % p
     base_path = paths.BENCHMARKS_DIR + "%s_%s/" % (noise_level_str, p_str)
+    tuning_path = base_path + "tuning/"
     development_path = base_path + "development/"
     test_path = base_path + "test/"
-    return development_path, test_path
+    return tuning_path, development_path, test_path
 
 
 def file_paths(dir_path: str):
@@ -61,23 +62,33 @@ def file_paths(dir_path: str):
 
 
 if __name__ == "__main__":
-    development_sequences = list(Wikipedia.development_sequences())
-    test_sequences = list(Wikipedia.test_sequences())
+    from src.helper.files import read_lines
+
+    tuning_sequences = read_lines(paths.WIKI_TUNING_SENTENCES)
+    development_sequences = read_lines(paths.WIKI_DEVELOPMENT_SENTENCES)
+    test_sequences = read_lines(paths.WIKI_TEST_SENTENCES)
 
     for noise_level in NOISE_LEVELS:
+        tuning_ground_truth_sequences = insert_noise(tuning_sequences, noise_level)
         development_ground_truth_sequences = insert_noise(development_sequences, noise_level)
         test_ground_truth_sequnences = insert_noise(test_sequences, noise_level)
 
         for p in ERROR_PROBABILITIES:
             print(noise_level, p)
+            tuning_corrupt_sequences = corrupt_tokenization(tuning_ground_truth_sequences, p)
             development_corrupt_sequences = corrupt_tokenization(development_ground_truth_sequences, p)
             test_corrupt_sequences = corrupt_tokenization(test_ground_truth_sequnences, p)
 
-            development_path, test_path = benchmark_directories(noise_level, p)
+            tuning_path, development_path, test_path = benchmark_directories(noise_level, p)
+            make_directory_recursive(tuning_path)
             make_directory_recursive(development_path)
             make_directory_recursive(test_path)
+            tune_correct_path, tune_corrupt_path = file_paths(tuning_path)
             dev_correct_path, dev_corrupt_path = file_paths(development_path)
             test_correct_path, test_corrupt_path = file_paths(test_path)
+
+            write_lines(tune_correct_path, tuning_ground_truth_sequences)
+            write_lines(tune_corrupt_path, tuning_corrupt_sequences)
             write_lines(dev_correct_path, development_ground_truth_sequences)
             write_lines(dev_corrupt_path, development_corrupt_sequences)
             write_lines(test_correct_path, test_ground_truth_sequnences)

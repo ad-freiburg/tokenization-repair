@@ -49,6 +49,7 @@ if WIKI_DIR is None:
     print("WARNING: Unable to locate wikipedia folder.")
 
 # wikipedia article IDs
+WIKI_TRAINING_ARTICLE_IDS = WIKI_DIR + "training_article_ids.pkl"
 WIKI_DEVELOPMENT_ARTICLE_IDS = WIKI_DIR + "development_article_ids.pkl"
 WIKI_TEST_ARTICLE_IDS = WIKI_DIR + "test_article_ids.pkl"
 
@@ -60,12 +61,18 @@ WIKI_TEST_FILE = WIKI_SINGLE_FILE_DIR + "test_10k.txt"
 # project development and test set
 PROJECT_DEVELOPMENT_FILE = WIKI_SINGLE_FILE_DIR + "project_development.txt"
 PROJECT_TEST_FILE = WIKI_SINGLE_FILE_DIR + "project_test.txt"
+# sentences for benchmarks
+WIKI_SENTENCES_DIR = WIKI_DIR + "sentences/"
+WIKI_TRAINING_SENTENCES = WIKI_SENTENCES_DIR + "training.txt"
+WIKI_TUNING_SENTENCES = WIKI_SENTENCES_DIR + "tuning.txt"
+WIKI_DEVELOPMENT_SENTENCES = WIKI_SENTENCES_DIR + "development.txt"
+WIKI_TEST_SENTENCES = WIKI_SENTENCES_DIR + "test.txt"
 
 # BENCHMARKS DIRECTORY
-BENCHMARKS_DIR = DUMP_DIR + "benchmarks_33/"
+BENCHMARKS_DIR = DUMP_DIR + "benchmarks_sentences/"
 
 # RESULTS DIRECTORY
-RESULTS_DIR = DUMP_DIR + "results_33/"
+RESULTS_DIR = DUMP_DIR + "results_sentences/"
 RESULTS_DICT = RESULTS_DIR + "results.pkl"
 
 # PLOTS DIRECTORY
@@ -97,7 +104,7 @@ INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"
 THRESHOLD_FITTER_DIR = INTERMEDIATE_DIR + "threshold_fitter/"
 
 
-for dir in [RESULTS_DIR, PLOT_DIR, INTERMEDIATE_DIR, THRESHOLD_FITTER_DIR]:
+for dir in [RESULTS_DIR, PLOT_DIR, INTERMEDIATE_DIR, THRESHOLD_FITTER_DIR, BENCHMARKS_DIR]:
     if not path_exists(dir):
         make_directory(dir)
         print("Made directory: %s" % dir)

@@ -32,9 +32,10 @@ def all_possible_corruptions(token: str) -> List[Tuple[SpellingCorruptionType, i
             if token[pos - 1].isalpha() or token[pos].isalpha():
                 corruptions.append((SpellingCorruptionType.INSERTION, pos))
     # deletions:
-    for pos in range(len(token)):
-        if token[pos].isalpha():
-            corruptions.append((SpellingCorruptionType.DELETION, pos))
+    if len(token) > 1:
+        for pos in range(len(token)):
+            if token[pos].isalpha():
+                corruptions.append((SpellingCorruptionType.DELETION, pos))
     # replacements:
     for pos in range(len(token)):
         if token[pos].isalpha():
