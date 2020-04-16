@@ -53,7 +53,7 @@ def get_dataset_config(dataset=DEFAULT_DATASET, benchmark=DEFAULT_BENCHMARK, **k
 def get_language_model_config(
         model=MODELS_ENUM.forward_language_model,
         history_length=HISTORY_LENGTH,
-        perturbate=0,
+        perturbate=1,
         return_sequences=True,
         rnn_type='LSTM',
         rnn_layers=1,
@@ -103,12 +103,21 @@ def get_language_model_config(
 
 
 def get_bicontext_fixer_config(beam_size=5,
-                               use_look_forward=True,
+                               bidir=False,
+                               lflen=1,
+                               use_look_forward=False,
                                fix_delimiters_only=True,
                                random_sample_files=False,
                                use_default_weights=False,
+                               use_timestamp=False,
+                               use_bias=True,
+                               use_kernel=True,
+                               bidirectional_weights=False,
                                **kwargs):
-    fixer = FIXERS_ENUM.bicontext_fixer
+    if bidir:
+        fixer = FIXERS_ENUM.bicontext_fixer
+    else:
+        fixer = FIXERS_ENUM.unidirctional_fixer
     config = get_language_model_config(inference=True, **kwargs)
     config.fixer = fixer
     config.beam_size = beam_size
@@ -116,34 +125,46 @@ def get_bicontext_fixer_config(beam_size=5,
     config.fix_delimiters_only = fix_delimiters_only
     config.random_sample_files = random_sample_files
     config.use_default_weights = use_default_weights
-    config.fixer_repr = '%s_%s-%s_%s-%d_L%d_F%d_%du_dr-%.2f_P%d_beam-%d_LF-%d_%s_W%d' % (
+    config.use_timestamp = use_timestamp
+    config.lflen = lflen
+    config.bidir = bidir
+    config.bidirectional_weights = bidirectional_weights
+    config.use_bias = use_bias
+    config.use_kernel = use_kernel
+    config.fixer_repr = '%s-%s-%s-%s_%d_L%d_F%d_%du_dr-%.2f_P%d_beam-%d_LF-%d_%s_W%d_f%d_act%d_k%d_b%d' % (
         fixer, config.dataset, config.benchmark, config.rnn_type, config.rnn_units,
         config.rnn_layers, config.fully_connected_layers,
         config.fully_connected_units, config.dropout_rate,
         config.perturbate, beam_size, int(use_look_forward),
-        'T' if fix_delimiters_only else 'X', int(use_default_weights))
-    config.tuner_repr = '%s_%s-%s_%s-%d_L%d_F%d_%du_dr-%.2f_P%d_D%d' % (
+        'T' if fix_delimiters_only else 'X', int(use_default_weights),
+        lflen, int(bidirectional_weights), int(use_kernel), int(use_bias)
+        )
+    config.tuner_repr = '%s_%s-%s_%s-%d_L%d_F%d_%du_dr-%.2f_P%d_D%d_f%d_act%d_k%d_b%d' % (
         fixer, config.dataset, config.benchmark, config.rnn_type, config.rnn_units,
         config.rnn_layers, config.fully_connected_layers,
         config.fully_connected_units, config.dropout_rate,
-        config.perturbate, int(fix_delimiters_only))
+        config.perturbate, int(fix_delimiters_only), lflen,
+        int(bidirectional_weights), int(use_kernel), int(use_bias)
+        )
     config.tuner_dir = os.path.join(
         DEFAULT_MODEL_LOAD_DIR, 'tuner', config.tuner_repr)
     config.dump_dir = os.path.join(DEFAULT_BENCHMARK_DUMP_DIR, config.fixer_repr)
+    print(config.tuner_dir, config.dump_dir)
     return config
 
 
-def get_dp_config(**kwargs):
+def get_dp_config(alpha=1.15, beta=0.1, gamma=1, zeta=2, damping_factor=0.5,
+                  window_siz=5, random_sample_files=False, **kwargs):
     config = get_dataset_config(**kwargs)
     config.fixer = FIXERS_ENUM.dp_fixer
-    config.alpha = 1.15
-    config.beta = 0.1
-    config.gamma = 1
-    config.zeta = 2
-    config.damping_factor = 0.5
-    config.window_siz = 5
-    config.random_sample_files = False
-    config.fixer_repr = '%s_%s_%s_a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
+    config.alpha = alpha
+    config.beta = beta
+    config.gamma = gamma
+    config.zeta = zeta
+    config.damping_factor = damping_factor
+    config.window_siz = window_siz
+    config.random_sample_files = random_sample_files
+    config.fixer_repr = '%s-%s-%s-a%.2f_b%.2f_g%.2f_z%.2f_d%.2f_w%d' % (
         config.fixer, config.dataset, config.benchmark, config.alpha,
         config.beta, config.gamma, config.zeta,
         config.damping_factor, config.window_siz)

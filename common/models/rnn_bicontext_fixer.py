@@ -35,6 +35,8 @@ class Tuner:
     def __init__(self, config):
         self.config = config
         self.tuner_dir = config.tuner_dir
+        self.use_kernel = config.use_kernel
+        self.use_bias = config.use_bias
         if NUM_THREADS == 1:
             self.fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
         else:
@@ -105,14 +107,19 @@ class Tuner:
                 logger.log_info('dumping io data into', iodata_path,
                                 highlight=4)
         import keras.backend as K
-        from keras.layers import Input, Conv1D, Dense, Reshape
+        from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda
         from keras.models import Model
         from keras.optimizers import Adam, SGD, Adadelta
         from keras.losses import sparse_categorical_crossentropy
         from .custom_layers import Sparse
 
         logger.log_debug(X.shape, Y.shape)
-        inp = Input((10,))
+        inp = Input(X.shape[1:])
+        sparse = Sparse(use_kernel=self.use_kernel, use_bias=self.use_bias)
+        if X.ndim > 2:
+            sum_layer = Lambda(lambda x: K.sum(x, axis=-1))
+        else:
+            sum_layer = Activation('linear')
         combiner_val = np.array(
             [[1, 0, 0, 0, 0, 0],
              [0, 1, 0, 0, 0, 0],
@@ -124,10 +131,9 @@ class Tuner:
              [0, 0, 0, 0, 1, 0],
              [0, 0, 0, 0, 0, 1],
              [0, 0, 0, 0, 0, 1]])
-        sparse = Sparse()
         combiner = Dense(6, use_bias=False, activation='softmax')
         combiner.trainable = False
-        model = Model(inp, combiner(sparse(inp)))
+        model = Model(inp, combiner(sum_layer(sparse(inp))))
         model.summary()
         combiner.set_weights([combiner_val])
         lr = 0.01
@@ -140,7 +146,11 @@ class Tuner:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
             loss, acc = model.train_on_batch(X, Y)
             if epoch % 400 == 1:
-                logger.log_debug('\n', sparse.get_weights()[0], '\n', sparse.get_weights()[1])
+                #w = np.round(np.array(sparse.get_weights()).T, 5)
+                #logger.log_debug('\n', sparse.get_weights()[0], '\n', sparse.get_weights()[1])
+                #logger.log_info('\n', w)
+                for arr in sparse.get_weights():
+                    logger.log_debug("\n" + str(np.round(arr, 5)))
                 logger.log_report("loss:", loss, "acc:", acc, highlight=2)
             bar.set_postfix(loss=loss, acc=acc)
             bar.refresh()
@@ -148,7 +158,15 @@ class Tuner:
         loss, acc = model.evaluate(X, Y, verbose=0)
         logger.log_report('loss:', loss, 'acc:', acc, highlight=2)
 
-        weights, bias = sparse.get_weights()
+        if self.use_kernel:
+            weights = sparse.get_weights()[0]
+        else:
+            weights = np.ones(X.shape[1:])
+        if self.use_bias:
+            bias = sparse.get_weights()[-1]
+        else:
+            bias = np.zeros(X.shape[1:])
+        #weights, bias = sparse.get_weights()
         makedirs(weights_path)
         with open(weights_path, 'wb') as fl:
             pickle.dump((weights, bias), fl)
@@ -175,6 +193,9 @@ class RNNBicontextTextFixer:
             **self.backward_model_config.__dict__)
         self.backward_language_model = RNNLanguageModel(self.backward_model_config)
 
+        self.bidirectional_weights = config.bidirectional_weights
+        self.bidir = config.bidir
+        self.lflen = config.lflen
         self.beam_size = config.beam_size
         self.history_length = config.history_length
         self.alphabet = DECODER_DICT
@@ -210,7 +231,8 @@ class RNNBicontextTextFixer:
                 with open(os.path.join(config.tuner_dir, 'final-weights.pkl'), 'rb') as fl:
                     self.weights, self.bias = pickle.load(fl)
                 if not from_tuner:
-                    logger.log_info('loaded weights..\n', self.weights, '\n', self.bias)
+                    logger.log_info('loaded weights..\n', np.round(self.weights,
+                        3), '\n', np.round(self.bias, 3))
             except Exception as err:
                 if not from_tuner:
                     logger.log_error(err)
@@ -229,15 +251,22 @@ class RNNBicontextTextFixer:
 
     def predict_occurence(self, str_before, str_after, dense_state_before,
                           dense_state_after, debug_tag=''):
+        context_lf = self.lflen
         res_forward = np.log(self.forward_language_model.predict_likelihood(
-            str_after, dense_state_before) + MICRO_EPS)
-        res_backward = np.log(self.backward_language_model.predict_likelihood(
-            str_before, dense_state_after) + MICRO_EPS)
+            str_after, dense_state_before, small_context_size=context_lf) + MICRO_EPS)
+        if self.bidir:
+            res_backward = np.log(self.backward_language_model.predict_likelihood(
+                str_before, dense_state_after, small_context_size=context_lf) + MICRO_EPS)
+        else:
+            res_backward = 0
         if debug_tag:
             self.debug_occurence(str_before, str_after, dense_state_before,
                                  dense_state_after, debug_tag,
                                  res_forward, res_backward)
-        return res_forward + res_backward
+        if self.bidirectional_weights:
+            return np.array([res_forward, res_backward])
+        else:
+            return res_forward + res_backward
 
     def debug_occurence(self, str_before, str_after, dense_state_before,
                         dense_state_after, debug_tag,
@@ -279,7 +308,10 @@ class RNNBicontextTextFixer:
                     "\n" + "\033[31m" + correct_text[:idx_correct] +
                     '|\033[0m' + corrupt_text[idx_corrupt:] + "\n" +
                     str(correct_operation), highlight=4)
-            probs = np.log(np.zeros((10,)) + MICRO_EPS)
+            if self.bidirectional_weights:
+                probs = np.log(np.zeros((10, 2)) + MICRO_EPS)
+            else:
+                probs = np.log(np.zeros((10,)) + MICRO_EPS)
             X = correct_text[max(0, idx_correct - self.history_length): idx_correct]
             Y = corrupt_text[idx_corrupt + 1: idx_corrupt + self.history_length + 1]
             v = corrupt_text[idx_corrupt: idx_corrupt + 1]
@@ -292,13 +324,12 @@ class RNNBicontextTextFixer:
             Xv_state = self.forward_language_model.predict(
                 v, dense_state=X_state, return_dense_state=True)
 
-            pr_del = np.log(MICRO_EPS)
             # TODO: This condition should be removed if it's needed for typo/non-typo fixing
             if v in self.tokenization_delimiters or not self.fix_delimiters_only:
                 pr_del = self.predict_occurence(X, Y, X_state, Y_state, 'DEL')
             if v in self.tokenization_delimiters:
                 probs[0] = pr_del
-            else:
+            elif not self.fix_delimiters_only:
                 probs[1] = pr_del
             # ###############################################################
             pr_nochg1 = self.predict_occurence(Xv, Y, Xv_state, Y_state, 'NOP1')
@@ -322,7 +353,8 @@ class RNNBicontextTextFixer:
             pr_add1_sp = np.log(MICRO_EPS)
             pr_add2_sp = np.log(MICRO_EPS)
             for s in try_to_add:
-                if s == v == ' ':
+                if s == v == ' ' or (self.fix_delimiters_only and s not in
+                                     self.tokenization_delimiters):
                     continue
                 Xs = X + s
                 sZ = s + Z
@@ -335,8 +367,10 @@ class RNNBicontextTextFixer:
                 pr_add1 = self.predict_occurence(X, sZ, X_state, sZ_state, 'ADD1 ' + s)
                 pr_add2 = self.predict_occurence(Xs, Z, Xs_state, Z_state, 'ADD2 ' + s)
                 if s in self.tokenization_delimiters:
-                    pr_add1_sp = max(pr_add1_sp, pr_add1)
-                    pr_add2_sp = max(pr_add2_sp, pr_add2)
+                    pr_add1_sp = pr_add1
+                    pr_add2_sp = pr_add2
+                    #pr_add1_sp = max(pr_add1_sp, pr_add1)
+                    #pr_add2_sp = max(pr_add2_sp, pr_add2)
                 else:
                     if pr_add1 > pr_add1_nosp:
                         pr_add1_nosp = pr_add1
@@ -349,10 +383,10 @@ class RNNBicontextTextFixer:
                     correct_operation[1] not in self.tokenization_delimiters):
                 if to_add1 != correct_operation[1]:
                     # pr_add1_nosp = 0.0
-                    pr_add1_nosp = 0 #1.0
+                    pr_add1_nosp = 0  # 1.0
                 if to_add2 != correct_operation[1]:
                     # pr_add2_nosp = 0.0
-                    pr_add2_nosp = 0 #1.0
+                    pr_add2_nosp = 0  # 1.0
             probs[6] = pr_add1_sp
             probs[7] = pr_add2_sp
             probs[8] = pr_add1_nosp
@@ -432,9 +466,9 @@ class RNNBicontextTextFixer:
             pr_del = self.predict_occurence(X, Y, dense_state,
                                             future_states[cur_pos + 1], 'DEL')
             if v in self.tokenization_delimiters:
-                pr_del = pr_del * self.weights[0] + self.bias[0]
+                pr_del = np.sum(pr_del * self.weights[0] + self.bias[0])
             else:
-                pr_del = pr_del * self.weights[1] + self.bias[1]
+                pr_del = np.sum(pr_del * self.weights[1] + self.bias[1])
             yield (score - pr_del, before_context_copy.copy(), dense_state,
                    cur_pos + 1, res_text, TYPO_DEL, 0)
 
@@ -450,11 +484,11 @@ class RNNBicontextTextFixer:
         pr_nochg2 = self.predict_occurence(X, Z, dense_state,
                                            future_states[cur_pos], 'NOP2')
         if v in self.tokenization_delimiters:
-            pr_nochg1 = pr_nochg1 * self.weights[2] + self.bias[2]
-            pr_nochg2 = pr_nochg2 * self.weights[3] + self.bias[3]
+            pr_nochg1 = np.sum(pr_nochg1 * self.weights[2] + self.bias[2])
+            pr_nochg2 = np.sum(pr_nochg2 * self.weights[3] + self.bias[3])
         else:
-            pr_nochg1 = pr_nochg1 * self.weights[4] + self.bias[4]
-            pr_nochg2 = pr_nochg2 * self.weights[5] + self.bias[5]
+            pr_nochg1 = np.sum(pr_nochg1 * self.weights[4] + self.bias[4])
+            pr_nochg2 = np.sum(pr_nochg2 * self.weights[5] + self.bias[5])
         pr_nochg = pr_nochg1 + pr_nochg2
 
         yield (score - pr_nochg, before_context,
@@ -491,7 +525,7 @@ class RNNBicontextTextFixer:
 
                     pr_add_forward = max(
                         pr_add_forward,
-                        self.predict_occurence(X, rsZ, dense_state, future_state_new))
+                        np.sum(self.predict_occurence(X, rsZ, dense_state, future_state_new)))
                     # if pr_add_forward > pr_add: break
 
             Xs = X + s
@@ -505,11 +539,11 @@ class RNNBicontextTextFixer:
             pr_add1 = self.predict_occurence(X, sZ, dense_state, future_state_new, 'ADD1 ' + s)
             pr_add2 = self.predict_occurence(Xs, Z, dense_state_new, future_states[cur_pos], 'ADD2' + s)
             if s in self.tokenization_delimiters:
-                pr_add1 = pr_add1 * self.weights[6] + self.bias[6]
-                pr_add2 = pr_add2 * self.weights[7] + self.bias[7]
+                pr_add1 = np.sum(pr_add1 * self.weights[6] + self.bias[6])
+                pr_add2 = np.sum(pr_add2 * self.weights[7] + self.bias[7])
             else:
-                pr_add1 = pr_add1 * self.weights[8] + self.bias[8]
-                pr_add2 = pr_add2 * self.weights[9] + self.bias[9]
+                pr_add1 = np.sum(pr_add1 * self.weights[8] + self.bias[8])
+                pr_add2 = np.sum(pr_add2 * self.weights[9] + self.bias[9])
             pr_add = pr_add1 + pr_add2
 
             if self.use_look_forward and (pr_add < pr_add_forward or pr_add < -30):

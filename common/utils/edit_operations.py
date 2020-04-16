@@ -69,6 +69,12 @@ def edit_operations(correct, non_correct):
                 edit_dist[i2][j] = edit_dist[i2][j - 1] + 1
                 operation[i][j] = TYPO_ADD
 
+            if edit_dist[i2][j] == edit_dist[i2][j - 1] + 1 == edit_dist[i2 ^ 1][j] + 1:
+                if correct[i - 1] == ' ':
+                    operation[i][j] = TYPO_DEL
+                else:
+                    operation[i][j] = TYPO_ADD
+
     state = (len(correct), len(non_correct))
     operations_sequence = []
     while state != (0, 0):
