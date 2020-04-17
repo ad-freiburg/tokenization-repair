@@ -29,20 +29,20 @@ class Config:
 
 # ############################################### Datasets
 
-
 def get_dataset_config(dataset=DEFAULT_DATASET, benchmark=DEFAULT_BENCHMARK, **kwargs):
-    root_path = DEFAULT_DATA_LOAD_DIR
-    benchmarks_root_path = os.path.join(root_path, 'tokenization-repair-paper', 'benchmarks_33')
+    benchmarks_root_path = DEFAULT_DATA_LOAD_DIR
+    root_path = DEFAULT_ROOT_DIR
     return Config(
         dataset=dataset,
-        root_path=root_path,
-        benchmarks_root_path = os.path.join(root_path, 'tokenization-repair-paper', 'benchmarks_33'),
+        benchmarks_root_path=benchmarks_root_path,
         benchmark=benchmark,
         train_path=os.path.join(root_path, dataset, 'training_shuffled.txt'),
-        valid_correct_path=os.path.join(benchmarks_root_path, benchmark, 'development', 'correct.txt'),
-        valid_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'development', 'corrupt.txt'),
-        test_correct_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'correct.txt'),
-        test_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'test', 'corrupt.txt'),
+        valid_correct_path=os.path.join(benchmarks_root_path, benchmark, 'tuning', 'correct.txt'),
+        valid_corrupt_path=os.path.join(benchmarks_root_path, benchmark, 'tuning', 'corrupt.txt'),
+        test_correct_path=os.path.join(benchmarks_root_path, benchmark,
+                                       'development', 'correct.txt'),
+        test_corrupt_path=os.path.join(benchmarks_root_path, benchmark,
+                                       'development', 'corrupt.txt'),
         vocab_path=os.path.join(DEFAULT_ROOT_DIR, 'vocab.txt'),
         dictionary_path=os.path.join(DEFAULT_ROOT_DIR, 'dictionary.pkl'),
     )
@@ -158,7 +158,7 @@ def get_bicontext_fixer_config(beam_size=5,
 
 def get_dp_config(alpha=1.15, beta=0.1, gamma=1, zeta=2, damping_factor=0.5,
                   use_timestamp=False,
-                  window_siz=5, random_sample_files=False, **kwargs):
+                  window_siz=8, random_sample_files=False, **kwargs):
     config = get_dataset_config(**kwargs)
     config.fixer = FIXERS_ENUM.dp_fixer
     config.alpha = alpha

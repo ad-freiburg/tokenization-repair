@@ -50,7 +50,7 @@ class DPFixer:
                     ((self.dictionary.token_score(Token(big_word[i:j]))[0] *
                       (j - i) + (len(big_word) - j) * F[j]) /
                      (len(big_word) - i))
-                    for j in range(i + 1, len(big_word) + 1)),
+                    for j in range(i + 1, min(len(big_word), i + 25) + 1)),
                     NEG_INFINITY)
             nx[i] += i + 1
         res = []

@@ -111,6 +111,11 @@ class Tuner:
         return self.fit(X, Y)
 
     def create_network(self, X, Y, combiner_val):
+        bias = np.zeros(X.shape[1:])
+        weights = np.ones(X.shape[1:])
+        if X.shape[0] == 0:
+            return weights, bias
+
         import keras.backend as K
         from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda, Add
         from keras.models import Model
@@ -144,6 +149,7 @@ class Tuner:
         for epoch in bar:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
             vals = model.train_on_batch(X, Y)
+            # vals = model.fit(X, Y, verbose=0, batch_size=min(X.shape[0], 1 << 17))
             names = [name.replace('sparse_categorical_accuracy', 'acc')
                     for name in model.metrics_names]
             dicts = dict(zip(names, vals))
