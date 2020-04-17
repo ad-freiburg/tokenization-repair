@@ -29,7 +29,10 @@ if __name__ == "__main__":
                           subset=benchmark_subset)
 
     sequence_pairs = benchmark.get_sequence_pairs(BenchmarkFiles.CORRUPT)
-    predicted_sequences = benchmark.get_predicted_sequences(parameters["file"])
+    if parameters["file"] == "corrupt.txt":
+        predicted_sequences = [corrupt for _, corrupt in sequence_pairs]
+    else:
+        predicted_sequences = benchmark.get_predicted_sequences(parameters["file"])
 
     evaluator = Evaluator()
     results_holder = ResultsHolder()

@@ -53,17 +53,10 @@ WIKI_TRAINING_ARTICLE_IDS = WIKI_DIR + "training_article_ids.pkl"
 WIKI_DEVELOPMENT_ARTICLE_IDS = WIKI_DIR + "development_article_ids.pkl"
 WIKI_TEST_ARTICLE_IDS = WIKI_DIR + "test_article_ids.pkl"
 
-# wikipedia text files
-WIKI_SINGLE_FILE_DIR = WIKI_DIR + "single-file/"
-WIKI_TRAINING_FILE = WIKI_SINGLE_FILE_DIR + "training_shuffled.txt"
-WIKI_DEVELOPMENT_FILE = WIKI_SINGLE_FILE_DIR + "development_10k.txt"
-WIKI_TEST_FILE = WIKI_SINGLE_FILE_DIR + "test_10k.txt"
-# project development and test set
-PROJECT_DEVELOPMENT_FILE = WIKI_SINGLE_FILE_DIR + "project_development.txt"
-PROJECT_TEST_FILE = WIKI_SINGLE_FILE_DIR + "project_test.txt"
-# sentences for benchmarks
+# sentence files
 WIKI_SENTENCES_DIR = WIKI_DIR + "sentences/"
 WIKI_TRAINING_SENTENCES = WIKI_SENTENCES_DIR + "training.txt"
+WIKI_TRAINING_SENTENCES_SHUFFLED = WIKI_SENTENCES_DIR + "training_shuffled.txt"
 WIKI_TUNING_SENTENCES = WIKI_SENTENCES_DIR + "tuning.txt"
 WIKI_DEVELOPMENT_SENTENCES = WIKI_SENTENCES_DIR + "development.txt"
 WIKI_TEST_SENTENCES = WIKI_SENTENCES_DIR + "test.txt"

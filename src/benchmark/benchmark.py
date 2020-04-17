@@ -8,8 +8,8 @@ from src.helper.files import read_lines, make_directory_recursive
 from src.benchmark.subset import Subset
 
 
-NOISE_LEVELS = [0, 0.1, 0.2]
-ERROR_PROBABILITIES = list(np.arange(0.1, 1.1, 0.1)) + [np.inf]
+NOISE_LEVELS = [0, 0.1]
+ERROR_PROBABILITIES = [0.1, 1, np.inf]
 
 
 class BenchmarkFiles(Enum):

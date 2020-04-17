@@ -8,7 +8,7 @@ from src.evaluation.predictions_file_writer import PredictionsFileWriter
 if __name__ == "__main__":
     corrector = LeftToRightCorrector()
 
-    for benchmark in all_benchmarks(Subset.TEST):
+    for benchmark in all_benchmarks(Subset.DEVELOPMENT):
         print(benchmark.name)
         file_writer = PredictionsFileWriter(benchmark.get_results_directory() + "greedy.txt")
         for sequence in benchmark.get_sequences(BenchmarkFiles.CORRUPT):

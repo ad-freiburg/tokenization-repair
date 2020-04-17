@@ -3,8 +3,10 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [Parameter("model", "-m", "str"),
           Parameter("benchmark", "-b", "str"),
-          Parameter("test", "-t", "boolean")]
+          Parameter("test", "-t", "boolean"),
+          Parameter("out_file", "-f", "str")]
 getter = ParameterGetter(params)
+getter.print_help()
 parameters = getter.get()
 
 from src.models.char_lm.unidirectional_model import UnidirectionalModel
@@ -40,7 +42,7 @@ if __name__ == "__main__":
                 insertion_penalty, deletion_penalty = penalty_holder.get(model_name, penalty_name)
             benchmark = Benchmark(benchmark_name, benchmark_subset)
             sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
-            file_writer = PredictionsFileWriter(benchmark.get_results_directory() + "beam_search_%s.txt" % model_name)
+            file_writer = PredictionsFileWriter(benchmark.get_results_directory() + parameters["out_file"])
 
         corrector = BatchedBeamSearchCorrector(model.model,
                                                insertion_penalty=insertion_penalty,

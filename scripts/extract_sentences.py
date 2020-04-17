@@ -35,7 +35,7 @@ def split_article(text: str) -> List[str]:
     return sentences
 
 
-FILTER_REGEX = re.compile(r" [.,]( |$)|<|>|\"\"|\(\)| ' |\([,;]|colspan")
+FILTER_REGEX = re.compile(r" [.,;]( |$)|<|>|\"\"|\(\)| ' |\([,;]|colspan")
 
 
 def filter_sentences(sentences: List[str]) -> List[str]:

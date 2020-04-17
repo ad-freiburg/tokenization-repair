@@ -31,7 +31,7 @@ if __name__ == "__main__":
     corrector = PyEnchantTokenizationCorrector()
 
     for benchmark_name in sys.argv[1:]:
-        benchmark = Benchmark(benchmark_name, Subset.TEST)
+        benchmark = Benchmark(benchmark_name, Subset.DEVELOPMENT)
         print(benchmark.name)
         file_writer = PredictionsFileWriter(benchmark.get_results_directory() + "enchant.txt")
         for s_i, sequence in enumerate(benchmark.get_sequences(BenchmarkFiles.CORRUPT)):
