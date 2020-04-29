@@ -53,6 +53,10 @@ WIKI_TRAINING_ARTICLE_IDS = WIKI_DIR + "training_article_ids.pkl"
 WIKI_DEVELOPMENT_ARTICLE_IDS = WIKI_DIR + "development_article_ids.pkl"
 WIKI_TEST_ARTICLE_IDS = WIKI_DIR + "test_article_ids.pkl"
 
+# paragraphs
+WIKI_PARAGRAPHS_DIR = WIKI_DIR + "single-file/"
+WIKI_TRAINING_PARAGRAPHS = WIKI_PARAGRAPHS_DIR + "training_shuffled.txt"
+
 # sentence files
 WIKI_SENTENCES_DIR = WIKI_DIR + "sentences/"
 WIKI_TRAINING_SENTENCES = WIKI_SENTENCES_DIR + "training.txt"
@@ -60,6 +64,10 @@ WIKI_TRAINING_SENTENCES_SHUFFLED = WIKI_SENTENCES_DIR + "training_shuffled.txt"
 WIKI_TUNING_SENTENCES = WIKI_SENTENCES_DIR + "tuning.txt"
 WIKI_DEVELOPMENT_SENTENCES = WIKI_SENTENCES_DIR + "development.txt"
 WIKI_TEST_SENTENCES = WIKI_SENTENCES_DIR + "test.txt"
+
+# punkt tokenizer
+WIKI_PUNKT_TOKENIZER = WIKI_DIR + "punkt_tokenizer.pkl"
+EXTENDED_PUNKT_ABBREVIATIONS = WIKI_DIR + "extended_punkt_abbreviations.pkl"
 
 # BENCHMARKS DIRECTORY
 BENCHMARKS_DIR = DUMP_DIR + "benchmarks_sentences/"
@@ -91,6 +99,8 @@ UNIGRAM_NO_DELIM_FREQUENCY_DICT = DICT_FOLDER + "unigram_no_delim_frequencies.pk
 MOST_FREQUENT_UNIGRAMS_DICT = DICT_FOLDER + "unigrams_most_frequent_%i.pkl"
 # bigrams
 BIGRAM_HOLDER = DICT_FOLDER + "bigram_holder.pkl"
+# stump dict
+STUMP_DICT = DICT_FOLDER + "token_stumps.pkl"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"

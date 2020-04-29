@@ -1,14 +1,15 @@
 from typing import List
 
-from nltk.tokenize import sent_tokenize
-import spacy
 import sys
+if "spacy" in sys.argv:
+    import spacy
 
 import project
-from src.datasets.wikipedia import Wikipedia
+from src.settings import paths
+from src.helper.files import read_sequences
 from src.helper.time import timestamp, time_diff
 from src.interactive.sequence_generator import interactive_sequence_generator
-from src.sequence.sentence_splitter import NLTKSentenceSplitter
+from src.sequence.sentence_splitter import NLTKSentenceSplitter, WikiPunktTokenizer
 
 
 class SpacySentenceSplitter:
@@ -31,7 +32,11 @@ test_sequences = [
     """He is born in Washington D.C. in the U.S.A. and lived there.""",
     """I did three things, e.g. one thing.""",
     """I did more, e. g. another thing.""",
-    """Read sentences, i.e. this sentence."""
+    """Read sentences, i.e. this sentence.""",
+    """She met Mr. Lastname and Mrs. Lastname at their house.""",
+    """The vote elected Mr. Lastname as president.""",
+    """The vote elected Mrs. Lastname as president.""",
+    """Prename Lastname (ca. 1950-2000) lived."""
 ]
 
 
@@ -39,10 +44,20 @@ if __name__ == "__main__":
     if "i" in sys.argv:
         paragraphs = interactive_sequence_generator()
     elif "t" in sys.argv:
-        paragraphs = Wikipedia.training_sequences(10000)
+        paragraphs = []
+        wiki_paragraphs = read_sequences(paths.WIKI_TRAINING_PARAGRAPHS)
+        for _ in range(1000):
+            paragraphs.append(next(wiki_paragraphs))
     else:
         paragraphs = test_sequences
-    splitter = SpacySentenceSplitter() if "spacy" in sys.argv else NLTKSentenceSplitter
+
+    if "spacy" in sys.argv:
+        splitter = SpacySentenceSplitter()
+    elif "wiki" in sys.argv:
+        print("loading wiki punkt tokenizer...")
+        splitter = WikiPunktTokenizer()
+    else:
+        splitter = NLTKSentenceSplitter()
     total_runtime = 0
     for paragraph in paragraphs:
         print(paragraph)
@@ -51,6 +66,6 @@ if __name__ == "__main__":
         runtime = time_diff(start_time)
         total_runtime += runtime
         for s in sentences:
-            print(s)
-        print(runtime)
-    print(total_runtime)
+            print(">", s)
+        print()
+    print("total runtime:", total_runtime)

@@ -2,8 +2,8 @@ import abc
 from typing import List, Tuple
 
 
-NO_SPACE_BEFORE = set(".,)?!;:'").union({"'s"})
-NO_SPACE_AFTER = set("(")
+NO_SPACE_BEFORE = set(".,)]?!;:'").union({"'s"})
+NO_SPACE_AFTER = set("([")
 NO_SPACE_ANYWHERE = set("\u2009")
 
 

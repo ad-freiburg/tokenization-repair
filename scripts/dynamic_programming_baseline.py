@@ -22,7 +22,9 @@ from src.evaluation.predictions_file_writer import PredictionsFileWriter
 
 
 if __name__ == "__main__":
-    corrector = DynamicProgrammingCorrector(bigram_postprocessing=parameters["bigram_postprocessing"])
+    corrector = DynamicProgrammingCorrector(bigram_postprocessing=parameters["bigram_postprocessing"],
+                                            allow_len_1=False,
+                                            minimize_token_number=False)
 
     if parameters["interactive"]:
         benchmarks = [None]

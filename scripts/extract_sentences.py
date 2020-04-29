@@ -9,7 +9,7 @@ import project
 from src.helper.files import get_files, read_sequences, write_lines, make_directory
 from src.settings import paths
 from src.helper.pickle import load_object
-from src.sequence.sentence_splitter import NLTKSentenceSplitter
+from src.sequence.sentence_splitter import WikiPunktTokenizer
 
 
 def get_article_ids():
@@ -25,12 +25,12 @@ def strip_all(texts: List[str]) -> List[str]:
     return texts
 
 
-def split_article(text: str) -> List[str]:
+def split_article(text: str, sentence_splitter: WikiPunktTokenizer) -> List[str]:
     paragraphs = text.split('\n')
     paragraphs = strip_all(paragraphs)
     sentences = []
     for paragraph in paragraphs:
-        sentences.extend(NLTKSentenceSplitter.split(paragraph))
+        sentences.extend(sentence_splitter.split(paragraph))
     sentences = strip_all(sentences)
     return sentences
 
@@ -81,6 +81,8 @@ if __name__ == "__main__":
 
     tuning_sentences, development_sentences, test_sentences = [], [], []
 
+    sentence_splitter = WikiPunktTokenizer()
+
     if TRAINING:
         training_file = open(paths.WIKI_TRAINING_SENTENCES, 'w', encoding="utf8")
 
@@ -92,7 +94,7 @@ if __name__ == "__main__":
                 article = json.loads(line)
                 id = article["id"]
                 if not TRAINING and id in evaluation_ids:
-                    sentences = split_article(article["text"])
+                    sentences = split_article(article["text"], sentence_splitter)
                     sentences = filter_sentences(sentences)
                     if len(sentences) > 0:
                         selected_sentence = random.choice(sentences)
@@ -104,7 +106,7 @@ if __name__ == "__main__":
                         else:
                             test_sentences.append(selected_sentence)
                 elif TRAINING and id in training_ids:
-                    sentences = split_article(article["text"])
+                    sentences = split_article(article["text"], sentence_splitter)
                     sentences = filter_sentences(sentences)
                     sentences = [preprocess_sentence(sentence) for sentence in sentences]
                     training_file.write('\n'.join(sentences + [""]))

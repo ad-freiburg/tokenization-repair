@@ -3,8 +3,6 @@ from typing import List, Tuple
 import numpy as np
 
 import project
-from src.datasets.wikipedia import Wikipedia
-from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
 from src.noise.typo_noise_inducer import TypoNoiseInducer
 from src.sequence.token_corruptor import TokenCorruptor
 from src.settings import constants

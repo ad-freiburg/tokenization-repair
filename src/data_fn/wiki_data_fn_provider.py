@@ -33,7 +33,7 @@ class WikiDataFnProvider:
             self.corruptor = TokenTypoInducer(noise_prob, seed)
 
     def read_sequences(self):
-        return read_sequences(paths.WIKI_TRAINING_FILE)
+        return read_sequences(paths.WIKI_TRAINING_SENTENCES_SHUFFLED)
 
     def read_batches(self):
         batch = []

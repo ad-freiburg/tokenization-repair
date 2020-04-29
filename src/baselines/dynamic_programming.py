@@ -27,25 +27,20 @@ class DynamicProgrammingCandidate:
     def __repr__(self):
         return str(self)
 
-    def __lt__(self, other):
-        #return self.frequency_sum > other.frequency_sum
-        if self.n_nonwords != other.n_nonwords:
-            return self.n_nonwords < other.n_nonwords
-        for self_freq, other_freq in zip(self.sorted_frequencies, other.sorted_frequencies):
-            if self_freq != other_freq:
-                return self_freq > other_freq
-        return len(self.tokens) < len(other.tokens)
-
 
 class DynamicProgrammingCorrector:
     def __init__(self,
-                 bigram_postprocessing):
+                 bigram_postprocessing: bool,
+                 allow_len_1: bool,
+                 minimize_token_number: bool):
         self.unigrams = UnigramHolder()
         self.words = {word for word in self.unigrams.frequencies}
         if bigram_postprocessing:
             self.bigram_postprocessor = BigramPostprocessor(unigrams=self.unigrams)
         else:
             self.bigram_postprocessor = None
+        self.allow_len_1 = allow_len_1
+        self.minimize_token_number = minimize_token_number
 
     def locate_words(self, text: str) -> List[List[int]]:
         word_beginnings = [[] for _ in text]
@@ -57,17 +52,29 @@ class DynamicProgrammingCorrector:
         return word_beginnings
 
     def is_word(self, token: str):
-        if len(token) == 1 and token not in SINGLE_CHAR_WORDS and token.isalpha():
-            return False
+        if not self.allow_len_1:
+            if len(token) == 1 and token not in SINGLE_CHAR_WORDS and token.isalpha():
+                return False
         return token in self.words
 
-    @staticmethod
-    def _pick_best_candidate(candidates: List[DynamicProgrammingCandidate]) -> Optional[DynamicProgrammingCandidate]:
+    def candidate_comparison(self, candidate: DynamicProgrammingCandidate, other: DynamicProgrammingCandidate):
+        # return self.frequency_sum > other.frequency_sum
+        if self.minimize_token_number and len(candidate.tokens) != len(other.tokens):
+            return len(candidate.tokens) < len(other.tokens)
+        if candidate.n_nonwords != other.n_nonwords:
+            return candidate.n_nonwords < other.n_nonwords
+        for self_freq, other_freq in zip(candidate.sorted_frequencies, other.sorted_frequencies):
+            if self_freq != other_freq:
+                return self_freq > other_freq
+        return len(candidate.tokens) < len(other.tokens)
+
+    def _pick_best_candidate(self,
+                             candidates: List[DynamicProgrammingCandidate]) -> Optional[DynamicProgrammingCandidate]:
         if len(candidates) == 0:
             return None
         best = candidates[0]
         for candidate in candidates[1:]:
-            if candidate < best:
+            if self.candidate_comparison(candidate, best):
                 best = candidate
         return best
 

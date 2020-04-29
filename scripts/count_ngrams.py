@@ -18,7 +18,7 @@ K100 = int(1e5)
 M = int(1e6)
 
 
-def count_unigrams():
+def count_unigrams(n_sequences: int):
     total_start = timestamp()
 
     tokenizer = Tokenizer()
@@ -27,7 +27,7 @@ def count_unigrams():
 
     tokenization_time = 0
 
-    for s_i, sequence in enumerate(Wikipedia.training_sequences()):
+    for s_i, sequence in enumerate(Wikipedia.training_sequences(n_sequences)):
         start = timestamp()
         tokens = tokenizer.tokenize(sequence)
         tokens[0].delimiter_before = True
@@ -75,10 +75,10 @@ def query_unigrams():
         print(holder.get(query))
 
 
-def count_bigrams():
+def count_bigrams(n_sequences: int):
     tokenizer = Tokenizer()
     holder = BigramHolder()
-    for s_i, sequence in enumerate(Wikipedia.training_sequences()):
+    for s_i, sequence in enumerate(Wikipedia.training_sequences(n_sequences)):
         tokens = tokenizer.tokenize(sequence)
         texts = [token.text for token in tokens]
         for i in range(len(tokens) - 1):
@@ -102,7 +102,8 @@ def print_top_bigrams():
 if __name__ == "__main__":
     mode = sys.argv[1]
     if mode == "count":
-        count_unigrams()
+        n_sequences = int(sys.argv[2])
+        count_unigrams(n_sequences)
     elif mode == "print":
         print_top_unigrams()
     elif mode == "search":
@@ -110,6 +111,7 @@ if __name__ == "__main__":
     elif mode == "query":
         query_unigrams()
     elif mode == "count-bigrams":
-        count_bigrams()
+        n_sequences = int(sys.argv[2])
+        count_bigrams(n_sequences)
     elif mode == "top-bigrams":
         print_top_bigrams()
