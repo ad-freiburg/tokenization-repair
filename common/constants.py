@@ -29,12 +29,12 @@ DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
 
-for root in ['/nfs/students/mostafa-mohamed/paper_v2', '/project/p20gb/amin/']:
+for root in ['/nfs/students/mostafa-mohamed/paper', '/project/p20gb/amin/paper']:
     if os.path.isdir(root):
         DEFAULT_ROOT_DIR = root
         DEFAULT_MODEL_DUMP_DIR = os.path.join(root, 'dumps')
         DEFAULT_MODEL_LOAD_DIR = os.path.join(root, 'dumps')
-        DEFAULT_DATA_LOAD_DIR = os.path.join(root, 'benchmarks_root')
+        DEFAULT_DATA_LOAD_DIR = os.path.join(root, 'benchmarks_sentences')
         DEFAULT_BENCHMARK_DUMP_DIR = os.path.join(root, 'benchmark_dumps')
         print("located", root)
         break
@@ -174,26 +174,28 @@ E2E_MODES_ENUM = Enum(decision='decision_e2e', language='language_e2e',
 MODELS_ENUM = Enum(forward_language_model='forward_LM',
                    backward_language_model='backward_LM',
                    e2e_model='e2e_model')
-BENCHMARKS_ENUM = [
-    '0_0.1', '0_0.2',
-    '0_0.3', '0_0.4',
-    '0_0.5', '0_0.6',
-    '0_0.7', '0_0.8',
-    '0_0.9', '0_1',
-    '0_inf',
-    '0.2_0.1', '0.2_0.2',
-    '0.2_0.3', '0.2_0.4',
-    '0.2_0.5', '0.2_0.6',
-    '0.2_0.7', '0.2_0.8',
-    '0.2_0.9', '0.2_1',
-    '0.2_inf',
-    '0.1_0.1', '0.1_0.2',
-    '0.1_0.3', '0.1_0.4',
-    '0.1_0.5', '0.1_0.6',
-    '0.1_0.7', '0.1_0.8',
-    '0.1_0.9', '0.1_1',
-    '0.1_inf',
-]
+
+BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
+"""
+'0_0.1', '0_0.2',
+'0_0.3', '0_0.4',
+'0_0.5', '0_0.6',
+'0_0.7', '0_0.8',
+'0_0.9', '0_1',
+'0_inf',
+'0.2_0.1', '0.2_0.2',
+'0.2_0.3', '0.2_0.4',
+'0.2_0.5', '0.2_0.6',
+'0.2_0.7', '0.2_0.8',
+'0.2_0.9', '0.2_1',
+'0.2_inf',
+'0.1_0.1', '0.1_0.2',
+'0.1_0.3', '0.1_0.4',
+'0.1_0.5', '0.1_0.6',
+'0.1_0.7', '0.1_0.8',
+'0.1_0.9', '0.1_1',
+'0.1_inf',
+"""
 
 
 DEFAULT_BENCHMARK = BENCHMARKS_ENUM[int(os.environ.get('TOKENIZATION_BENCHMARK', 0))]

@@ -37,6 +37,7 @@ class Tuner:
         self.tuner_dir = config.tuner_dir
         self.use_kernel = config.use_kernel
         self.use_bias = config.use_bias
+        self.fix_delimiters_only = config.fix_delimiters_only
         if NUM_THREADS == 1:
             self.fixer = RNNBicontextTextFixer(self.config, from_tuner=True)
         else:
@@ -106,53 +107,56 @@ class Tuner:
                 pickle.dump((X, Y), fl)
                 logger.log_info('dumping io data into', iodata_path,
                                 highlight=4)
+        assert self.fix_delimiters_only, "The possibilities are not handled for non delimiters"
+        return self.fit(X, Y)
+
+    def create_network(self, X, Y, combiner_val):
+        bias = np.zeros(X.shape[1:])
+        weights = np.ones(X.shape[1:])
+        if X.shape[0] == 0:
+            return weights, bias
+
         import keras.backend as K
-        from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda
+        from keras.layers import Input, Conv1D, Dense, Reshape, Activation, Lambda, Add
         from keras.models import Model
         from keras.optimizers import Adam, SGD, Adadelta
-        from keras.losses import sparse_categorical_crossentropy
         from .custom_layers import Sparse
 
-        logger.log_debug(X.shape, Y.shape)
+        logger.log_debug("\n", X.shape, Y.shape,
+                         np.unique(Y, return_counts=True), '\n',
+                         X.mean(axis=0), '\n\n', X.std(axis=0))
         inp = Input(X.shape[1:])
         sparse = Sparse(use_kernel=self.use_kernel, use_bias=self.use_bias)
         if X.ndim > 2:
             sum_layer = Lambda(lambda x: K.sum(x, axis=-1))
         else:
             sum_layer = Activation('linear')
-        combiner_val = np.array(
-            [[1, 0, 0, 0, 0, 0],
-             [0, 1, 0, 0, 0, 0],
-             [0, 0, 1, 0, 0, 0],
-             [0, 0, 1, 0, 0, 0],
-             [0, 0, 0, 1, 0, 0],
-             [0, 0, 0, 1, 0, 0],
-             [0, 0, 0, 0, 1, 0],
-             [0, 0, 0, 0, 1, 0],
-             [0, 0, 0, 0, 0, 1],
-             [0, 0, 0, 0, 0, 1]])
-        combiner = Dense(6, use_bias=False, activation='softmax')
+        print(combiner_val.shape)
+        combiner = Dense(combiner_val.shape[-1], activation='softmax', use_bias=False)
         combiner.trainable = False
-        model = Model(inp, combiner(sum_layer(sparse(inp))))
-        model.summary()
+        out = combiner(sum_layer(sparse(inp)))
         combiner.set_weights([combiner_val])
-        lr = 0.01
-        decay = 5e-4
-        model.compile(Adam(lr),
-                      loss=sparse_categorical_crossentropy,
-                      metrics=['sparse_categorical_accuracy'])
-        bar = tqdm(range(10000), ncols=120)
+        model = Model(inp, out)
+        model.summary()
+
+        lr = 0.1
+        decay = 5e-2
+        model.compile(
+            Adam(lr),
+            loss='sparse_categorical_crossentropy',
+            metrics=['sparse_categorical_accuracy'])
+        bar = tqdm(range(1000), ncols=160)
         for epoch in bar:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
-            loss, acc = model.train_on_batch(X, Y)
+            vals = model.train_on_batch(X, Y)
+            # vals = model.fit(X, Y, verbose=0, batch_size=min(X.shape[0], 1 << 17))
+            names = [name.replace('sparse_categorical_accuracy', 'acc')
+                    for name in model.metrics_names]
+            dicts = dict(zip(names, vals))
             if epoch % 400 == 1:
-                #w = np.round(np.array(sparse.get_weights()).T, 5)
-                #logger.log_debug('\n', sparse.get_weights()[0], '\n', sparse.get_weights()[1])
-                #logger.log_info('\n', w)
                 for arr in sparse.get_weights():
-                    logger.log_debug("\n" + str(np.round(arr, 5)))
-                logger.log_report("loss:", loss, "acc:", acc, highlight=2)
-            bar.set_postfix(loss=loss, acc=acc)
+                    logger.log_debug("\n" + str(np.round(arr, 3)))
+            bar.set_postfix(**dicts)
             bar.refresh()
 
         loss, acc = model.evaluate(X, Y, verbose=0)
@@ -166,6 +170,48 @@ class Tuner:
             bias = sparse.get_weights()[-1]
         else:
             bias = np.zeros(X.shape[1:])
+        return weights, bias
+
+    def fit(self, X, Y):
+
+        weights_path = os.path.join(self.tuner_dir, 'final-weights.pkl')
+        logger.log_debug(X.shape, Y.shape, np.unique(Y, return_counts=True))
+        #logger.log_debug("\n", np.round(X.mean(axis=0), 5))
+        #logger.log_debug("\n", np.round(X.std(axis=0), 5))
+        msk_adds = (Y[:, 0] == 3) | (Y[:, 0] == 4)
+        msk_dels = (Y[:, 0] == 0) | (Y[:, 0] == 2)
+
+        X_adds = X[msk_adds]
+        X_adds = X_adds[:, np.array([4, 5, 6, 7]), ...]
+        Y_adds = Y[msk_adds]
+        Y_adds[Y_adds == 3] = 0
+        Y_adds[Y_adds == 4] = 1
+        combiner_adds = np.array(
+            [[1, 0],
+             [1, 0],
+             [0, 1],
+             [0, 1]])
+
+        X_dels = X[msk_dels]
+        X_dels = X_dels[:, np.array([0, 2, 3]), ...]
+        Y_dels = Y[msk_dels]
+        Y_dels[Y_dels == 2] = 1
+        combiner_dels = np.array(
+            [[1, 0],
+             [0, 1],
+             [0, 1]])
+
+        kernel_adds, bias_adds = self.create_network(X_adds, Y_adds, combiner_adds)
+        kernel_dels, bias_dels = self.create_network(X_dels, Y_dels, combiner_dels)
+
+        weights = np.ones(X.shape[1:])
+        bias = np.zeros(X.shape[1:])
+        weights[np.array([0, 2, 3])] = kernel_dels
+        bias[np.array([0, 2, 3])] = bias_dels
+        weights[np.array([4, 5, 6, 7])] = kernel_adds
+        bias[np.array([4, 5, 6, 7])] = bias_adds
+        logger.log_debug("\n", np.round(weights, 3), "\n", np.round(bias, 3))
+
         #weights, bias = sparse.get_weights()
         makedirs(weights_path)
         with open(weights_path, 'wb') as fl:

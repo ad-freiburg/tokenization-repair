@@ -15,6 +15,7 @@ class Reader:
         self.config = config
 
     def read_test_pairs(self):
+        logger.log_debug(self.config.test_correct_path)
         with open(self.config.test_correct_path, 'r') as correct_fil,\
                 open(self.config.test_corrupt_path, 'r') as corrupt_fil:
             data = sorted(list(enumerate(zip(correct_fil, corrupt_fil))),
@@ -26,6 +27,7 @@ class Reader:
         return
 
     def read_valid_pairs(self):
+        logger.log_debug(self.config.valid_correct_path)
         with open(self.config.valid_correct_path, 'r') as correct_fil,\
                 open(self.config.valid_corrupt_path, 'r') as corrupt_fil:
             data = sorted(list(enumerate(zip(correct_fil, corrupt_fil))),
