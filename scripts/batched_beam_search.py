@@ -36,7 +36,7 @@ if __name__ == "__main__":
         else:
             penalty_holder = PenaltyHolder()
             penalty_name = benchmark_name
-            if benchmark_name.endswith("_inf"):
+            if benchmark_name.endswith("_inf") or benchmark_name.startswith("doval"):
                 insertion_penalty = deletion_penalty = 0
             else:
                 insertion_penalty, deletion_penalty = penalty_holder.get(model_name, penalty_name)
