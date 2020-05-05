@@ -77,11 +77,14 @@ class RNNLanguageModel(CharacterModel):
             ret_seq = self.return_sequences or i < self.rnn_layers - 1
             go_backwards = (i == 0) and (self.direction == BACKWARD)
             rnn_cell = {'GRU': GRU, 'LSTM': LSTM}[self.rnn_type]
-            rnn_layer, state_c, state_h= rnn_cell(
+            rnn_cell = rnn_cell(
                 self.rnn_units,
                 #, initial_state=initial_states[i])
+                recurrent_activation='sigmoid',
                 return_sequences=ret_seq, return_state=True,
-                go_backwards=go_backwards)(rnn_layer, initial_state=initial_states[i])
+                go_backwards=go_backwards)
+            rnn_layer, state_c, state_h = rnn_cell(
+                rnn_layer, initial_state=initial_states[i])
             output_states.extend([state_c, state_h])
             # print(state_c.shape, state_h.shape)
 
@@ -114,6 +117,9 @@ class RNNLanguageModel(CharacterModel):
 
         if os.path.isfile(self.model_load_path):
             self.model.load_weights(self.model_load_path)
+            rweights = rnn_cell.get_weights()
+            rweights[-1][1024: 2048] += 1
+            rnn_cell.set_weights(rweights)
             logger.log_info('loaded weights from', self.model_load_path, highlight=2)
         else:
             logger.log_error('weights not found..', self.model_load_path, highlight=1)

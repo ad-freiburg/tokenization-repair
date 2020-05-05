@@ -145,7 +145,7 @@ class Tuner:
             Adam(lr),
             loss='sparse_categorical_crossentropy',
             metrics=['sparse_categorical_accuracy'])
-        bar = tqdm(range(1000), ncols=160)
+        bar = tqdm(range(10000), ncols=160)
         for epoch in bar:
             K.set_value(model.optimizer.lr, lr / (1 + epoch * decay))
             vals = model.train_on_batch(X, Y)
@@ -164,12 +164,8 @@ class Tuner:
 
         if self.use_kernel:
             weights = sparse.get_weights()[0]
-        else:
-            weights = np.ones(X.shape[1:])
         if self.use_bias:
             bias = sparse.get_weights()[-1]
-        else:
-            bias = np.zeros(X.shape[1:])
         return weights, bias
 
     def fit(self, X, Y):

@@ -158,7 +158,7 @@ def get_bicontext_fixer_config(beam_size=5,
 
 def get_dp_config(alpha=1.15, beta=0.1, gamma=1, zeta=2, damping_factor=0.5,
                   use_timestamp=False,
-                  window_siz=8, random_sample_files=False, **kwargs):
+                  window_siz=6, random_sample_files=False, **kwargs):
     config = get_dataset_config(**kwargs)
     config.fixer = FIXERS_ENUM.dp_fixer
     config.alpha = alpha
