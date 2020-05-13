@@ -1,6 +1,7 @@
 from typing import Dict, Any, List
 
 import numpy as np
+import math
 from itertools import count
 
 
@@ -87,3 +88,29 @@ def select_most_frequent(dictionary: Dict[Any, int], n: int) -> Dict[Any, int]:
     sorted = sort_dict_by_value(dictionary)
     dictionary = {key: value for key, value in sorted[:n]}
     return dictionary
+
+
+def deep_copy(dictionary):
+    copy = {}
+    for key in dictionary:
+        if isinstance(dictionary[key], list) or isinstance(dictionary[key], dict):
+            copy[key] = dictionary[key].copy()
+        else:
+            copy[key] = dictionary[key]
+    return copy
+
+
+def insert_into_sorted(array, element):
+    n = len(array)
+    left = 0
+    right = n
+    while left != right:
+        probe = (left + right) // 2
+        comp_elem = array[probe]
+        if element == comp_elem:
+            left = right = probe
+        elif element < comp_elem:
+            right = probe
+        else:
+            left = probe + 1
+    return array[:left] + [element] + array[right:]

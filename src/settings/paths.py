@@ -106,6 +106,8 @@ STUMP_DICT = DICT_FOLDER + "token_stumps.pkl"
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"
 THRESHOLD_FITTER_DIR = INTERMEDIATE_DIR + "threshold_fitter/"
 
+# OPENAI
+OPENAI_MODELS_FOLDER = None
 
 for dir in [RESULTS_DIR, PLOT_DIR, INTERMEDIATE_DIR, THRESHOLD_FITTER_DIR, BENCHMARKS_DIR]:
     if not path_exists(dir):

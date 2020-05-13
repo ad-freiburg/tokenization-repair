@@ -249,3 +249,24 @@ class UnidirectionalLMEstimator(EstimatorModel):
         if include_sequence:
             new_state["sequence"] = state["sequence"] + [x]
         return new_state
+
+    def step_batch(self, states, x_vec):
+        n = len(states)
+        x_matrix = [[x] for x in x_vec]
+        input_dict = {"x": x_matrix,
+                      "sequence_lengths": [1 for _ in range(n)]}
+        for layer in range(len(self.specification.recurrent_units)):
+            c_name, h_name = self._hidden_state_tensor_names(layer)
+            input_dict[c_name] = [state["cell_state"][c_name][0] for state in states]
+            input_dict[h_name] = [state["cell_state"][h_name][0] for state in states]
+        result = self.predict_fn(input_dict)
+        states = []
+        for i in range(n):
+            state = {"probabilities": result["probabilities"][i, -1, :],
+                     "cell_state": {}}
+            for layer in range(len(self.specification.recurrent_units)):
+                c_name, h_name = self._hidden_state_tensor_names(layer)
+                state["cell_state"][c_name] = [result[c_name][i]]
+                state["cell_state"][h_name] = [result[h_name][i]]
+            states.append(state)
+        return states
