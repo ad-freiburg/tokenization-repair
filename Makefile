@@ -1,6 +1,7 @@
 help:
-	@echo "Type 'make iterative' to start the iterative approach."
-	@echo "Type 'make beam-search' to start the beam search approach."
+	@echo "Type 'make iterative' to start the iterative tokenization repair."
+	@echo "Type 'make beam-search' to start the beam search tokenization repair."
+	@echo "Type 'make spelling' to start the beam search spelling correction."
 
 test:
 	nosetests tests
@@ -11,3 +12,5 @@ iterative:
 beam-search:
 	python3 scripts/batched_beam_search.py -m fwd1024 -b 0 -t 0
 
+spelling:
+	python3 scripts/spelling_beam_search.py -benchmark 0 -n -1 -b 20 -sp 0 -cp 8 -f 0
