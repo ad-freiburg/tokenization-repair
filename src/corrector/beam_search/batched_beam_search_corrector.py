@@ -33,6 +33,7 @@ class BatchedBeamSearchCorrector:
                  n_beams: int,
                  verbose: bool = False):
         self.model = model
+        self.backward = model.specification.backward
         self.insertion_penalty = insertion_penalty
         self.deletion_penalty = deletion_penalty
         self.n_beams = n_beams
@@ -59,6 +60,8 @@ class BatchedBeamSearchCorrector:
             for key in cell_state_keys:
                 input_dict[key][2 * b_i, :] = beam.cell_state[key]
                 input_dict[key][2 * b_i + 1, :] = beam.cell_state[key]
+        if self.backward:
+            input_dict["x"] = input_dict["x"][:, ::-1]
         return input_dict
 
     def _best_beams(self, beams: List[Beam]):
@@ -79,6 +82,8 @@ class BatchedBeamSearchCorrector:
         input_dict = self._make_input_dict(beams, x)
         result = self.model.predict_fn(input_dict)
         probabilities = result["probabilities"]
+        if self.backward:
+            probabilities = probabilities[:, ::-1, :]
         new_beams = []
         for b_i, beam in enumerate(beams):
             # no space beam:
@@ -107,9 +112,12 @@ class BatchedBeamSearchCorrector:
         return new_beams
 
     def correct(self, sequence: str) -> str:
-        original_spaces_in_merged = space_positions_in_merged(sequence)
         merged = sequence.replace(' ', '')
         encoded = self.model.encoder.encode_sequence(merged)
+        if self.backward:
+            merged = merged[::-1]
+            encoded = encoded[::-1]
+        original_spaces_in_merged = space_positions_in_merged(sequence[::-1] if self.backward else sequence)
 
         start_beam = self._start_beam()
         beams = [start_beam]
@@ -123,7 +131,12 @@ class BatchedBeamSearchCorrector:
             beams = self._best_beams(beams)
             if self.verbose:
                 print("step %i, symbol = %s" % (i, self.model.encoder.decode_label(encoded[i + 1])))
+                print(encoded[i], encoded[i + 1])
                 for beam in beams:
                     print("%.4f %s" % (beam.logprob, beam.sequence))
 
-        return beams[0].sequence
+        predicted_sequence = beams[0].sequence
+        if self.backward:
+            predicted_sequence = predicted_sequence[::-1]
+
+        return predicted_sequence

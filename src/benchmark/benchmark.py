@@ -11,6 +11,16 @@ from src.benchmark.subset import Subset
 NOISE_LEVELS = [0, 0.1]
 ERROR_PROBABILITIES = [0.1, 1, np.inf]
 
+SUBSETS = {
+    "tuning": Subset.TUNING,
+    "development": Subset.DEVELOPMENT,
+    "test": Subset.TEST
+}
+
+
+def get_subset(subset_name: str) -> Subset:
+    return SUBSETS[subset_name]
+
 
 class BenchmarkFiles(Enum):
     CORRECT = "correct.txt"
