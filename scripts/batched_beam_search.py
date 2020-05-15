@@ -44,7 +44,7 @@ if __name__ == "__main__":
     if penalties == "0":
         insertion_penalty = deletion_penalty = 0
     else:
-        penalty_holder = PenaltyHolder()
+        penalty_holder = PenaltyHolder(two_pass=parameters["sequences"] != "corrupt")
         insertion_penalty, deletion_penalty = penalty_holder.get(model_name, penalties)
 
     corrector = BatchedBeamSearchCorrector(model.model,
