@@ -76,7 +76,8 @@ class Benchmark:
 
     def get_predicted_sequences(self, predicted_file: str):
         directory = self._results_directory()
-        sequences = read_lines(directory + predicted_file)
+        lines = read_lines(directory + predicted_file)
+        sequences = lines[:-1]
         return sequences
 
     def get_mean_runtime(self, predicted_file: str) -> float:

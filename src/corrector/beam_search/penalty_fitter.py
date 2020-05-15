@@ -26,11 +26,13 @@ def score_diff(p_good: float, p_bad: float):
 
 class PenaltyFitter:
     def __init__(self,
-                 model_name: str):
+                 model_name: str,
+                 n_sequences: int = -1):
         self.model = UnidirectionalLMEstimator()
         self.model.load(model_name)
         self.backward = self.model.specification.backward
         self.space_label = self.model.encoder.encode_char(' ')
+        self.n_sequences = n_sequences
 
     def space_and_nospace_probabilities(self,
                                         state: Dict,
@@ -87,6 +89,8 @@ class PenaltyFitter:
         correct_sequences = benchmarks[benchmark_names[0]].get_sequences(BenchmarkFiles.CORRECT)
         corrupt_sequences = {name: benchmarks[name].get_sequences(BenchmarkFiles.CORRUPT) for name in benchmark_names}
         for s_i, correct in enumerate(correct_sequences):
+            if s_i == self.n_sequences:
+                break
             print("sequence %i" % s_i)
             encoded = self.model.encoder.encode_sequence(correct)
             if self.model.specification.backward:

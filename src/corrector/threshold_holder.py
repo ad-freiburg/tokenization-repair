@@ -13,6 +13,7 @@ class ThresholdType(Enum):
 class FittingMethod(Enum):
     GREEDY = 0
     SINGLE_RUN = 1
+    TWO_PASS = 2
 
 
 def _names_set_correctly(model_name, fwd_model_name, bwd_model_name):

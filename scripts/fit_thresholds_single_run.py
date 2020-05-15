@@ -4,7 +4,8 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [
     Parameter("approach", "-a", "str"),
-    Parameter("noise_level", "-n", "float")
+    Parameter("noise_level", "-n", "float"),
+    Parameter("two_pass", "-tp", "str")
 ]
 getter = ParameterGetter(params)
 getter.print_help()
@@ -16,6 +17,7 @@ import numpy as np
 
 from src.load.load_char_lm import load_default_char_lm
 from src.benchmark.benchmark import Subset, BenchmarkFiles, get_benchmark
+from src.benchmark.two_pass_benchmark import get_two_pass_benchmark
 from src.sequence.transformation import space_corruption_positions
 from src.optimization.threshold import optimal_f1_threshold
 from src.corrector.threshold_holder import ThresholdHolder, FittingMethod, ThresholdType
@@ -45,26 +47,29 @@ class ProbabilityHolder:
 
 def combined_compared_space_probability(p_fwd, p_bwd, b, a, space_index):
     p_space = p_fwd[space_index] * p_bwd[space_index]
-    #print("p_space = %f * % f = %f" % (p_fwd[space_index], p_bwd[space_index], p_space))
-    #normalizer = np.sum(p_fwd * p_bwd)
-    #print("p_space_normalized = %f / %f = % f" % (p_space, normalizer, p_space / normalizer))
     p_no_space = p_fwd[a] * p_bwd[b]
-    #print("p_no_space = %f * %f = %f" % (p_fwd[a], p_bwd[b], p_no_space))
     p_compared = p_space / (p_space + p_no_space)
-    #print("p_compared = %f / %f = %f" % (p_space, p_space + p_no_space, p_compared))
     return p_compared
 
 
 if __name__ == "__main__":
     noise_level = parameters["noise_level"]
-    error_probabilities = np.arange(0.1, 1.1, 0.1)
+    error_probabilities = [0.1, 1]
 
     approach = parameters["approach"]
     is_combined = approach.startswith("combined")
     model = load_default_char_lm(approach)
     space_index = model.get_encoder().encode_char(' ')
 
-    benchmarks = {p: get_benchmark(noise_level, p, Subset.DEVELOPMENT) for p in error_probabilities}
+    if parameters["two_pass"] == "0":
+        benchmarks = {p: get_benchmark(noise_level, p, Subset.TUNING) for p in error_probabilities}
+        threshold_holder = ThresholdHolder(FittingMethod.SINGLE_RUN, autosave=False)
+    else:
+        error_probabilities.append(np.inf)
+        benchmarks = {p: get_two_pass_benchmark(noise_level, p, Subset.TUNING, parameters["two_pass"])
+                      for p in error_probabilities}
+        threshold_holder = ThresholdHolder(FittingMethod.TWO_PASS, autosave=False)
+
     corrupt_sequences = {p: benchmarks[p].get_sequences(BenchmarkFiles.CORRUPT) for p in error_probabilities}
     probability_holders = {p: ProbabilityHolder() for p in error_probabilities}
 
@@ -115,8 +120,6 @@ if __name__ == "__main__":
             probability_holder.probabilities[OperationType.DELETION][PredictionType.FALSE_POSITIVE]
         )
 
-        threshold_holder = ThresholdHolder(FittingMethod.SINGLE_RUN, autosave=False)
-
         for threshold, threshold_type in ((insertion_threshold, ThresholdType.INSERTION_THRESHOLD),
                                           (deletion_threshold, ThresholdType.DELETION_THRESHOLD)):
             threshold_holder.set_threshold(threshold_type=threshold_type,
@@ -124,4 +127,4 @@ if __name__ == "__main__":
                                            threshold=threshold,
                                            noise_type=benchmarks[p].name)
 
-        threshold_holder.save()
+    threshold_holder.save()

@@ -6,15 +6,16 @@ from src.settings import paths
 
 
 class PenaltyHolder:
-    def __init__(self, autosave: bool = True):
-        if file_exists(paths.BEAM_SEARCH_PENALTY_FILE):
-            self.penalties = load_object(paths.BEAM_SEARCH_PENALTY_FILE)
+    def __init__(self, two_pass: bool = False, autosave: bool = True):
+        self.file = paths.TWO_PASS_BEAM_SEARCH_PENALTY_FILE if two_pass else paths.BEAM_SEARCH_PENALTY_FILE
+        if file_exists(self.file):
+            self.penalties = load_object(self.file)
         else:
             self.penalties = {}
         self.autosave = autosave
 
     def save(self):
-        dump_object(self.penalties, paths.BEAM_SEARCH_PENALTY_FILE)
+        dump_object(self.penalties, self.file)
 
     @staticmethod
     def _key(model_name: str, benchmark_name: str):

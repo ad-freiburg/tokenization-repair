@@ -3,12 +3,14 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [Parameter("model", "-m", "str"),
           Parameter("benchmark", "-b", "str"),
-          Parameter("subset", "-s", "str"),
+          Parameter("subset", "-set", "str"),
+          Parameter("sequences", "-seq", "str"),
           Parameter("penalties", "-p", "str"),
           Parameter("out_file", "-f", "str")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
+
 
 from src.models.char_lm.unidirectional_model import UnidirectionalModel
 from src.benchmark.benchmark import Benchmark, BenchmarkFiles, get_subset
@@ -32,7 +34,10 @@ if __name__ == "__main__":
         file_writer = None
     else:
         benchmark = Benchmark(benchmark_name, get_subset(parameters["subset"]))
-        sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
+        if parameters["sequences"] == "corrupt":
+            sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
+        else:
+            sequences = benchmark.get_predicted_sequences(parameters["sequences"])
         file_writer = PredictionsFileWriter(benchmark.get_results_directory() + parameters["out_file"])
 
     penalties = parameters["penalties"]
