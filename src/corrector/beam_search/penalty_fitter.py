@@ -68,7 +68,7 @@ class PenaltyFitter:
         fp_vec = np.asarray(fp_vec)
         precision = tp_vec / (tp_vec + fp_vec)
         recall = tp_vec / total_true_positives
-        f1 = 2 * precision * recall / (precision + recall)
+        f1 = [2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0 for prec, rec in zip(precision, recall)]
         best = int(np.argmax(f1))
         print("best f1=%f@%f (precision=%f, recall=%f)" %
               (f1[best], penalties[best], precision[best], recall[best]))
