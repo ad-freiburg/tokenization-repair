@@ -47,3 +47,7 @@ def get_space_positions_in_merged(sequence: str):
     space_positions = [i for i, char in enumerate(sequence) if char == ' ']
     space_positions = [pos - i for i, pos in enumerate(space_positions)]
     return set(space_positions)
+
+
+def remove_spaces(sequence: str) -> str:
+    return sequence.replace(' ', '')
