@@ -17,7 +17,8 @@ class UnidirectionalLMEstimatorSpecification:
                  recurrent_units: List[int],
                  dense_units: List[int],
                  dim: int,
-                 name: str):
+                 name: str,
+                 x_and_y_input: bool = False):
         self.backward = backward
         self.embedding = embedding
         self.embedding_dim = embedding_dim
@@ -25,6 +26,10 @@ class UnidirectionalLMEstimatorSpecification:
         self.dense_units = dense_units
         self.dim = dim
         self.name = name
+        self.x_and_y_input = x_and_y_input
+
+    def gets_x_and_y_input(self):
+        return hasattr(self, "x_and_y_input") and self.x_and_y_input
 
     def __str__(self):
         return "UnidirectionalLMEstimatorSpecification(recurrent_units=%s, dim=%i, embedding=%s(%i), name=%s)" % (
@@ -112,24 +117,33 @@ class UnidirectionalLMEstimator(EstimatorModel):
         return hidden_state
 
     def model_function(self, features, labels, mode, params: UnidirectionalLMEstimatorSpecification):
-        labels = features["x"]  # (n x m)
-        sequence_lengths = features["sequence_lengths"]
-
-        if params.backward:
-            labels = labels[:, ::-1]
-
-        if mode == tf.estimator.ModeKeys.TRAIN:
-            mask = features["mask"]  # (n x m)
+        if params.gets_x_and_y_input():
+            x = features["x"]
+            y = features["y"] if mode == tf.estimator.ModeKeys.TRAIN else None
+            mask = features["mask"] if mode == tf.estimator.ModeKeys.TRAIN else None
             if params.backward:
-                mask = mask[:, ::-1]
-            x = labels[:, :-1]
-            y = labels[:, 1:]
-            mask = mask[:, 1:]
+                x = x[:, ::-1]
+                y = y[:, ::-1] if y is not None else None
+                mask = mask[:, ::-1] if mask is not None else None
         else:
-            x = labels
-            y = None
-            mask = None
+            labels = features["x"]  # (n x m)
 
+            if params.backward:
+                labels = labels[:, ::-1]
+
+            if mode == tf.estimator.ModeKeys.TRAIN:
+                mask = features["mask"]  # (n x m)
+                if params.backward:
+                    mask = mask[:, ::-1]
+                x = labels[:, :-1]
+                y = labels[:, 1:]
+                mask = mask[:, 1:]
+            else:
+                x = labels
+                y = None
+                mask = None
+
+        sequence_lengths = features["sequence_lengths"]
         batch_size = tf.shape(x)[0]
 
         # embedding or one-hot

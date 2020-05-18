@@ -22,7 +22,7 @@ class Wikipedia:
         :param n_sequences: number of sequences, set None to retrieve all
         :return: iterator over paragraph texts
         """
-        training_sequences = read_sequences(paths.WIKI_TRAINING_SENTENCES_SHUFFLED)
+        training_sequences = read_sequences(paths.WIKI_TRAINING_PARAGRAPHS)
         for i, sequence in enumerate(training_sequences):
             if n_sequences is not None and i == n_sequences:
                 break

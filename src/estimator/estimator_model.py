@@ -81,7 +81,7 @@ class EstimatorModel:
                  num_gpus=1,
                  save_checkpoints=True,
                  keep_checkpoints=1,
-                 keep_checkpoint_every_hours=1):
+                 keep_checkpoint_every_hours=9999):
         self.specification = None
         self.estimator = None
         self.encoder = None
