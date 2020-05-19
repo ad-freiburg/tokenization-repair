@@ -25,7 +25,7 @@ class LabelingCorrector:
         return {pos: space_probabilities[pos] for pos in range(len(space_probabilities)) if pos not in space_positions}
 
     def correct(self, sequence: str) -> str:
-        original_spaces = {pos + 1 for pos in get_space_positions_in_merged(sequence)}
+        original_spaces = [pos - 1 for pos in get_space_positions_in_merged(sequence)]
         merged = remove_spaces(sequence)
         space_probabilities = self.get_space_probabilities(merged)
         deletion_probabilities = self.get_deletion_probabilities(original_spaces, space_probabilities)

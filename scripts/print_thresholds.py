@@ -12,6 +12,8 @@ if __name__ == "__main__":
     else:
         if "-single" in sys.argv:
             holder = ThresholdHolder(FittingMethod.SINGLE_RUN)
+        elif "-labeling" in sys.argv:
+            holder = ThresholdHolder(FittingMethod.LABELING)
         else:
             holder = ThresholdHolder()
         thresholds = holder.threshold_dict

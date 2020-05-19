@@ -14,6 +14,15 @@ class FittingMethod(Enum):
     GREEDY = 0
     SINGLE_RUN = 1
     TWO_PASS = 2
+    LABELING = 3
+
+
+THRESHOLD_FILES = {
+    FittingMethod.GREEDY: paths.DECISION_THRESHOLD_FILE,
+    FittingMethod.SINGLE_RUN: paths.SINGLE_RUN_DECISION_THRESHOLD_FILE,
+    FittingMethod.TWO_PASS: paths.TWO_PASS_DECISION_THRESHOLD_FILE,
+    FittingMethod.LABELING: paths.LABELING_DECISION_THRESHOLD_FILE
+}
 
 
 def _names_set_correctly(model_name, fwd_model_name, bwd_model_name):
@@ -36,8 +45,7 @@ class ThresholdHolder:
     def __init__(self,
                  fitting_method: FittingMethod = FittingMethod.GREEDY,
                  autosave: bool = True):
-        self.file = paths.DECISION_THRESHOLD_FILE if fitting_method == FittingMethod.GREEDY \
-            else paths.SINGLE_RUN_DECISION_THRESHOLD_FILE
+        self.file = THRESHOLD_FILES[fitting_method]
         if file_exists(self.file):
             self.threshold_dict = load_object(self.file)
         else:

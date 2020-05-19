@@ -6,7 +6,8 @@ params = [Parameter("model", "-m", "str"),
           Parameter("subset", "-set", "str"),
           Parameter("sequences", "-seq", "str"),
           Parameter("penalties", "-p", "str"),
-          Parameter("out_file", "-f", "str")]
+          Parameter("out_file", "-f", "str"),
+          Parameter("labeling_model", "-labeling", "str")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
@@ -19,6 +20,7 @@ from src.corrector.beam_search.penalty_holder import PenaltyHolder
 from src.evaluation.predictions_file_writer import PredictionsFileWriter
 from src.helper.time import time_diff, timestamp
 from src.interactive.sequence_generator import interactive_sequence_generator
+from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
 
 
 if __name__ == "__main__":
@@ -26,6 +28,12 @@ if __name__ == "__main__":
 
     model = UnidirectionalModel(model_name)
     backward = model.model.specification.backward
+
+    if parameters["labeling_model"] == "0":
+        labeling_model = None
+    else:
+        labeling_model = BidirectionalLabelingEstimator()
+        labeling_model.load("labeling")
 
     benchmark_name = parameters["benchmark"]
 
@@ -51,7 +59,8 @@ if __name__ == "__main__":
                                            insertion_penalty=insertion_penalty,
                                            deletion_penalty=deletion_penalty,
                                            n_beams=5,
-                                           verbose=benchmark_name == "0")
+                                           verbose=benchmark_name == "0",
+                                           labeling_model=labeling_model)
 
     for s_i, sequence in enumerate(sequences):
         start_time = timestamp()

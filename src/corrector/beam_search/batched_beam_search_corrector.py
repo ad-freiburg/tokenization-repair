@@ -1,7 +1,8 @@
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
 import numpy as np
 
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
+from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
 
 
 def space_positions_in_merged(sequence: str) -> Set[int]:
@@ -31,7 +32,8 @@ class BatchedBeamSearchCorrector:
                  insertion_penalty: float,
                  deletion_penalty: float,
                  n_beams: int,
-                 verbose: bool = False):
+                 verbose: bool = False,
+                 labeling_model: Optional[BidirectionalLabelingEstimator] = None):
         self.model = model
         self.backward = model.specification.backward
         self.insertion_penalty = insertion_penalty
@@ -39,6 +41,7 @@ class BatchedBeamSearchCorrector:
         self.n_beams = n_beams
         self.space_label = model.encoder.encode_char(' ')
         self.verbose = verbose
+        self.labeling_model = labeling_model
 
     def _start_beam(self):
         initial_state = self.model.initial_state()["cell_state"]
@@ -77,18 +80,21 @@ class BatchedBeamSearchCorrector:
                       x: int,
                       y: int,
                       next_character: str,
-                      original_space: bool) -> List[Beam]:
+                      original_space: bool,
+                      combined_model_space_prob: Optional[float] = None) -> List[Beam]:
         cell_state_keys = [key for key in beams[0].cell_state]
         input_dict = self._make_input_dict(beams, x)
         result = self.model.predict_fn(input_dict)
         probabilities = result["probabilities"]
         if self.backward:
             probabilities = probabilities[:, ::-1, :]
+        combined_log_p_space = 0 if combined_model_space_prob is None else np.log(combined_model_space_prob)
+        combined_log_p_no_space = 0 if combined_model_space_prob is None else np.log(1 - combined_model_space_prob)
         new_beams = []
         for b_i, beam in enumerate(beams):
             # no space beam:
             p_no_space = probabilities[2 * b_i, 0, y]
-            logprob = beam.logprob + np.log(p_no_space)
+            logprob = beam.logprob + np.log(p_no_space) + combined_log_p_no_space
             if original_space:
                 logprob += self.deletion_penalty
             no_space_beam = Beam(
@@ -100,7 +106,7 @@ class BatchedBeamSearchCorrector:
             # space beam:
             p_space = probabilities[2 * b_i + 1, 0, self.space_label]
             p_after_space = probabilities[2 * b_i + 1, 1, y]
-            logprob = beam.logprob + np.log(p_space) + np.log(p_after_space)
+            logprob = beam.logprob + np.log(p_space) + np.log(p_after_space) + combined_log_p_space
             if not original_space:
                 logprob += self.insertion_penalty
             space_beam = Beam(
@@ -119,6 +125,9 @@ class BatchedBeamSearchCorrector:
             encoded = encoded[::-1]
         original_spaces_in_merged = space_positions_in_merged(sequence[::-1] if self.backward else sequence)
 
+        if self.labeling_model is not None:
+            labeling_space_probs = self.labeling_model.predict(merged)["probabilities"]
+
         start_beam = self._start_beam()
         beams = [start_beam]
 
@@ -127,7 +136,9 @@ class BatchedBeamSearchCorrector:
                                        x=encoded[i],
                                        y=encoded[i + 1],
                                        next_character=merged[i] if i < len(merged) else '',
-                                       original_space=i in original_spaces_in_merged)
+                                       original_space=i in original_spaces_in_merged,
+                                       combined_model_space_prob=
+                                       None if self.labeling_model is None else labeling_space_probs[i])
             beams = self._best_beams(beams)
             if self.verbose:
                 print("step %i, symbol = %s" % (i, self.model.encoder.decode_label(encoded[i + 1])))

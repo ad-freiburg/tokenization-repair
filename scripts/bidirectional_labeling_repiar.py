@@ -1,16 +1,25 @@
 import sys
+
 import project
 from src.corrector.labeling.labeling_corrector import LabelingCorrector
 from src.interactive.sequence_generator import interactive_sequence_generator
 from src.evaluation.predictions_file_writer import PredictionsFileWriter
 from src.benchmark.benchmark import Benchmark, BenchmarkFiles, Subset
 from src.helper.time import time_diff, timestamp
+from src.corrector.threshold_holder import FittingMethod, ThresholdHolder
+
 
 if __name__ == "__main__":
     name = sys.argv[1]
-    insertion_threshold = float(sys.argv[2])
-    deletion_threshold = float(sys.argv[3])
-    benchmark_name = sys.argv[4] if len(sys.argv) >= 5 else None
+
+    if len(sys.argv) == 3:
+        benchmark_name = sys.argv[2]
+        holder = ThresholdHolder(FittingMethod.LABELING)
+        insertion_threshold, deletion_threshold = holder.get_thresholds(name, noise_type=benchmark_name)
+    else:
+        benchmark_name = None
+        insertion_threshold = float(sys.argv[2])
+        deletion_threshold = float(sys.argv[3])
 
     corrector = LabelingCorrector(name, insertion_threshold, deletion_threshold)
 
