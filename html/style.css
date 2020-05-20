@@ -1,0 +1,42 @@
+html, input, select { 
+    font-family: "Century Gothic", monospace, sans-serif;
+}
+
+header {
+    background-color: DodgerBlue;
+    margin: 0;
+    padding: 5pt;
+}
+
+header h1 {
+    margin: 0;
+    padding: 5pt;
+    text-align: center;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+menu {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+menu a {
+    padding: 10pt;
+    margin: 0;
+    color: white;
+}
+
+div {
+    margin: 0;
+    padding: 5pt;
+}
+
+form {
+    margin: 0;
+    padding: 0;
+}

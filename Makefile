@@ -2,6 +2,7 @@ help:
 	@echo "Type 'make iterative' to start the iterative tokenization repair."
 	@echo "Type 'make beam-search' to start the beam search tokenization repair."
 	@echo "Type 'make spelling' to start the beam search spelling correction."
+	@echo "Type 'make start-server' to start the web interface."
 
 test:
 	nosetests tests
@@ -14,3 +15,6 @@ beam-search:
 
 spelling:
 	python3 scripts/spelling_beam_search.py -benchmark 0 -n -1 -b 20 -sp 0 -cp 8 -f 0
+
+start-server:
+	python3 scripts/start_server.py

@@ -30,3 +30,9 @@
 	
 	Wait until the model is loaded.
 	When the input symbol (> ) appears, type a sentence with tokenization errors and press enter to get a correction.
+
+6) Start the web demo.
+	
+	make start-server
+	
+	It opens a port at <YOUR MACHINE'S ADDRESS>:1234.

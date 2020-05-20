@@ -11,6 +11,7 @@ COPY bashrc bashrc
 COPY test test
 COPY src src
 COPY scripts scripts
+COPY html html
 CMD ["/bin/bash", "--rcfile", "bashrc"]
 
 ### Build the container using docker or wharfer.
