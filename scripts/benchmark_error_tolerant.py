@@ -42,6 +42,7 @@ def remove_additional_chars(sequence: str, correct: str):
 if __name__ == "__main__":
     benchmark_name = sys.argv[1]
     predictions_file_name = sys.argv[2]
+    n_sequences = int(sys.argv[3]) if len(sys.argv) > 3 else -1
     subset = Subset.TEST if benchmark_name == "doval" else Subset.DEVELOPMENT
 
     benchmark = Benchmark(benchmark_name, subset)
@@ -55,6 +56,9 @@ if __name__ == "__main__":
     evaluator = Evaluator()
 
     for s_i, original, (correct, corrupt), predicted in izip(original_sequences, sequence_pairs, predicted_sequences):
+        if s_i == n_sequences:
+            break
+
         print(original)
         print(correct)
         print(corrupt)
