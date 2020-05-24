@@ -44,3 +44,8 @@ class UnigramHolder:
             return 0
         return self.frequencies[text]
 
+    def total_count(self):
+        total = 0
+        for unigram in self.frequencies:
+            total += self.frequencies[unigram]
+        return total

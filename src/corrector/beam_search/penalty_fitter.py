@@ -1,10 +1,11 @@
-from typing import Dict, Tuple, List, Union
+from typing import Dict, Tuple, List, Union, Optional
 
 from enum import Enum
 import numpy as np
 
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
-from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
+from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
+from src.benchmark.benchmark import Benchmark, BenchmarkFiles
 from src.sequence.transformation import space_corruption_positions
 
 
@@ -27,24 +28,31 @@ def score_diff(p_good: float, p_bad: float):
 class PenaltyFitter:
     def __init__(self,
                  model_name: str,
+                 labeling_model_name: Optional[str] = None,
                  n_sequences: int = -1):
         self.model = UnidirectionalLMEstimator()
         self.model.load(model_name)
         self.backward = self.model.specification.backward
         self.space_label = self.model.encoder.encode_char(' ')
         self.n_sequences = n_sequences
+        if labeling_model_name is None:
+            self.labeling_model = None
+        else:
+            self.labeling_model = BidirectionalLabelingEstimator()
+            self.labeling_model.load(labeling_model_name)
 
     def space_and_nospace_probabilities(self,
                                         state: Dict,
-                                        nospace_label: int):
+                                        nospace_label: int,
+                                        bidir_space_prob: Optional[float] = None):
         p_space = state["probabilities"][self.space_label]
         p_other = state["probabilities"][nospace_label]
         state_after_space = self.model.step(state, self.space_label, include_sequence=False)
         p_other_given_space = state_after_space["probabilities"][nospace_label]
         p_space_total = p_space * p_other_given_space
-        #nospace_symbol = self.model.encoder.decode_label(nospace_label)
-        #print("p(' ')=%f, p('%s'|' ')=%f, p('%s')=%f" %
-        #      (p_space, nospace_symbol, p_other_given_space, nospace_symbol, p_other))
+        if bidir_space_prob is not None:
+            p_space_total = p_space_total * bidir_space_prob
+            p_other = p_other * (1 - bidir_space_prob)
         return p_space_total, p_other
 
     @staticmethod
@@ -106,12 +114,21 @@ class PenaltyFitter:
                 insertion_positions[benchmark_name] = ins_pos
                 deletion_positions[benchmark_name] = del_pos
 
+            if self.labeling_model is not None:
+                labeling_result = self.labeling_model.predict(correct.replace(' ', ''))
+                labeling_space_probs = labeling_result["probabilities"]
+            pos_in_no_space = 0
+
             state = self.model.initial_state()
             state = self.model.step(state, encoded[0])
             for i, char in enumerate(correct):
                 other_label = encoded[i + 2] if char == ' ' else encoded[i + 1]
                 char_before = correct[i - 1] if i > 0 else ''
-                space_prob, other_prob = self.space_and_nospace_probabilities(state, other_label)
+
+                p_space_labeling = None if self.labeling_model is None else labeling_space_probs[pos_in_no_space]
+
+                space_prob, other_prob = self.space_and_nospace_probabilities(state, other_label,
+                                                                              bidir_space_prob=p_space_labeling)
 
                 for benchmark_name in benchmark_names:
                     if i in insertion_positions[benchmark_name]:
@@ -130,6 +147,8 @@ class PenaltyFitter:
                             insertions[benchmark_name].append((penalty, Case.FALSE_POSITIVE))
 
                 state = self.model.step(state, encoded[i + 1], include_sequence=False)
+                if char != ' ':
+                    pos_in_no_space += 1
 
         penalties = {}
         for benchmark_name in benchmark_names:

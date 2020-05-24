@@ -1,11 +1,13 @@
 import sys
 
 import project
-from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
+from src.benchmark.benchmark import Benchmark, SUBSETS, BenchmarkFiles, Subset
 from src.evaluation.evaluator import Evaluator
 from src.datasets.wikipedia import Wikipedia
 from src.helper.data_structures import izip
 from src.evaluation.print_methods import print_evaluator
+from src.helper.files import read_sequences
+from src.settings import paths
 
 
 def remove_inserted_char(misspelled: str, original: str) -> str:
@@ -41,12 +43,14 @@ def remove_additional_chars(sequence: str, correct: str):
 
 if __name__ == "__main__":
     benchmark_name = sys.argv[1]
-    predictions_file_name = sys.argv[2]
-    n_sequences = int(sys.argv[3]) if len(sys.argv) > 3 else -1
-    subset = Subset.TEST if benchmark_name == "doval" else Subset.DEVELOPMENT
+    subset = SUBSETS[sys.argv[2]]
+    predictions_file_name = sys.argv[3]
+    n_sequences = int(sys.argv[4]) if len(sys.argv) > 4 else -1
 
     benchmark = Benchmark(benchmark_name, subset)
-    original_sequences = Wikipedia.development_sequences()
+    original_sequences = {Subset.TUNING: read_sequences(paths.WIKI_TUNING_SENTENCES),
+                          Subset.DEVELOPMENT: Wikipedia.development_sequences(),
+                          Subset.TEST: Wikipedia.test_sequences()}[subset]
     sequence_pairs = benchmark.get_sequence_pairs(BenchmarkFiles.CORRUPT)
     if predictions_file_name == "corrupt.txt":
         predicted_sequences = [corrupt for _, corrupt in sequence_pairs]

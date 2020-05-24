@@ -5,26 +5,25 @@ from src.interactive.parameters import Parameter, ParameterGetter
 params = [
     Parameter("benchmark", "-b", "str",
               help_message="Name of the benchmark."),
-    Parameter("test", "-t", "boolean"),
+    Parameter("set", "-set", "str"),
+    Parameter("sequences", "-n", "int"),
     Parameter("file", "-f", "str",
-              help_message="Name of the file containing predicted sequences."),
-    Parameter("save", "-s", "str")
+              help_message="Name of the file containing predicted sequences.")
 ]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
 
 
-from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
+from src.benchmark.benchmark import Benchmark, BenchmarkFiles, SUBSETS
 from src.evaluation.evaluator import Evaluator
 from src.helper.data_structures import izip
 from src.evaluation.print_methods import print_evaluator
-from src.evaluation.results_holder import ResultsHolder, Metric
 
 
 if __name__ == "__main__":
     benchmark_name = parameters["benchmark"]
-    benchmark_subset = Subset.TEST if parameters["test"] else Subset.DEVELOPMENT
+    benchmark_subset = SUBSETS[parameters["set"]]
     benchmark = Benchmark(benchmark_name,
                           subset=benchmark_subset)
 
@@ -35,9 +34,10 @@ if __name__ == "__main__":
         predicted_sequences = benchmark.get_predicted_sequences(parameters["file"])
 
     evaluator = Evaluator()
-    results_holder = ResultsHolder()
 
     for s_i, (correct, corrupt), predicted in izip(sequence_pairs, predicted_sequences):
+        if s_i == parameters["sequences"]:
+            break
         evaluator.evaluate(benchmark,
                            s_i,
                            correct,
@@ -47,10 +47,3 @@ if __name__ == "__main__":
         evaluator.print_sequence()
 
     print_evaluator(evaluator)
-
-    if parameters["save"] != "0":
-        f1 = evaluator.f1()
-        acc = evaluator.sequence_accuracy()
-        results_holder.set(benchmark_name, benchmark_subset, parameters["save"],
-                           [(Metric.F1, f1), (Metric.SEQUENCE_ACCURACY, acc)])
-        results_holder.save()

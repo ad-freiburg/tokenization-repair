@@ -22,7 +22,7 @@ class Server:
             sys.stdout.flush()
             (client, address) = server.accept()
             print("Incoming request at " + time.ctime())
-            request = client.recv(1 << 28).decode("ascii")
+            request = client.recv(1 << 28).decode("utf8")
             print("Request: \"" + request + "\"")
             self.handle_request(client, request)
             client.close()

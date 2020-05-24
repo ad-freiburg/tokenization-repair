@@ -99,3 +99,8 @@ def random_sequence_subset(path, n, seed):
 
 def open_file(path):
     return open(path, "w", encoding=FILE_ENCODING)
+
+
+def copy_file(source, target):
+    content = read_file(source)
+    write_file(target, content)
