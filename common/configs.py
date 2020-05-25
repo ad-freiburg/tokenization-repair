@@ -53,7 +53,7 @@ def get_dataset_config(dataset=DEFAULT_DATASET, benchmark=DEFAULT_BENCHMARK, **k
 def get_language_model_config(
         model=MODELS_ENUM.forward_language_model,
         history_length=HISTORY_LENGTH,
-        perturbate=1,
+        perturbate=0,
         return_sequences=True,
         rnn_type='LSTM',
         rnn_layers=1,
@@ -108,9 +108,9 @@ def get_bicontext_fixer_config(beam_size=5,
                                use_default_weights=False,
                                use_timestamp=False,
 
-                               bidir=True, # both those variables should be equivalent
-                               bidirectional_weights=True,
-                               lflen=1,
+                               bidir=True,
+                               bidirectional_weights=True, # this implies bidir
+                               lflen=2,
 
                                use_bias=True,
                                use_kernel=True,
