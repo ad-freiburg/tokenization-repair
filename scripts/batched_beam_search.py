@@ -10,7 +10,7 @@ params = [Parameter("model", "-m", "str"),
           Parameter("continue", "-c", "boolean"),
           Parameter("beams", "-w", "int"),
           Parameter("penalties", "-p", "str"),
-          Parameter("penalty_multiplier", "-pm", "float"),
+          Parameter("penalty_modifier", "-pm", "str"),
           Parameter("out_file", "-f", "str"),
           Parameter("labeling_model", "-labeling", "str")]
 getter = ParameterGetter(params)
@@ -26,6 +26,24 @@ from src.evaluation.predictions_file_writer import PredictionsFileWriter
 from src.helper.time import time_diff, timestamp
 from src.interactive.sequence_generator import interactive_sequence_generator
 from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
+
+
+def modify_penalties(insertion_penalty: float, deletion_penalty: float):
+    modifiers = parameters["penalty_modifier"]
+    if not isinstance(modifiers, list):
+        modifiers = [modifiers, modifiers]
+    penalties = [insertion_penalty, deletion_penalty]
+    for i, modifier in enumerate(modifiers):
+        if modifier[0] in ('+', '-', '*'):
+            operator = modifier[0]
+            value = float(modifier[1:])
+            if operator == '+':
+                penalties[i] -= value
+            elif operator == '-':
+                penalties[i] += value
+            else:
+                penalties[i] *= value
+    return penalties
 
 
 if __name__ == "__main__":
@@ -64,12 +82,8 @@ if __name__ == "__main__":
         if parameters["labeling_model"] != "0":
             penalty_name += "_" + parameters["labeling_model"]
         insertion_penalty, deletion_penalty = penalty_holder.get(penalty_name, penalties)
-        if isinstance(parameters["penalty_multiplier"], list):
-            insertion_penalty_multiplier, deletion_penalty_multiplier = parameters["penalty_multiplier"]
-        else:
-            insertion_penalty_multiplier = deletion_penalty_multiplier = parameters["penalty_multiplier"]
-        insertion_penalty = insertion_penalty_multiplier * insertion_penalty
-        deletion_penalty = deletion_penalty_multiplier * deletion_penalty
+        insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
+    print("penalties:", insertion_penalty, deletion_penalty)
 
     corrector = BatchedBeamSearchCorrector(model.model,
                                            insertion_penalty=insertion_penalty,
