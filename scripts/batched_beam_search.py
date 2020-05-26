@@ -12,7 +12,8 @@ params = [Parameter("model", "-m", "str"),
           Parameter("penalties", "-p", "str"),
           Parameter("penalty_modifier", "-pm", "str"),
           Parameter("out_file", "-f", "str"),
-          Parameter("labeling_model", "-labeling", "str")]
+          Parameter("labeling_model", "-labeling", "str"),
+          Parameter("lookahead", "-l", "int")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
@@ -81,6 +82,8 @@ if __name__ == "__main__":
         penalty_name = model_name
         if parameters["labeling_model"] != "0":
             penalty_name += "_" + parameters["labeling_model"]
+        if parameters["lookahead"] > 0:
+            penalty_name += "_lookahead%i" % parameters["lookahead"]
         insertion_penalty, deletion_penalty = penalty_holder.get(penalty_name, penalties)
         insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
     print("penalties:", insertion_penalty, deletion_penalty)
