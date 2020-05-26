@@ -1,39 +1,58 @@
 from typing import List
 
-import sys
+import project
+
+from src.interactive.parameters import ParameterGetter, Parameter
+
+
+params = [Parameter("model_name", "-m", "str"),
+          Parameter("benchmark", "-b", "str"),
+          Parameter("sequences", "-seq", "str"),
+          Parameter("lookahead", "-l", "int")]
+getter = ParameterGetter(params)
+getter.print_help()
+parameters = getter.get()
+
+
 import numpy as np
 
-import project
 from src.helper.pickle import load_object
+from src.helper.data_structures import izip
 from src.settings import paths
 from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
-from src.sequence.functions import get_space_positions_in_merged
-from development_probabilities import Case
+from src.corrector.beam_search.penalty_tuning import Case
 from src.corrector.beam_search.penalty_fitter import Case as CaseLabel, PenaltyFitter
 from src.corrector.beam_search.penalty_holder import PenaltyHolder
 
 
 if __name__ == "__main__":
-    model_name = sys.argv[1]
-    benchmark_name = sys.argv[2]
-    lookahead = int(sys.argv[3])
+    model_name = parameters["model_name"]
+    benchmark_name = parameters["benchmark"]
+    lookahead = parameters["lookahead"]
+    sequence_file = parameters["sequences"]
     cases_path = paths.CASES_FILE_NOISY if benchmark_name.startswith("0.1") else paths.CASES_FILE_CLEAN
 
-    sequence_cases = load_object(cases_path)
+    sequence_cases = load_object(cases_path)[model_name]
     # sequence_cases: List[Case]
 
     insertion_cases = []
     deletion_cases = []
 
     benchmark = Benchmark(benchmark_name, Subset.TUNING)
+    correct_sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)
+    if sequence_file == "corrupt":
+        input_sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
+    else:
+        input_sequences = benchmark.get_predicted_sequences(sequence_file)
 
-    for s_i, sequence_pair in enumerate(benchmark.get_sequence_pairs(BenchmarkFiles.CORRUPT)):
+    for s_i, correct, corrupt in izip(correct_sequences, input_sequences):
         if s_i >= len(sequence_cases):
             break
-        print(s_i)
+        #print(s_i)
 
-        correct, corrupt = sequence_pair
         cases = sequence_cases[s_i]
+        if model_name.startswith("bwd"):
+            cases = cases[1:]
 
         correct_pos = 0
         corrupt_pos = 0
@@ -76,7 +95,7 @@ if __name__ == "__main__":
 
     print(insertion_penalty, deletion_penalty)
 
-    holder = PenaltyHolder()
+    holder = PenaltyHolder(two_pass=sequence_file != "corrupt")
     penalty_name = model_name + "_lookahead%i" % lookahead
     holder.set(penalty_name, benchmark_name, insertion_penalty, deletion_penalty)
     print("saved.")

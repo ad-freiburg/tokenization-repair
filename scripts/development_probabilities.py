@@ -36,8 +36,10 @@ if __name__ == "__main__":
     sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)
 
     for s_i, sequence in enumerate(sequences):
+        if s_i == 1:
+            break
         print("sequence %i" % s_i)
-        #print(sequence)
+        print(sequence)
         cases.append([])
 
         encoded = model.encoder.encode_sequence(sequence)
@@ -53,7 +55,7 @@ if __name__ == "__main__":
 
             char = sequence[i] if i < len(sequence) else "EOS"
             p_space = state["probabilities"][space_label]
-            #print(i, sequence[i - 1] if i > 0 else "SOS", p_space)
+            print(i, sequence[i - 1] if i > 0 else "SOS", p_space)
             is_space = char == ' '
             next_index = i + (2 if is_space else 1)
             next_labels = encoded[next_index:(next_index + LOOKAHEAD)]
@@ -66,7 +68,7 @@ if __name__ == "__main__":
                 char = model.encoder.decode_label(label)
                 space_p = space_state["probabilities"][label]
                 no_space_p = no_space_state["probabilities"][label]
-                #print("", j, label, char, space_p, no_space_p)
+                print("", j, label, char, space_p, no_space_p)
                 p_after_space.append(space_p)
                 p_after_no_space.append(no_space_p)
                 if j < LOOKAHEAD:
