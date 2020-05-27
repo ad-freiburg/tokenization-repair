@@ -14,6 +14,10 @@ SEED = 3010
 NOISE_LEVELS = [0, 0.1]
 ERROR_PROBABILITIES = [0.1, 1, np.inf]
 
+TUNING = False
+DEVELOPMENT = False
+TEST = True
+
 
 def insert_noise(sequences: List[str],
                  noise_level: float) -> List[str]:
@@ -69,13 +73,13 @@ if __name__ == "__main__":
     for noise_level in NOISE_LEVELS:
         tuning_ground_truth_sequences = insert_noise(tuning_sequences, noise_level)
         development_ground_truth_sequences = insert_noise(development_sequences, noise_level)
-        test_ground_truth_sequnences = insert_noise(test_sequences, noise_level)
+        test_ground_truth_sequences = insert_noise(test_sequences, noise_level)
 
         for p in ERROR_PROBABILITIES:
             print(noise_level, p)
             tuning_corrupt_sequences = corrupt_tokenization(tuning_ground_truth_sequences, p)
             development_corrupt_sequences = corrupt_tokenization(development_ground_truth_sequences, p)
-            test_corrupt_sequences = corrupt_tokenization(test_ground_truth_sequnences, p)
+            test_corrupt_sequences = corrupt_tokenization(test_ground_truth_sequences, p)
 
             tuning_path, development_path, test_path = benchmark_directories(noise_level, p)
             make_directory_recursive(tuning_path)
@@ -85,9 +89,12 @@ if __name__ == "__main__":
             dev_correct_path, dev_corrupt_path = file_paths(development_path)
             test_correct_path, test_corrupt_path = file_paths(test_path)
 
-            write_lines(tune_correct_path, tuning_ground_truth_sequences)
-            write_lines(tune_corrupt_path, tuning_corrupt_sequences)
-            write_lines(dev_correct_path, development_ground_truth_sequences)
-            write_lines(dev_corrupt_path, development_corrupt_sequences)
-            write_lines(test_correct_path, test_ground_truth_sequnences)
-            write_lines(test_corrupt_path, test_corrupt_sequences)
+            if TUNING:
+                write_lines(tune_correct_path, tuning_ground_truth_sequences)
+                write_lines(tune_corrupt_path, tuning_corrupt_sequences)
+            if DEVELOPMENT:
+                write_lines(dev_correct_path, development_ground_truth_sequences)
+                write_lines(dev_corrupt_path, development_corrupt_sequences)
+            if TEST:
+                write_lines(test_correct_path, test_ground_truth_sequences)
+                write_lines(test_corrupt_path, test_corrupt_sequences)
