@@ -56,15 +56,15 @@ class PenaltyFitter:
         return p_space_total, p_other
 
     @staticmethod
-    def optimal_value(penalty_case_pairs):
+    def optimal_value(penalty_case_pairs, minimize_errors=False):
         penalty_case_pairs = sorted(penalty_case_pairs, reverse=True)
         total_true_positives = sum([1 for _, case in penalty_case_pairs if case == Case.TRUE_POSITIVE])
         penalty_case_pairs = [(penalty, case) for penalty, case in penalty_case_pairs if penalty > 0]
-        penalties = [t for t, _ in penalty_case_pairs]
+        penalties = [np.inf] + [t for t, _ in penalty_case_pairs]
+        tp_vec = [0]
+        fp_vec = [0]
         tps = 0
         fps = 0
-        tp_vec = []
-        fp_vec = []
         for _, case in penalty_case_pairs:
             if case == Case.TRUE_POSITIVE:
                 tps += 1
@@ -74,12 +74,19 @@ class PenaltyFitter:
             fp_vec.append(fps)
         tp_vec = np.asarray(tp_vec)
         fp_vec = np.asarray(fp_vec)
-        precision = tp_vec / (tp_vec + fp_vec)
-        recall = tp_vec / total_true_positives
-        f1 = [2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0 for prec, rec in zip(precision, recall)]
-        best = int(np.argmax(f1))
-        print("best f1=%f@%f (precision=%f, recall=%f)" %
-              (f1[best], penalties[best], precision[best], recall[best]))
+        if minimize_errors:
+            fn_vec = total_true_positives - tp_vec
+            errors = fn_vec + fp_vec
+            best = int(np.argmin(errors))
+            print("best errors=%i@%f (%i TP, %i FP, %i FN)" %
+                  (errors[best], penalties[best], tp_vec[best], fp_vec[best], fn_vec[best]))
+        else:
+            precision = tp_vec / (tp_vec + fp_vec)
+            recall = tp_vec / total_true_positives
+            f1 = [2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0 for prec, rec in zip(precision, recall)]
+            best = int(np.argmax(f1))
+            print("best f1=%f@%f (precision=%f, recall=%f)" %
+                  (f1[best], penalties[best], precision[best], recall[best]))
         return penalties[best]
 
     def fit(self,

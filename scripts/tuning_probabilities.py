@@ -3,7 +3,8 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 
 params = [Parameter("model_name", "-m", "str"),
-          Parameter("noise", "-n", "boolean")]
+          Parameter("noise", "-n", "boolean"),
+          Parameter("continue", "-c", "boolean")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
@@ -30,16 +31,20 @@ if __name__ == "__main__":
 
     space_label = model.encoder.encode_char(' ')
 
-    cases = []
+    if parameters["continue"]:
+        cases = load_object(path)[model_name]
+    else:
+        cases = []
 
     benchmark = Benchmark(benchmark_name, Subset.TUNING)
     sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)
 
     for s_i, sequence in enumerate(sequences):
-        if s_i == 1:
-            break
+        if s_i < len(cases):
+            continue
+
         print("sequence %i" % s_i)
-        print(sequence)
+        #print(sequence)
         cases.append([])
 
         encoded = model.encoder.encode_sequence(sequence)
@@ -55,7 +60,7 @@ if __name__ == "__main__":
 
             char = sequence[i] if i < len(sequence) else "EOS"
             p_space = state["probabilities"][space_label]
-            print(i, sequence[i - 1] if i > 0 else "SOS", p_space)
+            #print(i, sequence[i - 1] if i > 0 else "SOS", p_space)
             is_space = char == ' '
             next_index = i + (2 if is_space else 1)
             next_labels = encoded[next_index:(next_index + LOOKAHEAD)]
@@ -68,7 +73,7 @@ if __name__ == "__main__":
                 char = model.encoder.decode_label(label)
                 space_p = space_state["probabilities"][label]
                 no_space_p = no_space_state["probabilities"][label]
-                print("", j, label, char, space_p, no_space_p)
+                #print("", j, label, char, space_p, no_space_p)
                 p_after_space.append(space_p)
                 p_after_no_space.append(no_space_p)
                 if j < LOOKAHEAD:
@@ -84,8 +89,7 @@ if __name__ == "__main__":
         if model.specification.backward:
             cases[-1] = cases[-1][::-1]
 
-        if (s_i + 1) % 1000 == 0:
-            case_dict = load_object(path) if file_exists(path) else {}
-            case_dict[model_name] = cases
-            dump_object(case_dict, path)
-            print("saved.")
+    case_dict = load_object(path) if file_exists(path) else {}
+    case_dict[model_name] = cases
+    dump_object(case_dict, path)
+    print("saved.")
