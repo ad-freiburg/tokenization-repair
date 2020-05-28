@@ -10,6 +10,39 @@ import math
 import random
 import os
 
+
+N = 4000
+C = [[0.0 for _ in range(N + 1)] for __ in range(N + 1)]
+
+
+def precompute_binomial():
+    C[0][0] = 1.0
+    for i in range(1, N + 1):
+        for j in range(i + 1):
+            if j == 0 or j == N:
+                C[i][j] = C[i - 1][0] / 2.0
+            else:
+                C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) / 2.0
+
+
+def r_test(A, B):
+    assert len(A) == len(B) == 10000
+    n1 = 0
+    n2 = 0
+    mu_a = sum(int(x) for x in A) / len(A)
+    mu_b = sum(int(x) for x in A) / len(A)
+    for i in range(len(A)):
+        if A[i] != B[i]:
+            n1 += int(A[i])
+            n2 += int(B[i])
+    assert n1 <= N and n2 <= N, "The N value should be %d instead of %d." % (N, max(n1, n2))
+    r = 0
+    for x1 in range(n1 + 1):
+        for x2 in range(n2 + 1):
+            r += (abs((n1 - n2) - 2 * (x1 - x2)) >= abs(n1 - n2)) * C[n1][x1] * C[n2][x2]
+    return r
+
+
 def accuracy_r_test(acc1, acc2, num_samples=128):
     """
     Given two 0-1 sequences of the same length n (measuring accuracy, in our
@@ -65,6 +98,7 @@ def accuracy_r_test(acc1, acc2, num_samples=128):
 
 
 if __name__ == "__main__":
+    precompute_binomial()
     if len(sys.argv) != 6:
         print("Usage: python3 significance-tests.py <directory> <num samples>"
               "<parameter string> <method 1> <method 2>")
