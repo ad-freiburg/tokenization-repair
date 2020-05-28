@@ -105,16 +105,16 @@ def get_language_model_config(
 def get_bicontext_fixer_config(beam_size=5,
                                fix_delimiters_only=True,
                                random_sample_files=False,
+                               use_look_forward=False,
                                use_default_weights=False,
                                use_timestamp=False,
 
-                               bidir=True,
-                               bidirectional_weights=True, # this implies bidir
-                               lflen=2,
+                               bidir=False,
+                               bidirectional_weights=False, # this implies bidir
+                               lflen=1,
 
                                use_bias=True,
                                use_kernel=True,
-                               use_look_forward=False,
 
                                **kwargs):
     if bidir:

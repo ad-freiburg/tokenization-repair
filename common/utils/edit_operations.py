@@ -1,11 +1,6 @@
 """
 Module containing edit distance utility functions, that are used for input
 generation and fixing evaluations.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 from constants import TYPO_ADD, TYPO_CHANGE, TYPO_DEL, TYPO_NOCHANGE
 

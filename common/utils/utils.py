@@ -1,10 +1,5 @@
 """
 Module containing a set of utility functions and small independent algorithms.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 import _pickle
 import errno
@@ -75,7 +70,7 @@ def get_shuffled_lines(path, newlns=None, shuffle=True):
                 """
                 from configs import get_language_model_config
                 config = get_language_model_config(inference=True)
-                from models.mostafa.character_model import CharacterModel
+                from models.character_model import CharacterModel
                 char_model = CharacterModel(config)
 
                 print(char_model.codes_to_str(ALPHABET_MAP[data_]))
@@ -174,7 +169,7 @@ def edits_generator(path_correct, path_corrupt, context_length, shuffle=False):
                         """
                         from configs import get_language_model_config
                         config = get_language_model_config(inference=True)
-                        from models.mostafa.character_model import CharacterModel
+                        from models.character_model import CharacterModel
                         char_model = CharacterModel(config)
 
                         if action_code[0] != 1:#not in [0, 1]:

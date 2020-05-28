@@ -1,11 +1,6 @@
 """
 Module containing dictionary class, maintining dictionary of words using
 trie data structure.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 import math
 

@@ -1,10 +1,5 @@
 """
 Module containing class for different logging functionalities.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 import datetime
 import inspect
