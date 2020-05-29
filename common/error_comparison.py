@@ -76,7 +76,7 @@ if __name__ == '__main__':
         acc_a = metrics_a[-1]
         acc_b = metrics_b[-1]
         if acc_a < acc_b:
-            logger.output(original)
+            logger.output(' ' * 120, original)
             logger.log_info(model_a, benchmark, highlight=2)
             #print_comparison(original, correct, corrupt, fixed_a)
             logger.output(out_a)
@@ -102,7 +102,8 @@ if __name__ == '__main__':
         acc_a = metrics_a[-1]
         acc_b = metrics_b[-1]
         if acc_b < acc_a:
-            logger.output(original)
+            #logger.output(original)
+            logger.output(' ' * 120, original)
             logger.log_info(model_a, benchmark, highlight=2)
             #print_comparison(original, correct, corrupt, fixed_a)
             logger.output(out_a)
