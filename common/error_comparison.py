@@ -4,7 +4,7 @@ import random
 
 from utils.multiviewer import MultiViewer
 from utils.logger import logger
-from utils.tolerant_comparer import print_comparison
+from utils.tolerant_comparer import print_comparison, is_correct_tolerant
 
 BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
 ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
@@ -50,24 +50,29 @@ if __name__ == '__main__':
     take_first_n = 100
     count = 0
     a, b = 0, 0
-    for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
-        if fixed_a == fixed_b == correct:
-            continue
-        if correct != fixed_a and correct != fixed_b:
-            continue
-        if correct == fixed_a and correct != fixed_b:
-            a += 1
-        if correct != fixed_a and correct == fixed_b:
-            b += 1
-    logger.log_info("superior times", a, b)
-
-    comparator = MultiViewer()
     original_sentences = get_original_sentences()
     i = 0
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
         original = original_sentences[i]
+        cond_b = is_correct_tolerant(original, correct, corrupt, fixed_b)
+        cond_a = is_correct_tolerant(original, correct, corrupt, fixed_a)
+        if cond_a and cond_b:
+            continue
+        if not cond_a and not cond_b:
+            continue
+        if cond_a and not cond_b:
+            a += 1
+        if cond_b and not cond_a:
+            b += 1
+    logger.log_info("superior times", a, b)
+
+    comparator = MultiViewer()
+    i = 0
+    for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
+        original = original_sentences[i]
         i += 1
-        if not ((correct == fixed_a) ^ (correct == fixed_b)):
+        if not (is_correct_tolerant(original, correct, corrupt, fixed_b) and
+                not is_correct_tolerant(original, correct, corrupt, fixed_a)):
             continue
         if take_first_n < 1:
             break
@@ -93,7 +98,10 @@ if __name__ == '__main__':
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
         original = original_sentences[i]
         i += 1
-        if not ((correct == fixed_a) ^ (correct == fixed_b)):
+        #if not ((correct == fixed_a) ^ (correct == fixed_b)):
+        #    continue
+        if not (is_correct_tolerant(original, correct, corrupt, fixed_a) and
+                not is_correct_tolerant(original, correct, corrupt, fixed_b)):
             continue
         if take_first_n < 1:
             break
