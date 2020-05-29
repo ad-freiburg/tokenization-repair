@@ -4,7 +4,7 @@ import random
 
 from utils.multiviewer import MultiViewer
 from utils.logger import logger
-
+from utils.tolerant_comparer import print_comparison
 
 BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
 ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
@@ -37,14 +37,26 @@ def read_triples(model_a, model_b, benchmark, evaluation_set='test', shuffle=Fal
     return triples
 
 
+def get_original_sentences():
+    with open(ROOT_PATH + "sentences/test.txt", "r") as f:
+        lines = f.readlines()
+    lines = [line[:-1] for line in lines]
+    return lines
+
+
 if __name__ == '__main__':
     model_a = 'two_pass'
     model_b = 'labeling'
     benchmark = '0_0.1'
     take_first_n = 100
     comparator = MultiViewer()
-
+    original_sentences = get_original_sentences()
+	
+    i = 0
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
+        original = original_sentences[i]
+        i += 1
+    	
         if not ((correct == fixed_a) ^ (correct == fixed_b)):
             continue
         if take_first_n < 1:
@@ -54,8 +66,10 @@ if __name__ == '__main__':
         acc_a = metrics_a[-1]
         acc_b = metrics_b[-1]
         logger.log_info(model_a, benchmark, highlight=2)
+        print_comparison(original, correct, corrupt, fixed_a)
         logger.output(out_a)
         logger.log_info(model_b, benchmark, highlight=3)
+        print_comparison(original, correct, corrupt, fixed_b)
         logger.output(out_b)
         if acc_a < acc_b:
             logger.log_info(model_b, 'is better', highlight=5)
