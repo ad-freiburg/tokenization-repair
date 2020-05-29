@@ -32,16 +32,20 @@ def read_triples(model, benchmark, evaluation_set='test', shuffle=False):
 
 
 if __name__ == '__main__':
-    model = 'beam_search_bwd_robust'
+    model = 'two_pass'
     benchmark = '0_0.1'
     take_first_n = 100
     comparator = MultiViewer()
 
     for correct, corrupt, fixed in read_triples(model, benchmark):
+        if correct == fixed:
+            continue
         if take_first_n < 1:
             break
         metrics, out = comparator.evaluate(correct, corrupt, fixed)
         accuracy = metrics[-1]
-        if accuracy < 1:
-            print(out)
-            take_first_n -= 1
+        if accuracy == 1:
+            continue
+        print(model, benchmark)
+        print(out)
+        take_first_n -= 1
