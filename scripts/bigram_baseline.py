@@ -21,7 +21,7 @@ if __name__ == "__main__":
             sequences = interactive_sequence_generator()
             file_writer = None
         else:
-            benchmark = Benchmark(benchmark_name, Subset.DEVELOPMENT)
+            benchmark = Benchmark(benchmark_name, Subset.TEST)
             sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
             file_writer = PredictionsFileWriter(benchmark.get_results_directory() + "bigrams.txt")
 

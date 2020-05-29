@@ -32,8 +32,9 @@ if __name__ == "__main__":
     lookahead = parameters["lookahead"]
     sequence_file = parameters["sequences"]
     cases_path = paths.CASES_FILE_NOISY if benchmark_name.startswith("0.1") else paths.CASES_FILE_CLEAN
+    cases_path = cases_path % model_name
 
-    sequence_cases = load_object(cases_path)[model_name]
+    sequence_cases = load_object(cases_path)
     # sequence_cases: List[Case]
 
     labeling = parameters["labeling"] != "0"
@@ -101,10 +102,12 @@ if __name__ == "__main__":
                 deletion_cases.append((score_diff, label))
             else:
                 # insertion
-                score_diff = space_score - no_space_score
-                label = CaseLabel.TRUE_POSITIVE if true_space else CaseLabel.FALSE_POSITIVE
-                #print("    insertion", score_diff, label)
-                insertion_cases.append((score_diff, label))
+                previous_space = correct_pos > 0 and correct[correct_pos - 1] == ' '
+                if not (labeling and previous_space):
+                    score_diff = space_score - no_space_score
+                    label = CaseLabel.TRUE_POSITIVE if true_space else CaseLabel.FALSE_POSITIVE
+                    #print("    insertion", score_diff, label)
+                    insertion_cases.append((score_diff, label))
             #if score_diff > 0:
             #    print("!!!!!")
 

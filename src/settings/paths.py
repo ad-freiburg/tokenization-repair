@@ -105,8 +105,8 @@ BIGRAM_HOLDER = DICT_FOLDER + "bigram_holder.pkl"
 # stump dict
 STUMP_DICT = DICT_FOLDER + "token_stumps.pkl"
 # tuning cases
-CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean.pkl"
-CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy.pkl"
+CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean_%s.pkl"
+CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy_%s.pkl"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"

@@ -57,7 +57,9 @@ class BidirectionalLabelingEstimator(EstimatorModel):
             y = features["y"]
             mask = features["mask"]
 
-            loss = tf.losses.mean_squared_error(y, probabilities, weights=mask)
+            loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=logits)
+            loss = loss * mask
+            loss = tf.reduce_mean(loss)
             print(probabilities)
             print(y)
             print(loss)

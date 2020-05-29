@@ -49,7 +49,6 @@ if __name__ == "__main__":
     noise = float(sys.argv[2])
 
     corrector = LabelingCorrector(model_name, 0, 0)
-    holder = ThresholdHolder(fitting_method=FittingMethod.LABELING)
 
     benchmark_names = [get_benchmark_name(noise, p) for p in ERROR_PROBABILITIES]
     benchmarks = {name: Benchmark(name, Subset.TUNING) for name in benchmark_names}
@@ -83,6 +82,7 @@ if __name__ == "__main__":
                         case = Case.FALSE_POSITIVE
                     cases[name]["insertions"].append((p, case))
 
+    holder = ThresholdHolder(fitting_method=FittingMethod.LABELING)
     for name in benchmark_names:
         insertion_f1, insertion_threshold = optimal_value(cases[name]["insertions"])
         deletion_f1, deletion_threshold = optimal_value(cases[name]["deletions"])

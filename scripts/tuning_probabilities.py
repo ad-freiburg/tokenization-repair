@@ -15,7 +15,6 @@ from src.helper.pickle import dump_object, load_object
 from src.settings import paths
 from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
 from src.corrector.beam_search.penalty_tuning import Case
-from src.helper.files import file_exists
 
 
 LOOKAHEAD = 5
@@ -25,6 +24,7 @@ if __name__ == "__main__":
     model_name = parameters["model_name"]
     benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
     path = paths.CASES_FILE_NOISY if parameters["noise"] else paths.CASES_FILE_CLEAN
+    path = path % model_name
 
     model = UnidirectionalLMEstimator()
     model.load(model_name)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     space_label = model.encoder.encode_char(' ')
 
     if parameters["continue"]:
-        cases = load_object(path)[model_name]
+        cases = load_object(path)
     else:
         cases = []
 
@@ -89,7 +89,6 @@ if __name__ == "__main__":
         if model.specification.backward:
             cases[-1] = cases[-1][::-1]
 
-    case_dict = load_object(path) if file_exists(path) else {}
-    case_dict[model_name] = cases
-    dump_object(case_dict, path)
-    print("saved.")
+        if (s_i + 1) % 1000 == 0:
+            dump_object(cases, path)
+            print("saved.")
