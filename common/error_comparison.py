@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import random
 
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     comparator = MultiViewer()
 
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
-        if correct == fixed_a or correct == fixed_b or fixed_a == fixed_b:
+        if not ((correct == fixed_a) ^ (correct == fixed_b)):
             continue
         if take_first_n < 1:
             break
