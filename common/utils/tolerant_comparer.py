@@ -90,6 +90,13 @@ def print_comparison(original, correct, corrupt, predicted):
     print(eval_sequence)
 
 
+def is_correct_tolerant(original, correct, corrupt, predicted):
+    correct = remove_inserted_chars(correct, original)
+    corrupt = remove_additional_chars(corrupt, correct)
+    predicted = remove_additional_chars(predicted, correct)
+    return predicted == correct
+
+
 if __name__ == "__main__":
     print_comparison("Hello world. The cat eats fish.",
                      "Hellox world. Thea ct eats fisX.",
