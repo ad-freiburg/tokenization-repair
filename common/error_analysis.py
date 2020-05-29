@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import os
 import random
 
 from utils.multiviewer import MultiViewer
+from utils.logger import logger
 
 
 BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
@@ -44,8 +46,8 @@ if __name__ == '__main__':
             break
         metrics, out = comparator.evaluate(correct, corrupt, fixed)
         accuracy = metrics[-1]
-        if accuracy == 1:
-            continue
-        print(model, benchmark)
-        print(out)
+        assert accuracy == 0
+        logger.log_info(model, benchmark, highlight=2)
+        logger.output(out)
+        logger.log_seperator()
         take_first_n -= 1
