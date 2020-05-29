@@ -11,7 +11,7 @@ ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
 MODELS_ENUM = [
     'beam_search_bwd_robust', 'beam_search_bwd', 'beam_search_labeling',
     'beam_search_robust', 'beam_search', 'labeling_noisy', 'labeling', 
-    'two_pass']
+    'two_pass', 'two_pass_robust']
 
 
 def read_triples(model_a, model_b, benchmark, evaluation_set='test', shuffle=False):
@@ -43,20 +43,30 @@ def get_original_sentences():
     lines = [line[:-1] for line in lines]
     return lines
 
-
 if __name__ == '__main__':
     model_a = 'two_pass'
-    model_b = 'labeling'
-    benchmark = '0_0.1'
+    model_b = 'two_pass_robust'
+    benchmark = '0.1_1'  #'0_0.1'
     take_first_n = 100
+    count = 0
+    a, b = 0, 0
+    for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
+        if fixed_a == fixed_b == correct:
+            continue
+        if correct != fixed_a and correct != fixed_b:
+            continue
+        if correct == fixed_a and correct != fixed_b:
+            a += 1
+        if correct != fixed_a and correct == fixed_b:
+            b += 1
+    logger.log_info("superior times", a, b)
+
     comparator = MultiViewer()
     original_sentences = get_original_sentences()
-	
     i = 0
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
         original = original_sentences[i]
         i += 1
-    	
         if not ((correct == fixed_a) ^ (correct == fixed_b)):
             continue
         if take_first_n < 1:
@@ -65,15 +75,42 @@ if __name__ == '__main__':
         metrics_b, out_b = comparator.evaluate(correct, corrupt, fixed_b)
         acc_a = metrics_a[-1]
         acc_b = metrics_b[-1]
-        logger.log_info(model_a, benchmark, highlight=2)
-        print_comparison(original, correct, corrupt, fixed_a)
-        logger.output(out_a)
-        logger.log_info(model_b, benchmark, highlight=3)
-        print_comparison(original, correct, corrupt, fixed_b)
-        logger.output(out_b)
         if acc_a < acc_b:
+            logger.output(original)
+            logger.log_info(model_a, benchmark, highlight=2)
+            #print_comparison(original, correct, corrupt, fixed_a)
+            logger.output(out_a)
+            logger.log_info(model_b, benchmark, highlight=3)
+            #print_comparison(original, correct, corrupt, fixed_b)
+            logger.output(out_b)
             logger.log_info(model_b, 'is better', highlight=5)
-        else:
+            count += 1
+            logger.log_info(count, 'errors so far')
+            logger.log_seperator()
+            #take_first_n -= 1
+    i = 0
+    take_first_n = 100
+    for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
+        original = original_sentences[i]
+        i += 1
+        if not ((correct == fixed_a) ^ (correct == fixed_b)):
+            continue
+        if take_first_n < 1:
+            break
+        metrics_a, out_a = comparator.evaluate(correct, corrupt, fixed_a)
+        metrics_b, out_b = comparator.evaluate(correct, corrupt, fixed_b)
+        acc_a = metrics_a[-1]
+        acc_b = metrics_b[-1]
+        if acc_b < acc_a:
+            logger.output(original)
+            logger.log_info(model_a, benchmark, highlight=2)
+            #print_comparison(original, correct, corrupt, fixed_a)
+            logger.output(out_a)
+            logger.log_info(model_b, benchmark, highlight=3)
+            #print_comparison(original, correct, corrupt, fixed_b)
+            logger.output(out_b)
             logger.log_info(model_a, 'is better', highlight=5)
-        logger.log_seperator()
-        take_first_n -= 1
+            count += 1
+            logger.log_info(count, 'errors so far')
+            logger.log_seperator()
+            #take_first_n -= 1
