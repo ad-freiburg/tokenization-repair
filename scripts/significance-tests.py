@@ -9,41 +9,35 @@ import re
 import math
 import random
 import os
+import functools
+
+SCALING_FACTOR = 2**10000
 
 
-N = 4000
-C = [[0.0 for _ in range(N + 1)] for __ in range(N + 1)]
+@functools.lru_cache(None)
+def binomial(n, k):
+    """
+    Compute the binomial coefficient "n over k" times 2**-n recursively, using
+    functools.lru_cache to cache result. That way, we don't need an explicit
+    precomputation and we don't need to specify a bound on n.
+    
+    >>> [binomial(5, k) * 32 for k in range(6)]
+    [1.0, 5.0, 10.0, 10.0, 5.0, 1.0]
+    >>> sys.setrecursionlimit(10**6)
+    >>> binomial(1075, 0)
+    0.0
+    """
+
+    assert n >= 0 and (k >= 0 and k <= n)
+    if n == 0:
+        return 1 * SCALING_FACTOR
+    if k == 0 or k == n:
+        return binomial(n - 1, 0) // 2
+    else:
+        return (binomial(n - 1, k - 1) + binomial(n - 1, k)) // 2
 
 
-def precompute_binomial():
-    C[0][0] = 1.0
-    for i in range(1, N + 1):
-        for j in range(i + 1):
-            if j == 0 or j == N:
-                C[i][j] = C[i - 1][0] / 2.0
-            else:
-                C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) / 2.0
-
-
-def r_test(A, B):
-    assert len(A) == len(B) == 10000
-    n1 = 0
-    n2 = 0
-    mu_a = sum(int(x) for x in A) / len(A)
-    mu_b = sum(int(x) for x in A) / len(A)
-    for i in range(len(A)):
-        if A[i] != B[i]:
-            n1 += int(A[i])
-            n2 += int(B[i])
-    assert n1 <= N and n2 <= N, "The N value should be %d instead of %d." % (N, max(n1, n2))
-    r = 0
-    for x1 in range(n1 + 1):
-        for x2 in range(n2 + 1):
-            r += (abs((n1 - n2) - 2 * (x1 - x2)) >= abs(n1 - n2)) * C[n1][x1] * C[n2][x2]
-    return r
-
-
-def accuracy_r_test(acc1, acc2, num_samples=128):
+def accuracy_r_test_exact(A, B):
     """
     Given two 0-1 sequences of the same length n (measuring accuracy, in our
     case sequence accuracies), compute the p-value using a paired R test.
@@ -52,13 +46,41 @@ def accuracy_r_test(acc1, acc2, num_samples=128):
     measurement pairs to A and B (for a pair of measurements x, y we can either
     assign x to A and y to B or vice versa).
 
-    For 2^n > num_samples, num_samples combinations are picked at random.
+    >>> accuracy_r_test_exact([0], [1])
+    1.0
+    >>> accuracy_r_test_exact([0, 0, 0], [1, 0, 0])
+    1.0
+    >>> accuracy_r_test_exact([0, 0], [1, 1])
+    0.5
+    """
+    assert len(A) == len(B)
+    n = len(A)
+    n1 = sum(A[i] > B[i] for i in range(n))  # Number of pairs (1, 0)
+    n2 = sum(B[i] > A[i] for i in range(n))  # Number of pairs (0, 1)
+    p_value = 0
+    for k1 in range(n1 + 1):
+        for k2 in range(n2 + 1):
+            # Contribution of assignment, where k1 of the (1, 0) pairs and k2 of
+            # the (0, 1) pairs are flipped.
+            delta = abs((n1 - n2) - 2 * (k1 - k2)) >= abs(n1 - n2)
+            # Multiply with the number of such assignements, which is (n over
+            # k1) times (n over k2), times 2 ** (n - n1 - n2) because swapping
+            # any of the n - n1 - n2 other pairs does not matter, divided by the
+            # total number of assignments 2 ** n.
+            p_value += delta * binomial(n1, k1) * binomial(n2, k2)
+    return (p_value // (SCALING_FACTOR * SCALING_FACTOR // 10**10)) / 10**10
 
-    >>> accuracy_r_test([0], [1])
+
+def accuracy_r_test_sampling(acc1, acc2, num_samples=128):
+    """
+    Like above, but explicitly iterating over all assignments or using random
+    sampling if there are too many.
+
+    >>> accuracy_r_test_sampling([0], [1])
     1.0
-    >>> accuracy_r_test([0, 0, 0], [1, 0, 0])
+    >>> accuracy_r_test_sampling([0, 0, 0], [1, 0, 0])
     1.0
-    >>> accuracy_r_test([0, 0], [1, 1])
+    >>> accuracy_r_test_sampling([0, 0], [1, 1])
     0.5
     """
 
@@ -68,7 +90,7 @@ def accuracy_r_test(acc1, acc2, num_samples=128):
     if math.log2(num_samples) > n:
         num_samples = 2**n
     diff_observed = sum([acc1[i] - acc2[i] for i in range(n)]) / n
-    print("%40s: %5.2f%%" % ("difference", abs(100 * diff_observed)))
+    # print("%40s: %5.2f%%" % ("difference", abs(100 * diff_observed)))
 
     # Now count the number of assignments for which the diff is >= the observed
     # diff.
@@ -98,7 +120,6 @@ def accuracy_r_test(acc1, acc2, num_samples=128):
 
 
 if __name__ == "__main__":
-    precompute_binomial()
     if len(sys.argv) != 6:
         print("Usage: python3 significance-tests.py <directory> <num samples>"
               "<parameter string> <method 1> <method 2>")
@@ -112,6 +133,7 @@ if __name__ == "__main__":
     print("Parameter string: %s" % parameter_string)
     print("Method 1: %s" % method_1_name_given)
     print("Method 2: %s" % method_2_name_given)
+    sys.setrecursionlimit(10**6)
 
     # Read all files in the given directory into an array of triples, where each
     # triple consists of the parameter string (first line of the file), the
@@ -153,7 +175,9 @@ if __name__ == "__main__":
             mean_2 = sum(acc_2) / len(acc_2)
             print("%15s ... %20s: %5.2f%%" % (method_name_1, parameters_1, 100 * mean_1))
             print("%15s ... %20s: %5.2f%%" % (method_name_2, parameters_2, 100 * mean_2))
-            p_value = accuracy_r_test(acc_1, acc_2, num_samples)
-            print("%40s:  %.3f" % ("p-value", p_value))
+            p_value_sampled = accuracy_r_test_sampling(acc_1, acc_2, num_samples)
+            p_value_exact = accuracy_r_test_exact(acc_1, acc_2)
+            print("%40s:  %.3f" % ("p-value sampled", p_value_sampled))
+            print("%40s:  %.3f" % ("p-value exact", p_value_exact))
             print()
 
