@@ -49,11 +49,17 @@ if __name__ == '__main__':
             continue
         if take_first_n < 1:
             break
-        _, out_a = comparator.evaluate(correct, corrupt, fixed_a)
-        _, out_b = comparator.evaluate(correct, corrupt, fixed_b)
+        metrics_a, out_a = comparator.evaluate(correct, corrupt, fixed_a)
+        metrics_b, out_b = comparator.evaluate(correct, corrupt, fixed_b)
+        acc_a = metrics_a[-1]
+        acc_b = metrics_b[-1]
         logger.log_info(model_a, benchmark, highlight=2)
         logger.output(out_a)
         logger.log_info(model_b, benchmark, highlight=3)
         logger.output(out_b)
+        if acc_a < acc_b:
+            logger.log_info(model_b, 'is better', highlight=5)
+        else:
+            logger.log_info(model_a, 'is better', highlight=5)
         logger.log_seperator()
         take_first_n -= 1
