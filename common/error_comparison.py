@@ -54,6 +54,7 @@ if __name__ == '__main__':
     i = 0
     for correct, corrupt, fixed_a, fixed_b in read_triples(model_a, model_b, benchmark):
         original = original_sentences[i]
+        i += 1
         cond_b = is_correct_tolerant(original, correct, corrupt, fixed_b)
         cond_a = is_correct_tolerant(original, correct, corrupt, fixed_a)
         if cond_a and cond_b:
