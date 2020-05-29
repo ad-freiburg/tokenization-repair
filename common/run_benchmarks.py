@@ -9,7 +9,8 @@ from configs import get_fixer_config
 from constants import FIXERS_ENUM
 from handlers.benchmark import Benchmark
 from handlers.reader import Reader
-from models.rnn_bicontext_fixer import Tuner
+#from models.rnn_bicontext_fixer import Tuner
+from models.bicontext_fixer_modified import Tuner
 from utils.logger import logger
 
 warnings.filterwarnings("ignore")
@@ -28,7 +29,7 @@ def export_dict(config):
 def train_tuner(config):
     reader = Reader(config)
     tuner = Tuner(config)
-    tuner.train_data(reader.read_valid_pairs())#, total=550)
+    #tuner.train_data(reader.read_valid_pairs(),total=200)#, total=10000)#, total=550)
 
 
 if __name__ == '__main__':

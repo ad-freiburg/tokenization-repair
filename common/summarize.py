@@ -36,6 +36,9 @@ def summarize(benchmark, results_path):
     #fp to add,fn to add,tp to del,fp to del,fn to del,acc,duration
     # if 'P1' not in benchmark: return
     # if 'w8' in benchmark: return
+    #if not ('f2' in benchmark or 'uni_fixer' in benchmark or 'beam-10' in
+    #        benchmark):
+    #    return
     try:
         df = pd.read_csv(results_path)
     except Exception as err:

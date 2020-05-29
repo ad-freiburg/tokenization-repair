@@ -1,10 +1,5 @@
 """
 Module containing a data-structure for maintaining a window of context.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 
 

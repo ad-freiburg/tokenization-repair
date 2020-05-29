@@ -1,10 +1,5 @@
 """
 Module containing text tokenizer class.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 from constants import ALPHABET, charset_of  #, TOKENIZATION_DELIMITERS
 from .token import Token

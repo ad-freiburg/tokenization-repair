@@ -16,7 +16,8 @@ def construct_and_load_fixer(config):
     # return dummy()
     if config.fixer in [FIXERS_ENUM.bicontext_fixer,
                         FIXERS_ENUM.unidirctional_fixer]:
-        from .rnn_bicontext_fixer import RNNBicontextTextFixer
+        #from .rnn_bicontext_fixer import RNNBicontextTextFixer
+        from .bicontext_fixer_modified import RNNBicontextTextFixer
         return RNNBicontextTextFixer(config)
     elif config.fixer == FIXERS_ENUM.dp_fixer:
         from .dp_baseline_fixer import DPFixer

@@ -24,7 +24,7 @@ if __name__ == "__main__":
                             for fl in os.listdir(root_path)
                             if fl.endswith('.txt')])
 
-        if os.path.isfile(output_path2):
+        if os.path.isfile(output_path2) or len(all_texts) < 10000:
             print('skipping..', output_path2)
         else:
             res = "\n".join((read(fl) for fl in tqdm(all_texts)))

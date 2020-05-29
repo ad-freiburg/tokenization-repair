@@ -114,6 +114,7 @@ class RNNLanguageModel(CharacterModel):
 
         self.model = Model([inp] + flat_initial_states, outputs=[output] + output_states,
                            name='%s_LM' % self.direction)
+        self.model.summary()
 
         if os.path.isfile(self.model_load_path):
             self.model.load_weights(self.model_load_path)

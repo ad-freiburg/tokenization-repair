@@ -1,10 +1,5 @@
 """
 Module containing the baseline tokens fixer based on dynamic programming.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 import _pickle as pickle
 

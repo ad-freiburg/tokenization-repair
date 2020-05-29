@@ -1,11 +1,6 @@
 """
 Module containing a multi-mode visualizer that compares and evaluates
 fixing performance, on the three correct, corrupt and fixed texts.
-
-
-Copyright 2017-2018, University of Freiburg.
-
-Mostafa M. Mohamed <mostafa.amin93@gmail.com>
 """
 from constants import (
     DEFAULT_EVALUATOR_ALIGNEMENT, HTML,  # LATEX,
