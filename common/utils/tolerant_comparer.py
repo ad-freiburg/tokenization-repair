@@ -1,104 +1,57 @@
-from termcolor import colored
+def get_inserted_position(original, misspelled):
+    if len(original) >= len(misspelled):
+        return None
+    for i, m in enumerate(misspelled):
+        if i == len(original) or m != original[i]:
+            return i
+    assert False
 
 
-def remove_inserted_char(misspelled: str, original: str) -> str:
-    if misspelled == original or len(misspelled) < len(original):
-        return misspelled
-    elif len(misspelled) > len(original):
-        return original
-    for i in range(len(misspelled)):
-        if misspelled[i] != original[i]:
-            return misspelled[:i] + misspelled[(i + 1):]
+def get_inserted_nonspace_positions(original, misspelled):
+    inserted_positions = set()
+    pos = 0
+    for orig, missp in zip(original.split(), misspelled.split()):
+        inserted = get_inserted_position(orig, missp)
+        if inserted is not None:
+            inserted_positions.add(pos + inserted)
+        pos += len(missp)
+    return inserted_positions
 
 
-def remove_inserted_chars(misspelled: str, original: str) -> str:
-    misspelled_tokens = misspelled.split(' ')
-    original_tokens = original.split(' ')
-    processed_tokens = [remove_inserted_char(mt, ot)
-                        for mt, ot in zip(misspelled_tokens, original_tokens)]
-    sequence = ' '.join(processed_tokens)
-    sequence = sequence.replace('  ', ' ')
-    return sequence
-
-
-def remove_additional_chars(sequence: str, correct: str):
+def remove_inserted_nonspace_characters(sequence, nonspace_insertions):
     processed = ""
-    keep_chars = correct.replace(' ', '')
-    keep_i = 0
-    for char in sequence:
-        if keep_i < len(keep_chars) and char == keep_chars[keep_i]:
+    nonspace_i = 0
+    for i, char in enumerate(sequence):
+        if (char == ' ' and not processed.endswith(' ')) or (char != ' ' and nonspace_i not in nonspace_insertions):
             processed += char
-            keep_i += 1
-        elif char == ' ' and not processed.endswith(' '):
-            processed += char
-    processed = processed.replace('  ', ' ').strip()
+        if char != ' ':
+            nonspace_i += 1
     return processed
 
 
-
-def print_comparison(original, correct, corrupt, predicted):
-    correct = remove_inserted_chars(correct, original)
-    corrupt = remove_additional_chars(corrupt, correct)
-    predicted = remove_additional_chars(predicted, correct)
-    
-    correct_i = 0
-    corrupt_i = 0
-    predicted_i = 0
-    
-    eval_sequence = ""
-    
-    color = None
-    
-    while correct_i < len(correct) or corrupt_i < len(corrupt) or predicted_i < len(predicted):
-        correct_space = correct[correct_i] == ' '
-        corrupt_space = corrupt[corrupt_i] == ' '
-        predicted_space = predicted[predicted_i] == ' '
-        if predicted_space and not corrupt_space:
-            # did insert
-            if correct_space:
-                # true positive insertion
-                color = "on_green"
-            else:
-                # false positive insertion
-                color = "on_red"
-        elif not predicted_space and corrupt_space:
-            # did remove
-            if correct_space:
-                # false positive deletion
-                color = "on_red"
-            else:
-                # true positive deletion
-                color = "on_green"
-        else:
-            # did nothing
-            if corrupt_space and not correct_space:
-                # false negative deletion
-                color = "on_yellow"
-            elif not corrupt_space and correct_space:
-                # false negative insertion
-                color = "on_yellow"
-        all_equal = correct_space == corrupt_space == predicted_space
-        if all_equal or predicted_space:
-            eval_sequence += colored(predicted[predicted_i], None, color)
-            color = None
-            predicted_i += 1
-        if all_equal or corrupt_space:
-            corrupt_i += 1
-        if all_equal or correct_space:
-            correct_i += 1
-    
-    print(eval_sequence)
+def tolerant_preprocess_sequences(original, correct, corrupt, predicted):
+    insertions = get_inserted_nonspace_positions(original, correct)
+    correct = remove_inserted_nonspace_characters(correct, insertions)
+    corrupt = remove_inserted_nonspace_characters(corrupt, insertions)
+    predicted = remove_inserted_nonspace_characters(predicted, insertions)
+    return correct, corrupt, predicted
 
 
 def is_correct_tolerant(original, correct, corrupt, predicted):
-    correct = remove_inserted_chars(correct, original)
-    corrupt = remove_additional_chars(corrupt, correct)
-    predicted = remove_additional_chars(predicted, correct)
+    correct, corrupt, predicted = tolerant_preprocess_sequences(original, correct, corrupt, predicted)
     return predicted == correct
 
 
 if __name__ == "__main__":
-    print_comparison("Hello world. The cat eats fish.",
-                     "Hellox world. Thea ct eats fisX.",
-                     "Helloxworld. Theact eat sfis X.",
-                     "Hello xworld. The act eatsfi s X.")
+    print(is_correct_tolerant("Hello world.",
+                              "Hellox world.",
+                              "Helloxworld.",
+                              "Hello xworld."))
+    print(is_correct_tolerant("""It was founded in November 1991 and led by Nina Andreyeva, a university teacher who was well known for her 1988 letter "I cannot give up my principles".""",
+                              """Izt was founded in November 1991 and sled by Nina Andreyeva, a univeristy teacher who was well known for her 1988 letter "Ic cannot give up my principles".""",
+                              """Izt was founded in No vember 1991 and sled by Nina Andreyeva, auniveristy teacher who was well known for her 1988 letter "Ic cannot give up my principles".""",
+                              """Izt was founded in November 1991 and s led by Nina Andreyeva, a univeristy teacher who was well known for her 1988 letter "Ic cannot give up my principles"."""))
+    print(is_correct_tolerant("The cat eats fish.",
+                              "The cat eatz fish.",
+                              "The cat eatz fish.",
+                              "The cat eat z fish."))
