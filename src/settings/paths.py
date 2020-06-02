@@ -5,13 +5,7 @@ from src.benchmark.subset import Subset
 
 # BASE DIRECTORY
 DUMP_DIRS = [
-    "/mnt/4E83539B6CE67342/tokenization-repair-dumps/",  # Lappy
-    "/project/master/hertelm/tokenization-repair-dumps/",  # tfpools
-    "/local/hdd/exports/data/matthias-hertel/tokenization-repair-dumps/",  # titan
-    "/local/data/hertelm/tokenization-repair-dumps/",  # sirba
-    "/nfs/students/matthias-hertel/tokenization-repair-dumps/",  # ad
-    "/data/1/matthias-hertel/tokenization-repair-dumps/",  # cluster
-    "/home/hertel/tokenization-repair-dumps/",  # wunderfitz
+    "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
     "/external/"  # docker
 ]
 DUMP_DIR = None
@@ -57,8 +51,11 @@ WIKI_TEST_ARTICLE_IDS = WIKI_DIR + "test_article_ids.pkl"
 WIKI_PARAGRAPHS_DIR = WIKI_DIR + "single-file/"
 WIKI_TRAINING_PARAGRAPHS = WIKI_PARAGRAPHS_DIR + "training_shuffled.txt"
 
+# BENCHMARKS DIRECTORY
+BENCHMARKS_DIR = DUMP_DIR + "benchmarks/"
+
 # sentence files
-WIKI_SENTENCES_DIR = WIKI_DIR + "sentences/"
+WIKI_SENTENCES_DIR = BENCHMARKS_DIR  # WIKI_DIR + "sentences/"
 WIKI_TRAINING_SENTENCES = WIKI_SENTENCES_DIR + "training.txt"
 WIKI_TRAINING_SENTENCES_SHUFFLED = WIKI_SENTENCES_DIR + "training_shuffled.txt"
 WIKI_TUNING_SENTENCES = WIKI_SENTENCES_DIR + "tuning.txt"
@@ -69,11 +66,8 @@ WIKI_TEST_SENTENCES = WIKI_SENTENCES_DIR + "test.txt"
 WIKI_PUNKT_TOKENIZER = WIKI_DIR + "punkt_tokenizer.pkl"
 EXTENDED_PUNKT_ABBREVIATIONS = WIKI_DIR + "extended_punkt_abbreviations.pkl"
 
-# BENCHMARKS DIRECTORY
-BENCHMARKS_DIR = DUMP_DIR + "benchmarks_sentences/"
-
 # RESULTS DIRECTORY
-RESULTS_DIR = DUMP_DIR + "results_sentences/"
+RESULTS_DIR = DUMP_DIR + "results/"
 RESULTS_DICT = RESULTS_DIR + "results.pkl"
 
 # PLOTS DIRECTORY
@@ -115,10 +109,10 @@ THRESHOLD_FITTER_DIR = INTERMEDIATE_DIR + "threshold_fitter/"
 # OPENAI
 OPENAI_MODELS_FOLDER = None
 
-for dir in [RESULTS_DIR, PLOT_DIR, INTERMEDIATE_DIR, THRESHOLD_FITTER_DIR, BENCHMARKS_DIR]:
+"""for dir in [RESULTS_DIR, PLOT_DIR, INTERMEDIATE_DIR, THRESHOLD_FITTER_DIR, BENCHMARKS_DIR]:
     if not path_exists(dir):
         make_directory(dir)
-        print("Made directory: %s" % dir)
+        print("Made directory: %s" % dir)"""
 
 
 def benchmark_sub_directory(name: str,

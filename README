@@ -1,38 +1,12 @@
-1) Get the code
+1. Download the data from http://emnlp2020-367.hopto.org/data.zip and extract it to a directory <DATA-DIR>.
 
-	git clone https://github.com/ad-freiburg/tokenization-repair.git <YOUR CODE DIRECTORY>
+2. Build the docker container.
 
-2) Get the models and data
-
-	a) If you are on a machine from the lab (with access to /nfs/students), skip this step.
-	b) If you are on your own machine, copy the models and data
-		scp -r <SOME SERVER FROM THE AD LAB>:/nfs/students/matthias-hertel/tokenization-repair-paper <YOUR DATA DIRECTORY>
-
-3) Build the Docker container
-
-	cd <YOUR CODE DIRECTORY>
 	docker build -t tokenization-repair .
 
-	(Use wharfer instead of docker if you are an a machine from the lab.)
+3. Start the Docker container and link it to the data directory.
 
-4) Start the Docker container
+	docker run -it -v <DATA-DIR>:/external tokenization-repair
 
-	a) On a machine from the lab
-		docker run -it -v /nfs/students/matthias-hertel/tokenization-repair-paper:/external tokenization-repair
-	b) On your own machine
-		docker run -it -v <YOUR DATA DIRECTORY>:/external tokenization-repair
-
-5) Inside the container, repair some tokens!
-
-	a) make beam-search
-	b) make iterative
-	c) make spelling
-	
-	Wait until the model is loaded.
-	When the input symbol (> ) appears, type a sentence with tokenization errors and press enter to get a correction.
-
-6) Start the web demo.
-	
-	make start-server
-	
-	It opens a port at <YOUR MACHINE'S ADDRESS>:1234.
+4. Inside the container, repair some tokens!
+   Type 'make help' to get a specification of all the make targets.
