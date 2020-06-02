@@ -1,10 +1,10 @@
 import numpy as np
 
 import project
-from src.benchmark.benchmark import Benchmark, BenchmarkFiles, ERROR_PROBABILITIES, NOISE_LEVELS, get_benchmark, Subset
+from src.benchmark.benchmark import BenchmarkFiles, ERROR_PROBABILITIES, NOISE_LEVELS, get_benchmark, Subset
 from src.helper.files import get_files
 from src.settings import paths
-from benchmark_error_tolerant import remove_additional_chars, remove_inserted_chars
+from src.evaluation.tolerant import tolerant_preprocess_sequences
 from src.datasets.wikipedia import Wikipedia
 
 
@@ -16,20 +16,20 @@ APPROACH_NAMES = {
     "beam_search_bwd.txt": "BS bw",
     "beam_search_robust.txt": "BS fw robust",
     "beam_search_bwd_robust.txt": "BS bw robust",
-    "labeling.txt": "bidirectional",
-    "labeling_noisy.txt": "bidirectional robust",
+    "labeling_ce.txt": "bidirectional",
+    "labeling_noisy_ce.txt": "bidirectional robust",
     "two_pass.txt": "two-pass",
     "two_pass_robust.txt": "two-pass robust",
-    "beam_search_labeling.txt": "BS fw+bi",
-    "beam_search_labeling_robust.txt": "BS fw+bi robust"
+    "beam_search_labeling_ce.txt": "BS fw+bi",
+    "beam_search_labeling_robust_ce.txt": "BS fw+bi robust",
+    "spelling_beam_search_segmentation.txt": "spell check BS"
 }
 
 
 def zero_one_sequence(a, b, originals):
     res = []
     for aa, bb, original in zip(a, b, originals):
-        aa = remove_inserted_chars(aa, original).replace('  ', ' ')
-        bb = remove_additional_chars(bb, aa).replace('  ', ' ')
+        aa, _, bb = tolerant_preprocess_sequences(original, aa, aa, bb)
         res.append(1 if aa == bb else 0)
     return res
 

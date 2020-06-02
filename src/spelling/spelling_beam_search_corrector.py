@@ -52,6 +52,7 @@ class SpellingBeamSearchCorrector:
                  char_penalty: float,
                  space_penalty: float,
                  max_edits_per_word: int = 1,
+                 filter_by_score = False,
                  verbose: bool = True):
         self.model = model
         self.n_beams = n_beams
@@ -62,6 +63,7 @@ class SpellingBeamSearchCorrector:
         self.max_edits_per_word = max_edits_per_word
         self.space_label = self.model.encoder.encode_char(' ')
         self.total_model_time = 0
+        self.filter_by_score = filter_by_score
         self.verbose = verbose
         self.non_insertable_labels = {self.model.encoder.encode_char(label) for label in
                                       (symbols.SOS, symbols.EOS, symbols.UNKNOWN)}
@@ -134,7 +136,8 @@ class SpellingBeamSearchCorrector:
     def _select_beams(self, beams: List[SpellingBeam]) -> List[SpellingBeam]:
         beams = self._get_best_beams(beams)
         beams = self._filter_duplicates(beams)
-        beams = self._filter_by_score(beams)
+        if self.filter_by_score:
+            beams = self._filter_by_score(beams)
         return beams
 
     def _update_beams(self, beams: List[SpellingBeam]):

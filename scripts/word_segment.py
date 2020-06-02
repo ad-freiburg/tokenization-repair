@@ -5,7 +5,7 @@ from unidecode import unidecode
 
 import project
 from src.interactive.sequence_generator import interactive_sequence_generator
-from src.benchmark.benchmark import Benchmark, BenchmarkFiles, Subset
+from src.benchmark.benchmark import Benchmark, BenchmarkFiles, SUBSETS
 from src.postprocessing.rule_based import RuleBasedPostprocessor
 from src.helper.time import time_diff, timestamp
 from src.evaluation.predictions_file_writer import PredictionsFileWriter
@@ -61,7 +61,8 @@ class WordSegment:
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         benchmark_name = sys.argv[1]
-        benchmark = Benchmark(benchmark_name, Subset.DEVELOPMENT)
+        subset = SUBSETS[sys.argv[2]]
+        benchmark = Benchmark(benchmark_name, subset)
         sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
         writer = PredictionsFileWriter(benchmark.get_results_directory() + "wordsegment.txt")
     else:

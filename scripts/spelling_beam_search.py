@@ -3,6 +3,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 
 params = [Parameter("benchmark", "-benchmark", "str"),
+          Parameter("subset", "-set", "str"),
           Parameter("n_sequences", "-n", "int"),
           Parameter("n_beams", "-b", "int"),
           Parameter("space_penalty", "-sp", "float"),
@@ -18,7 +19,7 @@ parameters = getter.get()
 from src.interactive.sequence_generator import interactive_sequence_generator
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
 from src.spelling.spelling_beam_search_corrector import SpellingBeamSearchCorrector
-from src.benchmark.benchmark import BenchmarkFiles, Subset, Benchmark
+from src.benchmark.benchmark import BenchmarkFiles, SUBSETS, Benchmark
 from src.evaluation.predictions_file_writer import PredictionsFileWriter
 from src.helper.time import time_diff, timestamp
 
@@ -35,7 +36,7 @@ if __name__ == "__main__":
 
     benchmark_name = parameters["benchmark"]
     if benchmark_name != "0":
-        benchmark = Benchmark(benchmark_name, Subset.DEVELOPMENT)
+        benchmark = Benchmark(benchmark_name, SUBSETS[parameters["subset"]])
         sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
         n_sequences = parameters["n_sequences"]
         file_writer = PredictionsFileWriter(benchmark.get_results_directory() + parameters["out_file"])

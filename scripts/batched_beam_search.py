@@ -57,7 +57,7 @@ if __name__ == "__main__":
         labeling_model = None
     else:
         labeling_model = BidirectionalLabelingEstimator()
-        labeling_model.load("labeling")
+        labeling_model.load(parameters["labeling_model"])
 
     benchmark_name = parameters["benchmark"]
 

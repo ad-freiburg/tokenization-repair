@@ -1,44 +1,21 @@
 import sys
 
 import project
-from src.benchmark.benchmark import Benchmark, SUBSETS, BenchmarkFiles, Subset
+from src.benchmark.benchmark import Benchmark, SUBSETS, BenchmarkFiles, Subset, all_benchmarks
 from src.evaluation.evaluator import Evaluator
 from src.datasets.wikipedia import Wikipedia
 from src.helper.data_structures import izip
 from src.evaluation.print_methods import print_evaluator
 from src.helper.files import read_sequences
 from src.settings import paths
+from src.evaluation.tolerant import tolerant_preprocess_sequences
 
 
-def remove_inserted_char(misspelled: str, original: str) -> str:
-    if misspelled == original or len(misspelled) < len(original):
-        return misspelled
-    elif len(misspelled) > len(original):
-        return original
-    for i in range(len(misspelled)):
-        if misspelled[i] != original[i]:
-            return misspelled[:i] + misspelled[(i + 1):]
-
-
-def remove_inserted_chars(misspelled: str, original: str) -> str:
-    misspelled_tokens = misspelled.split(' ')
-    original_tokens = original.split(' ')
-    processed_tokens = [remove_inserted_char(mt, ot)
-                        for mt, ot in zip(misspelled_tokens, original_tokens)]
-    return ' '.join(processed_tokens)
-
-
-def remove_additional_chars(sequence: str, correct: str):
-    processed = ""
-    keep_chars = correct.replace(' ', '')
-    keep_i = 0
-    for char in sequence:
-        if keep_i < len(keep_chars) and char == keep_chars[keep_i]:
-            processed += char
-            keep_i += 1
-        elif char == ' ' and not processed.endswith(' '):
-            processed += char
-    return processed.strip()
+def table_row(f1_list, acc_list):
+    row = ""
+    for value in f1_list + acc_list:
+        row += "&   %.2f " % (value * 100)
+    return row
 
 
 if __name__ == "__main__":
@@ -47,43 +24,58 @@ if __name__ == "__main__":
     predictions_file_name = sys.argv[3]
     n_sequences = int(sys.argv[4]) if len(sys.argv) > 4 else -1
 
-    benchmark = Benchmark(benchmark_name, subset)
-    original_sequences = {Subset.TUNING: read_sequences(paths.WIKI_TUNING_SENTENCES),
-                          Subset.DEVELOPMENT: Wikipedia.development_sequences(),
-                          Subset.TEST: Wikipedia.test_sequences()}[subset]
-    sequence_pairs = benchmark.get_sequence_pairs(BenchmarkFiles.CORRUPT)
-    if predictions_file_name == "corrupt.txt":
-        predicted_sequences = [corrupt for _, corrupt in sequence_pairs]
+    eval_all = benchmark_name == "all"
+    if eval_all:
+        benchmarks = all_benchmarks(subset)
     else:
-        predicted_sequences = benchmark.get_predicted_sequences(predictions_file_name)
+        benchmarks = [Benchmark(benchmark_name, subset)]
 
-    evaluator = Evaluator()
+    f1_list = []
+    acc_list = []
 
-    for s_i, original, (correct, corrupt), predicted in izip(original_sequences, sequence_pairs, predicted_sequences):
-        if s_i == n_sequences:
-            break
+    for benchmark in benchmarks:
+        original_sequences = {Subset.TUNING: read_sequences(paths.WIKI_TUNING_SENTENCES),
+                              Subset.DEVELOPMENT: Wikipedia.development_sequences(),
+                              Subset.TEST: Wikipedia.test_sequences()}[subset]
 
-        print(original)
-        print(correct)
-        print(corrupt)
-        print(predicted)
+        sequence_pairs = benchmark.get_sequence_pairs(BenchmarkFiles.CORRUPT)
+        if predictions_file_name == "corrupt.txt":
+            predicted_sequences = [corrupt for _, corrupt in sequence_pairs]
+        else:
+            predicted_sequences = benchmark.get_predicted_sequences(predictions_file_name)
 
-        correct_processed = remove_inserted_chars(correct, original).replace('  ', ' ')
-        corrupt_processed = remove_additional_chars(corrupt, correct_processed).replace('  ', ' ')
-        predicted_processed = remove_additional_chars(predicted, correct_processed).replace('  ', ' ')
+        evaluator = Evaluator()
 
-        print(correct_processed)
-        print(corrupt_processed)
-        print(predicted_processed)
+        for s_i, original, (correct, corrupt), predicted in izip(original_sequences, sequence_pairs, predicted_sequences):
+            if s_i == n_sequences:
+                break
 
-        evaluator.evaluate(predictions_file_name,
-                           s_i,
-                           original_sequence=correct_processed,
-                           corrupt_sequence=corrupt_processed,
-                           predicted_sequence=predicted_processed,
-                           evaluate_ed=False)
-        evaluator.print_sequence()
+            correct_processed, corrupt_processed, predicted_processed = \
+                tolerant_preprocess_sequences(original, correct, corrupt, predicted)
 
-        print()
+            evaluator.evaluate(predictions_file_name,
+                               s_i,
+                               original_sequence=correct_processed,
+                               corrupt_sequence=corrupt_processed,
+                               predicted_sequence=predicted_processed,
+                               evaluate_ed=False)
 
-    print_evaluator(evaluator)
+            if not eval_all:
+                print(original)
+                print(correct)
+                print(corrupt)
+                print(predicted)
+                print(correct_processed)
+                print(corrupt_processed)
+                print(predicted_processed)
+                evaluator.print_sequence()
+                print()
+
+        f1, acc = print_evaluator(evaluator)
+
+        f1_list.append(f1)
+        acc_list.append(acc)
+
+    print(f1_list)
+    print(acc_list)
+    print(table_row(f1_list, acc_list))
