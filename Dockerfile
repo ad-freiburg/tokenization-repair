@@ -10,6 +10,7 @@ COPY bashrc bashrc
 COPY test test
 COPY src src
 COPY scripts scripts
+copy demos demos
 COPY html html
 CMD ["/bin/bash", "--rcfile", "bashrc"]
 
