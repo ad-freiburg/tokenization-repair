@@ -12,7 +12,7 @@ COPY src src
 COPY scripts scripts
 COPY demos demos
 COPY html html
-RUN export PYTHONIOENCODING=UTF-8
+ENV PYTHONIOENCODING=utf-8
 CMD ["/bin/bash", "--rcfile", "bashrc"]
 
 ### Build the container:
