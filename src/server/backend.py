@@ -16,7 +16,7 @@ FWD_MODEL_NAME = "fwd1024"
 ROBUST_FWD_MODEL_NAME = "fwd1024_noise0.2"
 
 
-MODES = [("tr", "Tokenization repair"),
+MODES = [("tr", "Tokenization repair without spelling errors"),
          ("trn", "Tokenization repair with spelling errors"),
          ("spell", "Spelling correction")]
 

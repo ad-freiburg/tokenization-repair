@@ -22,9 +22,12 @@ class Server:
             sys.stdout.flush()
             (client, address) = server.accept()
             print("Incoming request at " + time.ctime())
-            request = client.recv(1 << 28).decode("utf8")
-            print("Request: \"" + request + "\"")
-            self.handle_request(client, request)
+            try:
+                request = client.recv(1 << 28).decode("utf8")
+                print("Request: \"" + request + "\"")
+                self.handle_request(client, request)
+            except Exception as e:
+                print(e)
             client.close()
 
     def handle_request(self, client, request):
