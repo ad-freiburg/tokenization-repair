@@ -17,19 +17,18 @@ VIRTUAL_RUNNER = None  # WHARFER  # None or RISEML
 
 
 # DEFAULT_GRAPHS_DUMP_DIR = '/output/'
-#DEFAULT_DATA_LOAD_DIR = '/Users/thrax/thesis_benchmarks/benchmarks/'
-#DEFAULT_DATA_LOAD_DIR = '/local/hdd/exports/data/matthias-hertel/'
 
-#DEFAULT_MODEL_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper/dumps'
-#DEFAULT_DATA_LOAD_DIR = '/nfs/students/mostafa-mohamed/paper'
+NAME = USERNAME #TODO:
+NAME2 = USERNAME #TODO:
 
 DEFAULT_ROOT_DIR = '.'
 DEFAULT_MODEL_DUMP_DIR = 'dumps'
 DEFAULT_MODEL_LOAD_DIR = 'dumps'
 DEFAULT_DATA_LOAD_DIR = 'benchmarks_root'
 DEFAULT_BENCHMARK_DUMP_DIR = 'benchmark_dumps'
+ROOT_PATH = '/nfs/students/' + NAME2 + '/tokenization-repair-paper/'
 
-for root in ['/nfs/students/mostafa-mohamed/paper', '/project/p20gb/amin/paper']:
+for root in ['/nfs/students/' + NAME + '/paper', '/project/p20gb/' + USERNAME + '/paper']:
     if os.path.isdir(root):
         DEFAULT_ROOT_DIR = root
         DEFAULT_MODEL_DUMP_DIR = os.path.join(root, 'dumps')
@@ -42,9 +41,9 @@ for root in ['/nfs/students/mostafa-mohamed/paper', '/project/p20gb/amin/paper']
 try:
     from polyaxon_client.tracking import get_outputs_path
     print('Polyaxon output path:', get_outputs_path())
-    DEFAULT_DATA_LOAD_DIR = '/data/1/amin/benchmarks/'
-    DEFAULT_DATA_LOAD_DIR = '/data/1/matthias-hertel/'
-    DEFAULT_MODEL_LOAD_DIR = '/data/1/amin/dumps/'
+    DEFAULT_DATA_LOAD_DIR = '/data/1/'
+    DEFAULT_DATA_LOAD_DIR = '/data/1/'
+    DEFAULT_MODEL_LOAD_DIR = '/data/1/'
     DEFAULT_MODEL_DUMP_DIR = os.path.join(get_outputs_path(), 'dumps')
     DEFAULT_BENCHMARK_DUMP_DIR = os.path.join(get_outputs_path(), 'benchmark_dumps')
 except Exception as err:

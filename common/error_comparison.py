@@ -2,12 +2,11 @@
 import os
 import random
 
+from constants import ROOT_PATH, BENCHMARKS_ENUM
 from utils.multiviewer import MultiViewer
 from utils.logger import logger
 from utils.tolerant_comparer import print_comparison, is_correct_tolerant
 
-BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
-ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
 MODELS_ENUM = [
     'beam_search_bwd_robust', 'beam_search_bwd', 'beam_search_labeling',
     'beam_search_robust', 'beam_search', 'labeling_noisy', 'labeling', 
