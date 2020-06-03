@@ -12,14 +12,11 @@ COPY src src
 COPY scripts scripts
 COPY demos demos
 COPY html html
-CMD ["/bin/bash", "--rcfile", "bashrc"]
 RUN export PYTHONIOENCODING=UTF-8
+CMD ["/bin/bash", "--rcfile", "bashrc"]
 
-### Build the container using docker or wharfer.
+### Build the container:
 # docker build -t tokenization-repair .
-# wharfer build -t tokenization-repair .
 
-### Run the container somewhere in the ad-network.
-# docker run -it -v /nfs/students/matthias-hertel/tokenization-repair-paper:/external tokenization-repair
-# wharfer run -it -v /nfs/students/matthias-hertel/tokenization-repair-paper:/external tokenization-repair
-
+### Run the container:
+# docker run -it -v <DATA-DIR>:/external tokenization-repair
