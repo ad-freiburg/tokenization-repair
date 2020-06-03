@@ -55,7 +55,7 @@ def evaluator_string(evaluator):
     string += ("(total)    Sequence accuracy = %.4f (%i/%i)" %
           (evaluator.sequence_accuracy(), evaluator.num_correct_sequences(), evaluator.num_sequences())) + "\n"
     # runtime
-    string += ("(total)    Mean runtime per sequence = %.2f sec" % evaluator.mean_runtime())
+    #string += ("(total)    Mean runtime per sequence = %.2f sec" % evaluator.mean_runtime())
     return string, f1_total, evaluator.sequence_accuracy()
 
 
