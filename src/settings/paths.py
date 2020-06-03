@@ -6,6 +6,7 @@ from src.benchmark.subset import Subset
 # BASE DIRECTORY
 DUMP_DIRS = [
     "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
+    "/nfs/students/matthias-hertel/tokenization-repair-dumps/",  # lab
     "/external/"  # docker
 ]
 DUMP_DIR = None
@@ -27,12 +28,7 @@ ESTIMATORS_DIR = DUMP_DIR + "estimators/"
 DATA_DIR = DUMP_DIR + "data/"
 
 # WIKIPEDIA DIRECTORY
-WIKI_DIRS = ["/mnt/4E83539B6CE67342/tokenization-repair-dumps/data/wikipedia/",
-             "/project/master/hertelm/wikipedia/",
-             "/local/hdd/exports/data/matthias-hertel/wikipedia/",
-             "/local/data/hertelm/wikipedia/",
-             "/data/1/matthias-hertel/wikipedia/",
-             "/home/hertel/wikipedia/"]
+WIKI_DIRS = [""]
 WIKI_DIR = None
 for dir in WIKI_DIRS:
     if path_exists(dir):
@@ -40,7 +36,7 @@ for dir in WIKI_DIRS:
         break
 if WIKI_DIR is None:
     WIKI_DIR = "__UNKNOWN_WIKI_DIRECTORY__"
-    print("WARNING: Unable to locate wikipedia folder.")
+    # print("WARNING: Unable to locate wikipedia folder.")
 
 # wikipedia article IDs
 WIKI_TRAINING_ARTICLE_IDS = WIKI_DIR + "training_article_ids.pkl"
