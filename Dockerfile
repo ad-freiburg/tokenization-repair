@@ -10,9 +10,10 @@ COPY bashrc bashrc
 COPY test test
 COPY src src
 COPY scripts scripts
-copy demos demos
+COPY demos demos
 COPY html html
 CMD ["/bin/bash", "--rcfile", "bashrc"]
+RUN export PYTHONIOENCODING=UTF-8
 
 ### Build the container using docker or wharfer.
 # docker build -t tokenization-repair .

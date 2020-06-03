@@ -47,10 +47,10 @@ def evaluator_string(evaluator):
     string += ("(total)    (total)      recall = %.4f" % recall_total) + "\n"
     string += ("(total)    (total)      f1 = %.4f" % f1_total) + "\n"
     # edit distance
-    string += ("(total)    Mean edit distance before = %.2f" % evaluator.mean_ed_before()) + "\n"
-    string += ("(total)    Mean edit distance after  = %.2f" % evaluator.mean_ed_after()) + "\n"
-    string += ("(total)    Edit distance fraction resolved = %.4f" %
-          ed_fraction_resolved(evaluator.mean_ed_before(), evaluator.mean_ed_after())) + "\n"
+    #string += ("(total)    Mean edit distance before = %.2f" % evaluator.mean_ed_before()) + "\n"
+    #string += ("(total)    Mean edit distance after  = %.2f" % evaluator.mean_ed_after()) + "\n"
+    #string += ("(total)    Edit distance fraction resolved = %.4f" %
+    #      ed_fraction_resolved(evaluator.mean_ed_before(), evaluator.mean_ed_after())) + "\n"
     # sequence accuracy
     string += ("(total)    Sequence accuracy = %.4f (%i/%i)" %
           (evaluator.sequence_accuracy(), evaluator.num_correct_sequences(), evaluator.num_sequences())) + "\n"
