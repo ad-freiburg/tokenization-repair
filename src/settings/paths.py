@@ -5,8 +5,6 @@ from src.benchmark.subset import Subset
 
 # BASE DIRECTORY
 DUMP_DIRS = [
-    "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
-    "/nfs/students/matthias-hertel/tokenization-repair-dumps/",  # lab
     "/external/"  # docker
 ]
 DUMP_DIR = None
