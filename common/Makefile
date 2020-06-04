@@ -13,7 +13,6 @@ export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 help:
-	@printf "Shortcut targets for commonly used operations. A full guide is described in the README.rst.\nThe corresponding sections are referenced below. The README.rst is compiled as an HTML.\nHTML is available in the directory /nfs/students/mohamed-mostafa/docs/_build/html/readme.html\nIn the Docker enviornment, it is located in /extern/data/docs/_build/html/readme.html\nPlease Make sure to configure the dataset paths as in the 'Datasets' section before running.\n"
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
 all: test clean lint-flake
@@ -49,10 +48,3 @@ statuses-polyaxon:
 
 validations-polyaxon:
 	polyaxon experiment -xp $(id) logs --past | grep val_ --binary-files=text
-
-outputs-polyaxon:  ## Outputs of polyaxon experiment
-	echo "\tpolyaxon experiment -xp $(id) outputs"
-	echo "\ttar -xvzf $(USER).token-repair.$(id).tar.gz"
-	echo "\trsync -va outputs/amin/token-repair/experiments/$(id)/dumps /local/hdd/exports/data/$(USER)/dumps/"
-	echo "\trm -rv $(USER).token-repair.$(id).tar.gz"
-	echo "\trm -rv outputs/amin/token-repair/experiments/$(id)"

@@ -2,17 +2,15 @@
 import os
 import random
 
-from constants import DEFAULT_EVALUATOR_ALIGNEMENT
+from constants import DEFAULT_EVALUATOR_ALIGNEMENT, ROOT_PATH, BENCHMARKS_ENUM
 from utils.multiviewer import MultiViewer
 from utils.logger import logger
-from utils.tolerant_comparer import print_comparison, is_correct_tolerant
+from utils.tolerant_comparer import is_correct_tolerant
 
-BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
-ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
 MODELS_ENUM = [
     'beam_search_bwd_robust', 'beam_search_bwd', 'beam_search_labeling',
-    'beam_search_robust', 'beam_search', 'labeling_noisy', 'labeling', 
-    'two_pass', 'two_pass_robust']
+    'beam_search_robust', 'beam_search', 'labeling_noisy', 'labeling',
+    'beam_search_labeling_robust', 'two_pass', 'two_pass_robust']
 
 
 def read_triples(model, benchmark, evaluation_set='test', shuffle=False):
@@ -48,8 +46,7 @@ def compare_two(original, data_a, data_b, count):
 
     metrics_a, out_a = comparator.evaluate(correct_a, corrupt_a, fixed_a)
     metrics_b, out_b = comparator.evaluate(correct_b, corrupt_b, fixed_b)
-    if metrics_a[-1] == metrics_b[-1]:
-        return 0
+    #if metrics_a[-1] == metrics_b[-1]: return 0
     logger.output(original)
     logger.log_info(model_b, benchmark_b, highlight=3)
     logger.output(out_b)
@@ -66,10 +63,10 @@ def compare_two(original, data_a, data_b, count):
 
 
 if __name__ == '__main__':
-    model_a = 'two_pass_robust'
+    model_a = 'beam_search_labeling_robust'#'two_pass_robust'
     model_b = 'beam_search_labeling'
-    benchmark_a = '0.1_0.1'
-    benchmark_b = '0_0.1'
+    benchmark_a = '0_inf' #'0.1_0.1'
+    benchmark_b = '0_inf'
 
     original_sentences = get_original_sentences()
     comparator = MultiViewer()
@@ -98,7 +95,6 @@ if __name__ == '__main__':
     count = 0
     for original, (correct_a, corrupt_a, fixed_a), (correct_b, corrupt_b, fixed_b) in zip(
             original_sentences, read_triples(model_a, benchmark_a), read_triples(model_b, benchmark_b)):
-        i += 1
         # A is better, B is bad
         if (is_correct_tolerant(original, correct_a, corrupt_a, fixed_a) and not
                 is_correct_tolerant(original, correct_b, corrupt_b, fixed_b)):

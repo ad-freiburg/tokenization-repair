@@ -2,17 +2,19 @@
 import os
 import random
 
+from constants import ROOT_PATH, BENCHMARKS_ENUM
 from utils.multiviewer import MultiViewer
 from utils.logger import logger
-from utils.tolerant_comparer import print_comparison, is_correct_tolerant
+from utils.tolerant_comparer import is_correct_tolerant
 
 
-BENCHMARKS_ENUM = ['0_0.1', '0_1', '0.1_0.1', '0.1_1', '0.1_inf', '0_inf']
-ROOT_PATH = '/nfs/students/matthias-hertel/tokenization-repair-paper/'
 MODELS_ENUM = [
-    'beam_search_bwd_robust', 'beam_search_bwd', 'beam_search_labeling',
-    'beam_search_robust', 'beam_search', 'labeling_noisy', 'labeling', 
-    'two_pass']
+    'beam_search_bwd_robust',   'beam_search_labeling_rbust',
+    'beam_search_labeling', 'bigrams', 'labeling_noisy_ce',  'two_pass_robust',
+    'beam_search_bwd', 'beam_search_labeling_robust_ce',  'beam_search_robust',
+    'greedy', 'labeling_noisy', 'two_pass',
+    'beam_search_labeling_ce',  'beam_search_labeling_robust',
+    'beam_search', 'labeling_ce',  'labeling', 'wordsegment']
 
 
 def read_quads(model, benchmark, evaluation_set='test', shuffle=False):
@@ -38,10 +40,12 @@ def read_quads(model, benchmark, evaluation_set='test', shuffle=False):
 
 
 if __name__ == '__main__':
-    model = 'beam_search_labeling'
-    benchmark = '0_0.1'
+    #model = 'beam_search_labeling'
+    #benchmark = '0_0.1'
+    model = 'beam_search_labeling_robust_ce'
+    benchmark = '0.1_0.1'
     comparator = MultiViewer()
-    take_first_n = 50
+    take_first_n = 200
     count = 0
 
     for original, correct, corrupt, fixed in read_quads(model, benchmark):
