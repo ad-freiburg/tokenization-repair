@@ -1331,7 +1331,6 @@ class Estimator(object):
             grouped_estimator_spec.scaffold, self._train_distribution)
 
         # TODO(yuefengz): add a test for unwrapping per_device_hooks.
-        # COMMENT(hertelm): would have been good
         def get_hooks_from_the_first_device(per_device_hooks):
           return [
               self._train_distribution.unwrap(per_device_hook)[0]

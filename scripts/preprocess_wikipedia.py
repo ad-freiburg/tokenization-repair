@@ -16,6 +16,7 @@ from src.data.wiki.raw_wikipedia import split_dataset, count_paragraphs, detect_
     write_dataset_split_files
 from src.data.wikipedia import Wikipedia, Sequence
 from src.settings import paths, constants
+from src.anonymous import paths as anonymous_paths
 
 
 SPLITS = ["training", "development", "test"]
@@ -26,10 +27,7 @@ def find_wikipedia_dir() -> str:
 
     :return: Absolute path to the extracted Wikipedia files.
     """
-    dirs = ["/mnt/4E83539B6CE67342/tokenization-repair-dumps/data/wikipedia/",
-            "/local/data/hertelm/wikipedia/",
-            "/local/hdd/exports/data/matthias-hertel/tokenization-repair-dumps/data/wikipedia/",
-            "/project/master/hertelm/tokenization-repair-dumps/data/wikipedia/"]
+    dirs = anonymous_paths.EXTRACTED_WIKI_DIRS
     for dir in dirs:
         if path_exists(dir):
             return dir

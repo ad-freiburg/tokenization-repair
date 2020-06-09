@@ -3,7 +3,7 @@ import sys
 from project import src
 from src.helper.files import read_sequences
 from src.sequence.sequence_corruptor import SequenceCorruptor
-
+from src.anonymous import paths as anonymous_paths
 
 if __name__ == "__main__":
     subset = sys.argv[1]
@@ -11,9 +11,9 @@ if __name__ == "__main__":
     delete = sys.argv[3] == "1"
     
     if subset == "test":
-        sequence_file = "/project/master/hertelm/projekt/test.txt"
+        sequence_file = anonymous_paths.PROJECT_TEST
     else:
-        sequence_file = "/project/master/hertelm/projekt/validation.txt"
+        sequence_file = anonymous_paths.PROJECT_VALIDATION
     
     sequences = list(read_sequences(sequence_file))[:1000]
     
