@@ -142,7 +142,6 @@ class BatchedBeamSearchCorrector:
             beams = self._best_beams(beams)
             if self.verbose:
                 print("step %i, symbol = %s" % (i, self.model.encoder.decode_label(encoded[i + 1])))
-                print(encoded[i], encoded[i + 1])
                 for beam in beams:
                     print("%.4f %s" % (beam.logprob, beam.sequence))
 
