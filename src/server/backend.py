@@ -96,9 +96,10 @@ class Backend:
         self.bs_fw_robust = get_token_repairer(fwd_robust)
         self.bs_bw = get_token_repairer(bwd)
         self.bs_bw_robust = get_token_repairer(bwd_robust)
-        self.two_pass = load_two_pass_corrector(robust=False, typos=False, p=INF, forward_model=fwd, backward_model=bwd)
+        self.two_pass = load_two_pass_corrector(robust=False, typos=False, p=INF, forward_model=fwd, backward_model=bwd,
+                                                verbose=False)
         self.two_pass_robust = load_two_pass_corrector(robust=True, typos=True, p=INF, forward_model=fwd_robust,
-                                                       backward_model=bwd_robust)
+                                                       backward_model=bwd_robust, verbose=False)
         self.bs_bi = get_token_repairer(fwd, bidirectional_model=bidir)
         self.bs_bi_robust = get_token_repairer(fwd_robust, bidirectional_model=bidir_robust)
         self.spelling_corrector = get_spelling_corrector(fwd)
