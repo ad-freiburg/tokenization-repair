@@ -34,12 +34,12 @@ def get_penalties(model,
     return penalties
 
 
-def initialise_beam_search_corrector(model, bidir_model, p_ins: float, p_del: float):
+def initialise_beam_search_corrector(model, bidir_model, p_ins: float, p_del: float, verbose: bool = True):
     return BatchedBeamSearchCorrector(model,
                                       insertion_penalty=p_ins,
                                       deletion_penalty=p_del,
                                       n_beams=5,
-                                      verbose=True,
+                                      verbose=verbose,
                                       labeling_model=bidir_model)
 
 
@@ -59,7 +59,8 @@ def load_two_pass_corrector(robust: bool,
                             typos: bool,
                             p: float,
                             forward_model: Optional[UnidirectionalLMEstimator] = None,
-                            backward_model: Optional[UnidirectionalLMEstimator] = None) \
+                            backward_model: Optional[UnidirectionalLMEstimator] = None,
+                            verbose: bool = True) \
         -> TwoPassCorrector:
     if forward_model is None:
         forward_model = load_unidirectional_model(backward=False, robust=robust)
@@ -68,7 +69,7 @@ def load_two_pass_corrector(robust: bool,
     p_fwd_ins, p_fwd_del = get_penalties(forward_model, labeling_model=None, typos=typos, token_errors=p)
     p_bwd_ins, p_bwd_del = get_penalties(backward_model, labeling_model=None, typos=typos, token_errors=p,
                                          two_pass=True)
-    forward_corrector = initialise_beam_search_corrector(forward_model, None, p_fwd_ins, p_fwd_del)
-    backward_corrector = initialise_beam_search_corrector(backward_model, None, p_bwd_ins, p_bwd_del)
+    forward_corrector = initialise_beam_search_corrector(forward_model, None, p_fwd_ins, p_fwd_del, verbose=verbose)
+    backward_corrector = initialise_beam_search_corrector(backward_model, None, p_bwd_ins, p_bwd_del, verbose=verbose)
     two_pass_corrector = TwoPassCorrector(forward_corrector, backward_corrector)
     return two_pass_corrector
