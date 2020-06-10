@@ -1,23 +1,31 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from urllib.parse import unquote
 
 from src.helper.files import read_file
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
+from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
 from src.corrector.beam_search.batched_beam_search_corrector import BatchedBeamSearchCorrector
 from src.spelling.spelling_beam_search_corrector import SpellingBeamSearchCorrector
+from src.corrector.load.model import load_unidirectional_model, load_bidirectional_model
+from src.corrector.load.beam_search import load_two_pass_corrector, INF
 
 
 FOLDER = "html/"
 HTML_PATH = FOLDER + "repair.html"
 FILES = ["style.css"]
 QUERY_PREFIX = "repair?query="
-FWD_MODEL_NAME = "fwd1024"
-ROBUST_FWD_MODEL_NAME = "fwd1024_noise0.2"
+MAX_QUERY_LENGTH = 256
 
 
-MODES = [("tr", "Tokenization repair without spelling errors"),
-         ("trn", "Tokenization repair with spelling errors"),
+MODES = [("bs-fw", "Beam search forward non-robust"),
+         ("bs-fw-r", "Beam search forward robust"),
+         ("bs-bw", "Beam search backward non-robust"),
+         ("bs-bw-r", "Beam search backward robust"),
+         ("2-pass", "Two-pass beam search non-robust"),
+         ("2-pass-r", "Two-pass beam search robust"),
+         ("bs-bi", "Beam search bidirectional non-robust"),
+         ("bs-bi-r", "Beam search bidirectional robust"),
          ("spell", "Spelling correction")]
 
 
@@ -33,12 +41,15 @@ def mode_select_html(selected_mode: str):
     return html
 
 
-def get_token_repairer(model: UnidirectionalLMEstimator) -> BatchedBeamSearchCorrector:
+def get_token_repairer(model: UnidirectionalLMEstimator,
+                       bidirectional_model: Optional[BidirectionalLabelingEstimator] = None) \
+        -> BatchedBeamSearchCorrector:
     return BatchedBeamSearchCorrector(model,
                                       insertion_penalty=0,
                                       deletion_penalty=0,
-                                      n_beams=3,
-                                      verbose=False)
+                                      n_beams=5,
+                                      verbose=False,
+                                      labeling_model=bidirectional_model)
 
 
 def get_spelling_corrector(model: UnidirectionalLMEstimator) -> SpellingBeamSearchCorrector:
@@ -46,7 +57,7 @@ def get_spelling_corrector(model: UnidirectionalLMEstimator) -> SpellingBeamSear
                                        n_beams=100,
                                        branching_factor=100,
                                        consecutive_insertions=2,
-                                       char_penalty=6,
+                                       char_penalty=8,
                                        space_penalty=0,
                                        max_edits_per_word=1,
                                        verbose=False)
@@ -71,32 +82,47 @@ def html_safe_value(value: str) -> str:
     return value
 
 
-def load_fwd_model(model_name: str) -> UnidirectionalLMEstimator:
-    model = UnidirectionalLMEstimator()
-    model.load(model_name)
-    return model
-
-
 class Backend:
     def __init__(self):
         self.html = read_file(HTML_PATH)
         self.file_contents = {file: read_file(FOLDER + file) for file in FILES}
-        fwd_model = load_fwd_model(FWD_MODEL_NAME)
-        self.token_repairer = get_token_repairer(fwd_model)
-        robust_fwd_model = load_fwd_model(ROBUST_FWD_MODEL_NAME)
-        self.robust_token_repairer = get_token_repairer(robust_fwd_model)
-        self.spelling_corrector = get_spelling_corrector(fwd_model)
+        fwd = load_unidirectional_model(backward=False, robust=False)
+        fwd_robust = load_unidirectional_model(backward=False, robust=True)
+        bwd = load_unidirectional_model(backward=True, robust=False)
+        bwd_robust = load_unidirectional_model(backward=True, robust=True)
+        bidir = load_bidirectional_model(robust=False)
+        bidir_robust = load_bidirectional_model(robust=True)
+        self.bs_fw = get_token_repairer(fwd)
+        self.bs_fw_robust = get_token_repairer(fwd_robust)
+        self.bs_bw = get_token_repairer(bwd)
+        self.bs_bw_robust = get_token_repairer(bwd_robust)
+        self.two_pass = load_two_pass_corrector(robust=False, typos=False, p=INF, forward_model=fwd, backward_model=bwd)
+        self.two_pass_robust = load_two_pass_corrector(robust=True, typos=True, p=INF, forward_model=fwd_robust,
+                                                       backward_model=bwd_robust)
+        self.bs_bi = get_token_repairer(fwd, bidirectional_model=bidir)
+        self.bs_bi_robust = get_token_repairer(fwd_robust, bidirectional_model=bidir_robust)
+        self.spelling_corrector = get_spelling_corrector(fwd)
+        self.correctors = {
+            "bs-fw": self.bs_fw,
+            "bs-fw-r": self.bs_fw_robust,
+            "bs-bw": self.bs_bw,
+            "bs-bw-r": self.bs_bw_robust,
+            "2-pass": self.two_pass,
+            "2-pass-r": self.two_pass_robust,
+            "bs-bi": self.bs_bi,
+            "bs-bi-r": self.bs_bi_robust,
+            "spell": self.spelling_corrector
+        }
 
     def predict(self, query: str, mode: str):
-        if mode == "tr":
-            return self.token_repairer.correct(query)
-        elif mode == "trn":
-            return self.robust_token_repairer.correct(query)
-        elif mode == "spell":
-            predicted, segmentation = self.spelling_corrector.correct(query)
-            return predicted
-        else:
+        if mode not in self.correctors:
             return ""
+        query = query[:MAX_QUERY_LENGTH]
+        if mode == "spell":
+            predicted, segmentation = self.spelling_corrector.correct(query)
+        else:
+            predicted = self.correctors[mode].correct(query)
+        return predicted
 
     def answer(self, request: str) -> str:
         if request in FILES:

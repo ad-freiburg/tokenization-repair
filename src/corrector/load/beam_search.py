@@ -1,5 +1,6 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
+from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
 from src.corrector.beam_search.batched_beam_search_corrector import BatchedBeamSearchCorrector
 from src.corrector.beam_search.two_pass_corrector import TwoPassCorrector
 from src.corrector.load.model import load_unidirectional_model, load_bidirectional_model
@@ -56,9 +57,14 @@ def load_beam_search_corrector(backward: bool,
 
 def load_two_pass_corrector(robust: bool,
                             typos: bool,
-                            p: float) -> TwoPassCorrector:
-    forward_model = load_unidirectional_model(backward=False, robust=robust)
-    backward_model = load_unidirectional_model(backward=True, robust=robust)
+                            p: float,
+                            forward_model: Optional[UnidirectionalLMEstimator] = None,
+                            backward_model: Optional[UnidirectionalLMEstimator] = None) \
+        -> TwoPassCorrector:
+    if forward_model is None:
+        forward_model = load_unidirectional_model(backward=False, robust=robust)
+    if backward_model is None:
+        backward_model = load_unidirectional_model(backward=True, robust=robust)
     p_fwd_ins, p_fwd_del = get_penalties(forward_model, labeling_model=None, typos=typos, token_errors=p)
     p_bwd_ins, p_bwd_del = get_penalties(backward_model, labeling_model=None, typos=typos, token_errors=p,
                                          two_pass=True)
