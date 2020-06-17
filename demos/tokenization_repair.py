@@ -2,6 +2,7 @@ import sys
 
 import project
 from src.corrector.load.beam_search import load_beam_search_corrector, load_two_pass_corrector
+from src.corrector.load.labeling import load_labeling_corrector
 from src.interactive.sequence_generator import interactive_sequence_generator
 from src.benchmark.benchmark import Benchmark, SUBSETS, BenchmarkFiles
 from src.evaluation.predictions_file_writer import PredictionsFileWriter
@@ -14,7 +15,7 @@ def print_help():
           "[<benchmark> <subset> <output file>]")
     print()
     print("Arguments:")
-    print("    <approach>: Choose from {BS-fw, BS-bw, 2-pass, BS-bidir}.")
+    print("    <approach>: Choose from {bidir, BS-fw, BS-bw, 2-pass, BS-bidir}.")
     print("    <robust>:   Set to 'robust' for robust models, anything else for non-robust models.")
     print("    <typos>:    Set to 'typos' for the penalties optimized with typos, anything else otherwise.")
     print("    <p>:        Pick the penalties for a specific setting. Choose from {0.1, 1, inf} to specify the " 
@@ -38,7 +39,7 @@ def print_help():
     print("    python3 demos/tokenization_repair.py BS-bidir robust typos 0.1 0.1_0.1 test BS-bidir.txt")
 
 
-APPROACHES = {"BS-fw", "BS-bw", "2-pass", "BS-bidir"}
+APPROACHES = {"bidir", "BS-fw", "BS-bw", "2-pass", "BS-bidir"}
 P_LEVELS = {0.1, 1, float("inf")}
 
 N_ARGS_EXPECTED = {4, 7}
@@ -77,8 +78,11 @@ def get_arguments():
 
 
 def get_corrector(approach: str, robust: bool, typos: bool, p: float):
+    bidir = approach == "bidir"
     two_pass = approach == "2-pass"
-    if two_pass:
+    if bidir:
+        corrector = load_labeling_corrector(robust, typos, p)
+    elif two_pass:
         corrector = load_two_pass_corrector(robust, typos, p)
     else:
         backward = approach == "BS-bw"

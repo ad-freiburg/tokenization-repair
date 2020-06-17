@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
 from src.sequence.functions import get_space_positions_in_merged, remove_spaces
 from src.helper.data_structures import izip
@@ -7,9 +9,12 @@ class LabelingCorrector:
     def __init__(self,
                  model_name: str,
                  insertion_threshold: float,
-                 deletion_threshold: float):
-        self.model = BidirectionalLabelingEstimator()
-        self.model.load(model_name)
+                 deletion_threshold: float,
+                 model: Optional[BidirectionalLabelingEstimator] = None):
+        if model is None:
+            model = BidirectionalLabelingEstimator()
+            model.load(model_name)
+        self.model = model
         self.insertion_threshold = insertion_threshold
         self.deletion_threshold = deletion_threshold
 

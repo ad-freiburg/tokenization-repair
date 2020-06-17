@@ -6,6 +6,8 @@ from src.helper.files import read_file
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator
 from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator
 from src.corrector.beam_search.batched_beam_search_corrector import BatchedBeamSearchCorrector
+from src.corrector.labeling.labeling_corrector import LabelingCorrector
+from src.corrector.load.labeling import load_labeling_corrector
 from src.spelling.spelling_beam_search_corrector import SpellingBeamSearchCorrector
 from src.corrector.load.model import load_unidirectional_model, load_bidirectional_model
 from src.corrector.load.beam_search import load_two_pass_corrector, INF
@@ -18,7 +20,9 @@ QUERY_PREFIX = "repair?query="
 MAX_QUERY_LENGTH = 256
 
 
-MODES = [("bs-fw", "Beam search forward non-robust"),
+MODES = [("bidir", "Bidirectional labeling model non-robust"),
+         ("bidir-r", "Bidirectional labeling model robust"),
+         ("bs-fw", "Beam search forward non-robust"),
          ("bs-fw-r", "Beam search forward robust"),
          ("bs-bw", "Beam search backward non-robust"),
          ("bs-bw-r", "Beam search backward robust"),
@@ -41,8 +45,8 @@ def mode_select_html(selected_mode: str):
     return html
 
 
-def get_token_repairer(model: UnidirectionalLMEstimator,
-                       bidirectional_model: Optional[BidirectionalLabelingEstimator] = None) \
+def get_bs_token_repairer(model: UnidirectionalLMEstimator,
+                          bidirectional_model: Optional[BidirectionalLabelingEstimator] = None) \
         -> BatchedBeamSearchCorrector:
     return BatchedBeamSearchCorrector(model,
                                       insertion_penalty=0,
@@ -50,6 +54,11 @@ def get_token_repairer(model: UnidirectionalLMEstimator,
                                       n_beams=5,
                                       verbose=False,
                                       labeling_model=bidirectional_model)
+
+
+def get_labeling_token_repairer(model: BidirectionalLabelingEstimator,
+                                robust: bool) -> LabelingCorrector:
+    return load_labeling_corrector(robust=robust, typos=robust, p=INF, model=model)
 
 
 def get_spelling_corrector(model: UnidirectionalLMEstimator) -> SpellingBeamSearchCorrector:
@@ -92,18 +101,22 @@ class Backend:
         bwd_robust = load_unidirectional_model(backward=True, robust=True)
         bidir = load_bidirectional_model(robust=False)
         bidir_robust = load_bidirectional_model(robust=True)
-        self.bs_fw = get_token_repairer(fwd)
-        self.bs_fw_robust = get_token_repairer(fwd_robust)
-        self.bs_bw = get_token_repairer(bwd)
-        self.bs_bw_robust = get_token_repairer(bwd_robust)
+        self.bidir = get_labeling_token_repairer(bidir, robust=False)
+        self.bidir_robust = get_labeling_token_repairer(bidir_robust, robust=True)
+        self.bs_fw = get_bs_token_repairer(fwd)
+        self.bs_fw_robust = get_bs_token_repairer(fwd_robust)
+        self.bs_bw = get_bs_token_repairer(bwd)
+        self.bs_bw_robust = get_bs_token_repairer(bwd_robust)
         self.two_pass = load_two_pass_corrector(robust=False, typos=False, p=INF, forward_model=fwd, backward_model=bwd,
                                                 verbose=False)
         self.two_pass_robust = load_two_pass_corrector(robust=True, typos=True, p=INF, forward_model=fwd_robust,
                                                        backward_model=bwd_robust, verbose=False)
-        self.bs_bi = get_token_repairer(fwd, bidirectional_model=bidir)
-        self.bs_bi_robust = get_token_repairer(fwd_robust, bidirectional_model=bidir_robust)
+        self.bs_bi = get_bs_token_repairer(fwd, bidirectional_model=bidir)
+        self.bs_bi_robust = get_bs_token_repairer(fwd_robust, bidirectional_model=bidir_robust)
         self.spelling_corrector = get_spelling_corrector(fwd)
         self.correctors = {
+            "bidir": self.bidir,
+            "bidir-r": self.bidir_robust,
             "bs-fw": self.bs_fw,
             "bs-fw-r": self.bs_fw_robust,
             "bs-bw": self.bs_bw,
