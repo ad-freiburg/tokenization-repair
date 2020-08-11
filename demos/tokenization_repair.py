@@ -109,6 +109,10 @@ if __name__ == "__main__":
         file_writer = PredictionsFileWriter(benchmark.get_results_directory() + file_name)
 
     for sequence in sequences:
+        if sequence.startswith("#"):
+            if file_writer is not None:
+                file_writer.add(sequence, 0)
+            continue
         start_time = timestamp()
         predicted = corrector.correct(sequence)
         runtime = time_diff(start_time)

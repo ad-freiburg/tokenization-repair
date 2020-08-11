@@ -61,6 +61,10 @@ if __name__ == "__main__":
     for original, correct, corrupt, predicted in \
             zip(original_sequences, correct_sequences, corrupt_sequences, predicted_sequences):
 
+        if original.startswith("#"):
+            print(original)
+            continue
+
         correct_processed, corrupt_processed, predicted_processed = \
             tolerant_preprocess_sequences(original, correct, corrupt, predicted)
 
