@@ -110,3 +110,6 @@ if __name__ == "__main__":
         if file_writer is not None:
             if (s_i + 1) % 100 == 0:
                 file_writer.save()
+
+    if file_writer is not None:
+        file_writer.save()
