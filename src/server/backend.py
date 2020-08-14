@@ -17,7 +17,7 @@ FOLDER = "html/"
 HTML_PATH = FOLDER + "repair.html"
 FILES = ["style.css"]
 QUERY_PREFIX = "repair?query="
-MAX_QUERY_LENGTH = 256
+MAX_QUERY_LENGTH = 512
 
 
 MODES = [("bidir", "Bidirectional labeling model non-robust"),
@@ -31,12 +31,13 @@ MODES = [("bidir", "Bidirectional labeling model non-robust"),
          ("bs-bi", "Beam search bidirectional non-robust"),
          ("bs-bi-r", "Beam search bidirectional robust"),
          ("spell", "Spelling correction")]
+DEFAULT_MODE = "bs-bi-r"
 
 
 def mode_select_html(selected_mode: str):
     html = """<select name="mode">"""
     for mode, label in MODES:
-        if mode == selected_mode:
+        if mode == selected_mode or (selected_mode == "" and mode == DEFAULT_MODE):
             selected_str = " selected=\"selected\""
         else:
             selected_str = ""
