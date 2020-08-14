@@ -1,7 +1,7 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Tokenization Repair Web Demo</title>
+    <title>EMNLP 2020: Tokenization Repair Web Demo</title>
   </head>
   <body>
     <header>
@@ -10,10 +10,7 @@
     <div class="content">
       <h2>Demo</h2>
       <p>
-        Welcome to the Tokenization Repair web demo!<br>
-        Enter a sequence with arbitrarily many spurious spaces and missing spaces, and potentially with spelling errors.
-        Select a correction method and click the button to submit your query.
-        The corrected sequence will be shown below the input form.
+        Enter a text sequence with spurious and missing spaces, and potentially with spelling errors.
       </p>
       <form action="repair" method="get">
         <input type="text" name="query" style="width: 100%%" value="%s">
@@ -27,62 +24,140 @@
       %s
     </div>
     <div class="content">
-      <h2>Explanations</h2>
-      Hyperparameters for this demo are set such that the models work best with unreliable spaces (e.g. no spaces at all).
-      Query times are longer than reported in the paper, because the demo is currently set up on a CPU instead of GPU.
-      <h3>Approaches</h3>
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-        <tr>
-          <td>Bidirectional labeling model</td>
-          <td>Bidirectional LSTM predicting space probabilities.</td>
-        </tr>
-        <tr>
-          <td>Beam search forward</td>
-          <td>Beam search with a forward language model.</td>
-        </tr>
-        <tr>
-          <td>Beam search backward</td>
-          <td>Beam search with a backward language model.</td>
-        </tr>
-        <tr>
-          <td>Two-pass beam search</td>
-          <td>First the forward beam search, then the backward beam search on the result.</td>
-        </tr>
-        <tr>
-          <td>Beam search bidirectional</td>
-          <td>Beam search using the forward language model in combination with the bidirectional model.
-            This method gave the best results.</td>
-        </tr>
-        <tr>
-          <td>Spelling correction</td>
-          <td>Forward beam search doing all kinds of character edits, not just space edits.
-            Beware of longer query times due to the increased beam width.</td>
-        </tr>
-      </table>
-      <br>
-      <table>
-        <tr>
-          <th>Mode</th>
-          <th>Description</th>
-        </tr>
-        <tr>
-          <td>Non-robust</td>
-          <td>The models are trained on clean text.</td>
-        </tr>
-        <tr>
-          <td>Robust</td>
-          <td>The models are trained on text with spelling errors.
-            This setting gives much better results on sequences containing spelling errors.</td>
-        </tr>
-      </table>
+      <details>
+        <summary>Help</summary>
+        <p>
+          Select a correction method and click the button to submit your query.
+          The corrected sequence will be shown below the input form.
+        </p>
+        <p>
+          Hyperparameters for this demo are set such that the models work best with unreliable spaces (e.g. no spaces at all).
+          Query times are longer than reported in the paper, because the demo is currently set up on a CPU instead of GPU.
+        </p>
+        <h3>Approaches</h3>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>Bidirectional labeling model</td>
+            <td>Bidirectional LSTM predicting space probabilities.</td>
+          </tr>
+          <tr>
+            <td>Beam search forward</td>
+            <td>Beam search with a forward language model.</td>
+          </tr>
+          <tr>
+            <td>Beam search backward</td>
+            <td>Beam search with a backward language model.</td>
+          </tr>
+          <tr>
+            <td>Two-pass beam search</td>
+            <td>First the forward beam search, then the backward beam search on the result.</td>
+          </tr>
+          <tr>
+            <td>Beam search bidirectional</td>
+            <td>Beam search using the forward language model in combination with the bidirectional model.
+              This method gave the best results.</td>
+          </tr>
+          <tr>
+            <td>Spelling correction</td>
+            <td>Forward beam search doing all kinds of character edits, not just space edits.
+              Beware of longer query times due to the increased beam width.</td>
+          </tr>
+        </table>
+        <br>
+        <table>
+          <tr>
+            <th>Mode</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>Non-robust</td>
+            <td>The models are trained on clean text.</td>
+          </tr>
+          <tr>
+            <td>Robust</td>
+            <td>The models are trained on text with spelling errors.
+              This setting gives much better results on sequences containing spelling errors.</td>
+          </tr>
+        </table>
+        <p>
+          For a comparison with the Google spell checker, copy your query into a
+          <a href="https://docs.google.com" target="_blank">Google document</a> and iteratively apply all suggested space edits.
+        </p>
+      </details>
+      <h3>Example sequences</h3>
       <p>
-        For a comparison with the Google spell checker, copy your query into a
-        <a href="https://docs.google.com">Google document</a> and iteratively apply all suggested space edits.
+        Try the examples from our development set in the demo above (one example per query), and compare the results with the <a href="https://docs.google.com" target="_blank">Google spell checker</a>!
       </p>
+      <h4>Without spelling errors</h4>
+      <table>
+        <tr>
+          <td>10%% tokenization error rate</td>
+          <td>
+            <ul>
+              <li>On 20 October 2011, Radolfi made his debut in the Italy U-18, in an internationalfriendly, as asubstitute replacing DanieleRugani in the 46th minute of a 3–0 home defeat against Ukraine U-18.</li>
+              <li>It was a sixteenth edition of the tournament which was part of the 201 0 AT P Challenger Tour.</li>
+              <li>Frank Raym ond (21 August 1903 – 6 March 1978) was an Australian rules footballer who played with Fitzroy i n the Vi ctorian Football League (VFL).</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>100%% tokenization error rate</td>
+          <td>
+            <ul>
+              <li>Theyoccu ri nnea r strea m s inhil lyeve rg reen forests.</li>
+              <li>Itwasdescri be d byFrancis Walk er in 1866.</li>
+              <li>NKAIN1isa me mberofafamilyof mammalia npro tein swith similarity t o Drosop hil a Nkain and inte rac tswiththebeta s ubunitofNa,K-ATP ase(ATP1B1; MIM 1823 30)(Gorokhova et al., 2007[PubMed 1 7 6064 67]).</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>No spaces</td>
+          <td>
+            <ul>
+              <li>Thepopulationwas960atthe2010census.</li>
+              <li>Theschoolservesasanalternativetolargermunicipalhighschoolsforstudentsinterestedinamedicalprofession.</li>
+              <li>Greenlandocerasisanextinctgenusofprehistoricnautiloids.</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+      <h4>With spelling errors</h4>
+      <table>
+        <tr>
+          <td>10%% tokenization error rate</td>
+          <td>
+            <ul>
+              <li>Kinnan's husband and daughter were killed in the raid, while Kinna nwas sold by the Shawneees to a Delaware tribe, spending three years with them before she was rescued inDtetroit by her brother.</li>
+              <li>The national ceonomy withthe closest figure for the ue levant year according to the International Monetary Fund is then indicated.</li>
+              <li>Here, z"context" mean s a tree with exaztly one hole in it;if "S" is su ch a context, "S"["t"] denotes the result f fill ing the tree "t" into thehole of "S" .</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>100%% tokenization error rate</td>
+          <td>
+            <ul>
+              <li>Also visi bleon thsealisa s tarand crescent , o no fKing John'spersonalbadges.</li>
+              <li>Therearescatered popul atlions onboth theNorth andS outhIslands.</li>
+              <li> The house was added to the National Regitser df Historic Placos (NRHP) in 1982. </li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>No spaces</td>
+          <td>
+            <ul>
+              <li>Theartistisknownforhistoy-liyesculpturesandnarrativeportraits.</li>
+              <li>The land wai purchased by Mary b'Donohue in 1868 and her heirs continued to develop the property as a summer beach destination. </li>
+              <li>Inall8Wekshcountycouncilsthewholevofthecouncilwasupforelection.</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>

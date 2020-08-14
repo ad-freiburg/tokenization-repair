@@ -46,5 +46,10 @@ table, th, td {
 }
 
 th, td {
-  padding: 5pt
+  padding: 5pt;
+}
+
+ul{
+  padding-left: 10pt;
+  margin: 0;
 }

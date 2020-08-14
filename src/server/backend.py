@@ -29,7 +29,7 @@ MODES = [("bidir", "Bidirectional labeling model non-robust"),
          ("2-pass", "Two-pass beam search non-robust"),
          ("2-pass-r", "Two-pass beam search robust"),
          ("bs-bi", "Beam search bidirectional non-robust"),
-         ("bs-bi-r", "Beam search bidirectional robust"),
+         ("bs-bi-r", "Beam search bidirectional robust (recommended)"),
          ("spell", "Spelling correction")]
 DEFAULT_MODE = "bs-bi-r"
 
