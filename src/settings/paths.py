@@ -5,16 +5,19 @@ from src.benchmark.subset import Subset
 
 # BASE DIRECTORY
 DUMP_DIRS = [
+    "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
+    "/local/data/hertelm/tokenization-repair-dumps/data/",  # sirba
+    "/data/1/matthias-hertel/tokenization-repair-dumps/data/",  # polyaxon
     "/external/"  # docker
 ]
 DUMP_DIR = None
 for dir in DUMP_DIRS:
     if path_exists(dir):
         DUMP_DIR = dir
-        print("Located dump folder: %s" % DUMP_DIR)
+        print("Located data folder: %s" % DUMP_DIR)
         break
 if DUMP_DIR is None:
-    raise Exception("Unable to locate dump folder.")
+    raise Exception("Unable to locate data folder.")
 
 # MODEL DIRECTORY FOR SERVER
 MODEL_FOLDER = DUMP_DIR + "models_server/"
@@ -44,6 +47,9 @@ WIKI_TEST_ARTICLE_IDS = WIKI_DIR + "test_article_ids.pkl"
 # paragraphs
 WIKI_PARAGRAPHS_DIR = WIKI_DIR + "single-file/"
 WIKI_TRAINING_PARAGRAPHS = WIKI_PARAGRAPHS_DIR + "training_shuffled.txt"
+
+# acl training data
+ACL_TRAINING_FILE = DUMP_DIR + "acl_training.txt"
 
 # BENCHMARKS DIRECTORY
 BENCHMARKS_DIR = DUMP_DIR + "benchmarks/"

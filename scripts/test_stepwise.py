@@ -6,7 +6,8 @@ if __name__ == "__main__":
     model = load_char_lm(model_type="fwd",
                          model_name="fwd1024")
     print(model)
-    sequence = "This is a test."
+    #sequence = "This is a test."
+    sequence = "H"
     result = model.predict(sequence)
     probabilities = result["probabilities"]
     print(len(sequence))
@@ -20,3 +21,5 @@ if __name__ == "__main__":
             symbol = model.get_encoder().decode_label(x)
             print(symbol, state["probabilities"][x])
         state = model.model.step(state, x)
+        print(state["cell_state"]["state.0.c"][0][:100])
+        print(state["cell_state"]["state.0.h"][0][:100])

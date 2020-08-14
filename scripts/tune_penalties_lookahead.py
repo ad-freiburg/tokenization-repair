@@ -1,5 +1,3 @@
-from typing import List
-
 import project
 
 from src.interactive.parameters import ParameterGetter, Parameter
@@ -21,7 +19,6 @@ from src.helper.pickle import load_object
 from src.helper.data_structures import izip
 from src.settings import paths
 from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
-from src.corrector.beam_search.penalty_tuning import Case
 from src.corrector.beam_search.penalty_fitter import Case as CaseLabel, PenaltyFitter
 from src.corrector.beam_search.penalty_holder import PenaltyHolder
 

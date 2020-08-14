@@ -1,6 +1,5 @@
 from typing import List, Tuple
 
-import random
 from enum import Enum
 import string
 

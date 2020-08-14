@@ -3,7 +3,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 
 params = [Parameter("model_name", "-m", "str"),
-          Parameter("noise", "-n", "boolean"),
+          Parameter("benchmark", "-b", "str"),
           Parameter("continue", "-c", "boolean")]
 getter = ParameterGetter(params)
 getter.print_help()

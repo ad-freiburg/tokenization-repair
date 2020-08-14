@@ -46,9 +46,12 @@ class RobustDataFnProvider:
             self.corruptor = TokenTypoInducer(noise_prob, seed)
         self.labeling_output = labeling_output
 
+    def read_sequences(self):
+        return Wikipedia.training_sequences()
+
     def get_batches(self) -> List[str]:
         batch = []
-        for sequence in Wikipedia.training_sequences():
+        for sequence in self.read_sequences():
             if self.noise:
                 sequence, _ = self.corruptor.corrupt(sequence)
             batch.append(sequence)

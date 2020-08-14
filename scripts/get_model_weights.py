@@ -7,6 +7,7 @@ if __name__ == "__main__":
     print(model)
     print(model.model)
     estimator = model.model.estimator
+    print(dir(estimator))
     print(estimator.latest_checkpoint())
     var_names = estimator.get_variable_names()
     for name in var_names:

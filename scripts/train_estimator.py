@@ -11,6 +11,7 @@ params = [
     Parameter("vocabulary_size", "-voc", "int"),
     Parameter("recurrent_units", "-ru", "int"),
     Parameter("dense_units", "-du", "int"),
+    Parameter("dataset", "-data", "str"),
     Parameter("batch_size", "-bs", "int"),
     Parameter("sequence_length", "-len", "int"),
     Parameter("noise_prob", "-p", "float"),
@@ -29,6 +30,7 @@ import tensorflow as tf
 from src.estimator.bidirectional_lm_estimator import BidirectionaLLMEstimator, BidirectionalLMEstimatorSpecification
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator, UnidirectionalLMEstimatorSpecification
 from src.data_fn.wiki_data_fn_provider import WikiDataFnProvider
+from src.data_fn.acl_data_fn_provider import ACLDataFnProvider
 from src.encoding.character_encoder import get_encoder
 
 
@@ -84,19 +86,29 @@ if __name__ == "__main__":
         model.load(parameters["model_name"])
         encoder = model.encoder
         print("Loaded model.")
+        if parameters["dataset"] == "acl" and not model.specification.name.endswith("acl"):
+            model.specification.name = model.specification.name + "_acl"
+            print("renamed model to %s" % model.specification.name)
+            model._save_specification()
+            model._save_encoder()
 
     p = parameters["noise_prob"]
     if p == 0:
         p = None
-    provider = WikiDataFnProvider(encoder,
-                                  batch_size=parameters["batch_size"],
-                                  start_batch=parameters["start_batch"],
-                                  pad_sos=backward,
-                                  max_len=parameters["sequence_length"],
-                                  noise_prob=p,
-                                  mask_noisy=bidir,
-                                  seed=42,
-                                  bidirectional_mask=bidir)
+
+    if parameters["dataset"] == "acl":
+        provider_class = ACLDataFnProvider
+    else:
+        provider_class = WikiDataFnProvider
+    provider = provider_class(encoder,
+                              batch_size=parameters["batch_size"],
+                              start_batch=parameters["start_batch"],
+                              pad_sos=backward,
+                              max_len=parameters["sequence_length"],
+                              noise_prob=p,
+                              mask_noisy=bidir,
+                              seed=42,
+                              bidirectional_mask=bidir)
     print("Initialised data fn provider.")
 
     steps = parameters["steps"]
