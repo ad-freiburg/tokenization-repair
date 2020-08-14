@@ -1,13 +1,20 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Tokenization Repair Web Demo</title>
   </head>
   <body>
     <header>
       <h1>Tokenization Repair in the Presence of Spelling Errors</h1>
     </header>
     <div class="content">
-      <br>
+      <h2>Demo</h2>
+      <p>
+        Welcome to the Tokenization Repair web demo!<br>
+        Enter a sequence with arbitrarily many spurious spaces and missing spaces, and potentially with spelling errors.
+        Select a correction method and click the button to submit your query.
+        The corrected sequence will be shown below the input form.
+      </p>
       <form action="repair" method="get">
         <input type="text" name="query" style="width: 100%%" value="%s">
         <br>
@@ -18,6 +25,64 @@
       </form>
       <br>
       %s
+    </div>
+    <div class="content">
+      <h2>Explanations</h2>
+      Hyperparameters for this demo are set such that the models work best with unreliable spaces (e.g. no spaces at all).
+      Query times are longer than reported in the paper, because the demo is currently set up on a CPU instead of GPU.
+      <h3>Approaches</h3>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>Bidirectional labeling model</td>
+          <td>Bidirectional LSTM predicting space probabilities.</td>
+        </tr>
+        <tr>
+          <td>Beam search forward</td>
+          <td>Beam search with a forward language model.</td>
+        </tr>
+        <tr>
+          <td>Beam search backward</td>
+          <td>Beam search with a backward language model.</td>
+        </tr>
+        <tr>
+          <td>Two-pass beam search</td>
+          <td>First the forward beam search, then the backward beam search on the result.</td>
+        </tr>
+        <tr>
+          <td>Beam search bidirectional</td>
+          <td>Beam search using the forward language model in combination with the bidirectional model.
+            This method gave the best results.</td>
+        </tr>
+        <tr>
+          <td>Spelling correction</td>
+          <td>Forward beam search doing all kinds of character edits, not just space edits.
+            Beware of longer query times due to the increased beam width.</td>
+        </tr>
+      </table>
+      <br>
+      <table>
+        <tr>
+          <th>Mode</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>Non-robust</td>
+          <td>The models are trained on clean text.</td>
+        </tr>
+        <tr>
+          <td>Robust</td>
+          <td>The models are trained on text with spelling errors.
+            This setting gives much better results on sequences containing spelling errors.</td>
+        </tr>
+      </table>
+      <p>
+        For a comparison with the Google spell checker, copy your query into a
+        <a href="https://docs.google.com">Google document</a> and iteratively apply all suggested space edits.
+      </p>
     </div>
   </body>
 </html>
