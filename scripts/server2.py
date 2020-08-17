@@ -28,7 +28,7 @@ def run():
     port = 1234
     server = ('', port)
     httpd = HTTPServer(server, RequestHandler)
-    httpd.serve_forever()
     print("serving at port", port)
+    httpd.serve_forever()
 
 run()
