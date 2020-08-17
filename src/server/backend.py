@@ -29,7 +29,7 @@ MODES = [("bidir", "Bidirectional labeling model non-robust"),
          ("2-pass", "Two-pass beam search non-robust"),
          ("2-pass-r", "Two-pass beam search robust"),
          ("bs-bi", "Beam search bidirectional non-robust"),
-         ("bs-bi-r", "Beam search bidirectional robust (recommended)"),
+         ("bs-bi-r", "Beam search bidirectional robust (best method)"),
          ("spell", "Spelling correction")]
 DEFAULT_MODE = "bs-bi-r"
 
@@ -92,6 +92,15 @@ def html_safe_value(value: str) -> str:
     return value
 
 
+def wrap_result(result: str) -> str:
+    wrapped = "<b>Result:</b><br>\n" + \
+        "<table>\n" + \
+        "<tr><td>%s</td></tr>" + \
+        "</table>\n"
+    wrapped = wrapped % result
+    return wrapped
+
+
 class Backend:
     def __init__(self):
         self.html = read_file(HTML_PATH)
@@ -149,6 +158,8 @@ class Backend:
             query = answer = mode = ""
         query = html_safe_value(query)
         answer = html_safe_value(answer)
+        if len(answer) > 0:
+            answer = wrap_result(answer)
         select_html = mode_select_html(mode)
         html = self.html % (query, select_html, answer)
         return html
