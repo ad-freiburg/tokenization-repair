@@ -87,10 +87,8 @@ if __name__ == "__main__":
         encoder = model.encoder
         print("Loaded model.")
         if parameters["dataset"] == "acl" and not model.specification.name.endswith("acl"):
-            model.specification.name = model.specification.name + "_acl"
+            model.rename(model.specification.name + "_acl")
             print("renamed model to %s" % model.specification.name)
-            model._save_specification()
-            model._save_encoder()
 
     p = parameters["noise_prob"]
     if p == 0:

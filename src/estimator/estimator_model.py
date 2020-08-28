@@ -297,6 +297,12 @@ class EstimatorModel:
             self._remove_saved_models()
             self.export_model()
 
+    def rename(self, new_name: str):
+        self.specification.name = new_name
+        self._save_specification()
+        self._save_encoder()
+        self.estimator = self._make_estimator()
+
     @abc.abstractmethod
     def _initial_state(self):
         raise NotImplementedError()

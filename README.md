@@ -6,7 +6,7 @@ For help with Docker visit: https://docs.docker.com/get-docker/
 
 ## Installation guide ##
 
-1. Download the data from http://emnlp2020-367.hopto.org/data.zip and extract it to a directory <DATA-DIR>.
+1. Download the data from http://emnlp2020-367.hopto.org/data.zip and extract it to a directory DATA-DIR.
 
 2. In case you have a GPU supporting tensorflow 1.12, change line 8 in the requirements.txt to:
 	tensorflow-gpu==1.12.0
