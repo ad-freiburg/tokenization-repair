@@ -14,4 +14,4 @@ spelling:
 	python3 scripts/spelling_beam_search.py -benchmark 0 -set 0 -n -1 -b 100 -sp 0 -cp 8 -f 0 -seg 0 -c 0
 
 start-server:
-	python3 scripts/start_server.py
+	python3 scripts/server2.py
