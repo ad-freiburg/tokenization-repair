@@ -31,7 +31,8 @@ from src.estimator.bidirectional_lm_estimator import BidirectionaLLMEstimator, B
 from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator, UnidirectionalLMEstimatorSpecification
 from src.data_fn.wiki_data_fn_provider import WikiDataFnProvider
 from src.data_fn.acl_data_fn_provider import ACLDataFnProvider
-from src.encoding.character_encoder import get_encoder
+from src.data_fn.acl_corpus_data_fn_provider import ACLCorpusDataFnProvider
+from src.encoding.character_encoder import get_encoder, get_acl_encoder
 
 
 if __name__ == "__main__":
@@ -58,7 +59,10 @@ if __name__ == "__main__":
                                           keep_checkpoint_every_hours=keep_every_hours)
 
     if parameters["start_batch"] == 0:
-        encoder = get_encoder(parameters["vocabulary_size"])
+        if parameters["dataset"] == "acl-all":
+            encoder = get_acl_encoder()
+        else:
+            encoder = get_encoder(parameters["vocabulary_size"])
         print("Loaded char encoder.")
         if bidir:
             spec = BidirectionalLMEstimatorSpecification(
@@ -96,6 +100,8 @@ if __name__ == "__main__":
 
     if parameters["dataset"] == "acl":
         provider_class = ACLDataFnProvider
+    elif parameters["dataset"] == "acl-all":
+        provider_class = ACLCorpusDataFnProvider
     else:
         provider_class = WikiDataFnProvider
     provider = provider_class(encoder,

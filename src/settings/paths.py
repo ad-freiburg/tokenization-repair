@@ -114,6 +114,11 @@ OPENAI_MODELS_FOLDER = None
         make_directory(dir)
         print("Made directory: %s" % dir)"""
 
+# ACL CORPUS
+ACL_CORPUS_DIR = DUMP_DIR + "acl_corpus/"
+ACL_CORPUS_TRAINING_FILE = ACL_CORPUS_DIR + "training.txt"
+ACL_ENCODER_DICT = ACL_CORPUS_DIR + "encoder_dict.pkl"
+
 
 def benchmark_sub_directory(name: str,
                             subset: Subset,

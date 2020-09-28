@@ -86,7 +86,7 @@ if __name__ == "__main__":
         if parameters["lookahead"] > 0:
             penalty_name += "_lookahead%i" % parameters["lookahead"]
         insertion_penalty, deletion_penalty = penalty_holder.get(penalty_name, penalties)
-        insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
+    insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
     print("penalties:", insertion_penalty, deletion_penalty)
 
     corrector = BatchedBeamSearchCorrector(model.model,
@@ -102,7 +102,10 @@ if __name__ == "__main__":
         elif file_writer is not None and s_i < file_writer.n_sequences():
             continue
         start_time = timestamp()
-        predicted = corrector.correct(sequence)
+        if benchmark_name == "acl_all" and sum(1 if c == "?" else 0 for c in sequence) > 3:  # ignore too many ?s
+            predicted = sequence
+        else:
+            predicted = corrector.correct(sequence)
         runtime = time_diff(start_time)
         print(predicted)
         if file_writer is not None:

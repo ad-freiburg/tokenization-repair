@@ -46,3 +46,8 @@ def get_encoder(n: int = 0) -> CharacterEncoder:
     else:
         encoder = load_object(paths.WIKI_ENCODER_DICT)
     return CharacterEncoder(encoder)
+
+
+def get_acl_encoder() -> CharacterEncoder:
+    encoder_dict = load_object(paths.ACL_ENCODER_DICT)
+    return CharacterEncoder(encoder_dict)
