@@ -1,6 +1,4 @@
 This is version 1.1.1 (June 17, 2020) of the Tokenization Repair software.
-Please consider downloading the latest version from here: http://emnlp2020-367.hopto.org
-It might offer additional features compared to this version.
 
 For help with Docker visit: https://docs.docker.com/get-docker/
 
