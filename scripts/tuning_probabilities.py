@@ -4,6 +4,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [Parameter("model_name", "-m", "str"),
           Parameter("benchmark", "-b", "str"),
+          Parameter("noise", "-noise", "boolean"),
           Parameter("continue", "-c", "boolean")]
 getter = ParameterGetter(params)
 getter.print_help()
@@ -17,14 +18,16 @@ from src.benchmark.benchmark import Benchmark, Subset, BenchmarkFiles
 from src.corrector.beam_search.penalty_tuning import Case
 
 
-LOOKAHEAD = 5
-
-
 if __name__ == "__main__":
     model_name = parameters["model_name"]
-    benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
+    if parameters["benchmark"] == "acl_all":
+        benchmark_name = parameters["benchmark"]
+    else:
+        benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
     path = paths.CASES_FILE_NOISY if parameters["noise"] else paths.CASES_FILE_CLEAN
     path = path % model_name
+
+    LOOKAHEAD = 5
 
     model = UnidirectionalLMEstimator()
     model.load(model_name)
@@ -44,7 +47,7 @@ if __name__ == "__main__":
             continue
 
         print("sequence %i" % s_i)
-        #print(sequence)
+        print(sequence)
         cases.append([])
 
         encoded = model.encoder.encode_sequence(sequence)
