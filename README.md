@@ -1,23 +1,24 @@
-This is version 1.1.1 (June 17, 2020) of the Tokenization Repair software.
-
-For help with Docker visit: https://docs.docker.com/get-docker/
+This is version 1.1.2 (beta) of the Tokenization Repair software.
+The latest stable version is 1.1.1 (June 17, 2020).
 
 ## Installation guide ##
 
-1. Download the data from http://emnlp2020-367.hopto.org/data.zip and extract it to a directory DATA-DIR.
+1. Get the code (code.zip) of the latest stable version from here: https://ad-research.cs.uni-freiburg.de/data/tokenization-repair/
 
-2. In case you have a GPU supporting tensorflow 1.12, change line 8 in the requirements.txt to:
+1. Download the data (data.zip) from the same link and extract it to a directory DATA-DIR. It contains benchmarks, result files and trained models. Additionally, you can get the training data (training_shuffled.zip) from the same link.
+
+1. In case you have a GPU supporting tensorflow 1.12, change line 8 in the requirements.txt to:
 	tensorflow-gpu==1.12.0
 
-3. Build the docker container.
+1. Build the docker container. For help with Docker visit: https://docs.docker.com/get-docker/
 
        docker build -t tokenization-repair .
 
-4. Start the Docker container and link it to the data directory.
+1. Start the Docker container and mount the data directory.
 
        docker run -it -v <DATA-DIR>:/external tokenization-repair
 
-5. Inside the container, repair some tokens!
+1. Inside the container, repair some tokens!
    Type `make help` to get a specification of all the make targets.
 
 ## EMNLP 2020 Reproducibility Webpage ##
