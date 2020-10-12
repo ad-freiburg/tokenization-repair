@@ -12,6 +12,7 @@ params = [
     Parameter("recurrent_units", "-ru", "int"),
     Parameter("dense_units", "-du", "int"),
     Parameter("dataset", "-data", "str"),
+    Parameter("epochs", "-e", "int", default=1),
     Parameter("batch_size", "-bs", "int"),
     Parameter("sequence_length", "-len", "int"),
     Parameter("noise_prob", "-p", "float"),
@@ -104,18 +105,20 @@ if __name__ == "__main__":
         provider_class = ACLCorpusDataFnProvider
     else:
         provider_class = WikiDataFnProvider
-    provider = provider_class(encoder,
-                              batch_size=parameters["batch_size"],
-                              start_batch=parameters["start_batch"],
-                              pad_sos=backward,
-                              max_len=parameters["sequence_length"],
-                              noise_prob=p,
-                              mask_noisy=bidir,
-                              seed=42,
-                              bidirectional_mask=bidir)
-    print("Initialised data fn provider.")
 
-    steps = parameters["steps"]
-    remaining_steps = None if steps == -1 else (steps - parameters["start_batch"])
+    for e_i in range(parameters["epochs"]):
+        provider = provider_class(encoder,
+                                  batch_size=parameters["batch_size"],
+                                  start_batch=parameters["start_batch"],
+                                  pad_sos=backward,
+                                  max_len=parameters["sequence_length"],
+                                  noise_prob=p,
+                                  mask_noisy=bidir,
+                                  seed=42,
+                                  bidirectional_mask=bidir)
+        print("Initialised data fn provider.")
 
-    model.train_with_data_fn_provider(provider, remaining_steps)
+        steps = parameters["steps"]
+        remaining_steps = None if steps == -1 else (steps - parameters["start_batch"])
+
+        model.train_with_data_fn_provider(provider, remaining_steps)
