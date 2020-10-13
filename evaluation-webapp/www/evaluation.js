@@ -31,6 +31,10 @@ $(document).ready(function() {
     $("#select_predictions").change(function() {
         create_table();
     })
+    
+    $("#ignore_punctuation").change(function() {
+	    create_table();
+    })
 });
 
 function set_prediction_options() {
@@ -108,14 +112,14 @@ function create_table() {
             [predictions, highlight_predicted] = get_differences(corrupt_sequences[i], predicted_sequences[i]);
             predicted_highlighted = highlight_positions(predicted_sequences[i], highlight_predicted);
             
-            is_corrupted = correct_sequences[i] != corrupt_sequences[i];
-            is_correct = predicted_sequences[i] == correct_sequences[i];
-            
             // evaluate TP, FP, FN
             
             tp = ground_truth.filter(x => predictions.includes(x));
             fp = predictions.filter(x => !ground_truth.includes(x));
             fn = ground_truth.filter(x => !predictions.includes(x));
+            
+            is_corrupted = tp.length + fn.length > 0;
+            is_correct = fp.length + fn.length == 0;
             
             n_tp += tp.length;
             n_fp += fp.length;
@@ -176,7 +180,13 @@ function create_table() {
     });
 }
 
+function isalnum(char) {
+    return char.match(/^[0-9a-z]+$/);
+}
+
 function get_differences(a, b) {
+    ignore_punctuation = $("#ignore_punctuation").is(":checked");
+    console.log("ignore_punctuation: " + ignore_punctuation);
     diff_positions_a = [];
     diff_positions_b = [];
     var i = 0;
@@ -186,8 +196,22 @@ function get_differences(a, b) {
             i += 1;
             j += 1;
         } else {
-            diff_positions_a.push(i);
-            diff_positions_b.push(j);
+            do_ignore = false;
+            if (ignore_punctuation) {
+                if (a[i] == " ") {
+                    if (!isalnum(a[i-1]) || !isalnum(a[i+1])) {
+                        do_ignore = true;
+                    }
+                } else {
+                    if (!isalnum(b[j-1]) || !isalnum(b[j+1])) {
+                        do_ignore = true;
+                    }
+                }
+            }
+            if (!do_ignore) {
+                diff_positions_a.push(i);
+                diff_positions_b.push(j);
+            }
             if (a[i] == " ") {
                 i += 1;
             } else {
