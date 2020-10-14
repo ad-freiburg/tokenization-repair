@@ -56,7 +56,8 @@ function set_prediction_options() {
             prediction_files.push(name);
             $("#select_predictions").append(new Option(name, name));
         });
-        create_table();
+        $("#select_predictions").prop("selectedIndex", -1);
+        $("#table").html("select a file above");
     });
 }
 
