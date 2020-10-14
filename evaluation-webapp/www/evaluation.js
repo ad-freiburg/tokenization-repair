@@ -33,7 +33,7 @@ $(document).ready(function() {
     })
     
     $("#ignore_punctuation").change(function() {
-	    create_table();
+        create_table();
     })
 });
 
@@ -77,7 +77,7 @@ function read_benchmark() {
 
 function create_table() {
     $("#table").html("evaluating...");
-	
+    
     selected = $("#select_predictions option:selected").val();
     predictions_file = results_dir + selected;
     console.log(predictions_file);
@@ -100,9 +100,10 @@ function create_table() {
         table += "<th>INPUT</th>"
         table += "<th>GROUND TRUTH</th>"
         table += "<th>PREDICTED</th>"
-        table += "<th>TP</TP>"
-        table += "<th>FP</TP>"
-        table += "<th>FN</TP>\n"
+        table += "<th>TP</th>"
+        table += "<th>FP</th>"
+        table += "<th>FN</th>"
+        table += "<th>CORR</th>\n"
         
         for (var i = 0; i < n; i++) {
             // ground truth and prediction
@@ -110,7 +111,8 @@ function create_table() {
             [ground_truth, highlight_true] = get_differences(corrupt_sequences[i], correct_sequences[i]);
             correct_highlighted = highlight_positions(correct_sequences[i], highlight_true);
             [predictions, highlight_predicted] = get_differences(corrupt_sequences[i], predicted_sequences[i]);
-            predicted_highlighted = highlight_positions(predicted_sequences[i], highlight_predicted);
+            [_unused, wrong_positions] = get_differences(correct_sequences[i], predicted_sequences[i]);
+            predicted_highlighted = highlight_positions_with_truth(predicted_sequences[i], highlight_predicted, wrong_positions);
             
             // evaluate TP, FP, FN
             
@@ -139,11 +141,19 @@ function create_table() {
             if (is_corrupted) {
                 corrupt_color = "red";
                 if (is_correct) {
-                	predicted_color = "green";
+                    predicted_color = "green";
                 }
             }
             if (!is_correct) {
-            	predicted_color = "red";
+                predicted_color = "red";
+            }
+            
+            // sequence result
+            
+            if (is_correct) {
+                sequence_result = "yes";
+            } else {
+                sequence_result = "no";
             }
             
             // row
@@ -152,11 +162,14 @@ function create_table() {
             row += "<td>" + i + "</td>";
             row += "<td style=\"color:" + corrupt_color + "\">" + corrupt_sequences[i] + "</td>";
             row += "<td>" + correct_highlighted + "</td>";
-            row += "<td style=\"color:" + predicted_color + "\">" + predicted_highlighted + "</td>";
+            row += "<td>" + predicted_highlighted + "</td>";
             // .. evaluation counts
             row += "<td>" + tp.length + "</td>";
             row += "<td>" + fp.length + "</td>";
             row += "<td>" + fn.length + "</td>";
+            // .. sequence result
+            row += "<td style=\"color:" + predicted_color + "\">" + sequence_result + "</td>";
+            // .. end row
             row += "</tr>";
             table += row + "\n";
         }
@@ -186,7 +199,6 @@ function isalnum(char) {
 
 function get_differences(a, b) {
     ignore_punctuation = $("#ignore_punctuation").is(":checked");
-    console.log("ignore_punctuation: " + ignore_punctuation);
     diff_positions_a = [];
     diff_positions_b = [];
     var i = 0;
@@ -228,3 +240,43 @@ function highlight_positions(text, positions) {
     }
     return text;
 }
+
+function union(set1, set2) {
+    _union = new Set(set1);
+    for (elem of set2) {
+        _union.add(elem);
+    }
+    return _union;
+}
+
+function compare_numbers(a, b) {
+    return a - b;
+}
+
+function highlight_positions_with_truth(text, predicted_positions, wrong_positions) {
+    predicted_positions = new Set(predicted_positions);
+    wrong_positions = new Set(wrong_positions);
+    all_positions = union(predicted_positions, wrong_positions);
+    all_positions = Array.from(all_positions).sort(compare_numbers);
+    if (benchmark == "nastase") {
+        console.log(predicted_positions);
+        console.log(wrong_positions);
+        console.log(all_positions);
+    }
+    for (pos of all_positions.reverse()) {
+        if (wrong_positions.has(pos)) {
+            color = "red";
+        } else {
+            color = "green";
+        }
+        if (predicted_positions.has(pos)) {
+            html_element = "u"
+        } else {
+            html_element = "span"
+        }
+        highlighted = "<" + html_element + " style=\"background-color:" + color + "\">" + text[pos] + "</" + html_element + ">"
+        text = text.substring(0, pos) + highlighted + text.substring(pos + 1);
+    }
+    return text;
+}
+

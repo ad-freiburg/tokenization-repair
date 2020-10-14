@@ -20,8 +20,12 @@ html, body {
 }
 
 table, td, th {
-  border: 1px solid black;
-  border-collapse: collapse;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+td {
+	word-break: break-all;
 }
 
 .content {
