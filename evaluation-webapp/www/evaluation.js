@@ -35,6 +35,10 @@ $(document).ready(function() {
     $("#ignore_punctuation").change(function() {
         create_table();
     })
+    
+    $("#hide_zeros").change(function () {
+        hide_zero_rows();
+    })
 });
 
 function set_prediction_options() {
@@ -92,6 +96,7 @@ function create_table() {
         n_corrupt = 0;
         n_correct = 0;
         
+        n_sequences = 0;
         n_tp = 0;
         n_fp = 0;
         n_fn = 0;
@@ -107,72 +112,88 @@ function create_table() {
         table += "<th>CORR</th>\n"
         
         for (var i = 0; i < n; i++) {
-            // ground truth and prediction
-            
-            [ground_truth, highlight_true] = get_differences(corrupt_sequences[i], correct_sequences[i]);
-            correct_highlighted = highlight_positions(correct_sequences[i], highlight_true);
-            [predictions, highlight_predicted] = get_differences(corrupt_sequences[i], predicted_sequences[i]);
-            [_unused, wrong_positions] = get_differences(correct_sequences[i], predicted_sequences[i]);
-            predicted_highlighted = highlight_positions_with_truth(predicted_sequences[i], highlight_predicted, wrong_positions);
-            
-            // evaluate TP, FP, FN
-            
-            tp = ground_truth.filter(x => predictions.includes(x));
-            fp = predictions.filter(x => !ground_truth.includes(x));
-            fn = ground_truth.filter(x => !predictions.includes(x));
-            
-            is_corrupted = tp.length + fn.length > 0;
-            is_correct = fp.length + fn.length == 0;
-            
-            n_tp += tp.length;
-            n_fp += fp.length;
-            n_fn += fn.length;
-            
-            if (is_corrupted) {
-                n_corrupt += 1;
-            }
-            if (is_correct) {
-                n_correct += 1;
-            }
-            
-            // colors
-            
-            corrupt_color = "black";
-            predicted_color = "black";
-            if (is_corrupted) {
-                corrupt_color = "red";
-                if (is_correct) {
-                    predicted_color = "green";
+            if (corrupt_sequences[i].replaceAll(' ', '') == predicted_sequences[i].replaceAll(' ', '')) {
+                n_sequences += 1;
+                
+                // ground truth and prediction
+                
+                [ground_truth, highlight_true] = get_differences(corrupt_sequences[i], correct_sequences[i]);
+                correct_highlighted = highlight_positions(correct_sequences[i], highlight_true);
+                [predictions, highlight_predicted] = get_differences(corrupt_sequences[i], predicted_sequences[i]);
+                [_unused, wrong_positions] = get_differences(correct_sequences[i], predicted_sequences[i]);
+                predicted_highlighted = highlight_positions_with_truth(predicted_sequences[i], highlight_predicted, wrong_positions);
+                
+                // evaluate TP, FP, FN
+                
+                tp = ground_truth.filter(x => predictions.includes(x));
+                fp = predictions.filter(x => !ground_truth.includes(x));
+                fn = ground_truth.filter(x => !predictions.includes(x));
+                
+                is_corrupted = tp.length + fn.length > 0;
+                is_correct = fp.length + fn.length == 0;
+                
+                n_tp += tp.length;
+                n_fp += fp.length;
+                n_fn += fn.length;
+                
+                if (is_corrupted) {
+                    n_corrupt += 1;
                 }
+                if (is_correct) {
+                    n_correct += 1;
+                }
+                
+                // row class
+                
+                row_class = null;
+                if (tp.length == 0 && fp.length == 0 && fn.length == 0) {
+                    row_class = "all_zeros";
+                }
+                
+                // colors
+                
+                corrupt_color = "black";
+                predicted_color = "black";
+                if (is_corrupted) {
+                    corrupt_color = "red";
+                    if (is_correct) {
+                        predicted_color = "green";
+                    }
+                }
+                if (!is_correct) {
+                    predicted_color = "red";
+                }
+                
+                // sequence result
+                
+                if (is_correct) {
+                    sequence_result = "yes";
+                } else {
+                    sequence_result = "no";
+                }
+                
+                // row
+                if (row_class == null) {
+                    row = "<tr>";
+                } else {
+                    row = "<tr class=\"" + row_class + "\">";
+                }
+                
+                // .. sequences
+                row += "<td>" + i + "</td>";
+                row += "<td style=\"color:" + corrupt_color + "\">" + corrupt_sequences[i] + "</td>";
+                row += "<td>" + correct_highlighted + "</td>";
+                row += "<td>" + predicted_highlighted + "</td>";
+                // .. evaluation counts
+                row += "<td>" + tp.length + "</td>";
+                row += "<td>" + fp.length + "</td>";
+                row += "<td>" + fn.length + "</td>";
+                // .. sequence result
+                row += "<td style=\"color:" + predicted_color + "\">" + sequence_result + "</td>";
+                // .. end row
+                row += "</tr>";
+                table += row + "\n";
             }
-            if (!is_correct) {
-                predicted_color = "red";
-            }
-            
-            // sequence result
-            
-            if (is_correct) {
-                sequence_result = "yes";
-            } else {
-                sequence_result = "no";
-            }
-            
-            // row
-            // .. sequences
-            row = "<tr>";
-            row += "<td>" + i + "</td>";
-            row += "<td style=\"color:" + corrupt_color + "\">" + corrupt_sequences[i] + "</td>";
-            row += "<td>" + correct_highlighted + "</td>";
-            row += "<td>" + predicted_highlighted + "</td>";
-            // .. evaluation counts
-            row += "<td>" + tp.length + "</td>";
-            row += "<td>" + fp.length + "</td>";
-            row += "<td>" + fn.length + "</td>";
-            // .. sequence result
-            row += "<td style=\"color:" + predicted_color + "\">" + sequence_result + "</td>";
-            // .. end row
-            row += "</tr>";
-            table += row + "\n";
         }
         table += "</table>";
         
@@ -180,8 +201,8 @@ function create_table() {
         recall = n_tp / (n_tp + n_fn);
         f1 = 2 * precision * recall / (precision + recall);
         
-        evaluation = "corrupt sequences: " + (n_corrupt / n) + " (" + n_corrupt + "/" + n + ")<br>\n";
-        evaluation += "sequence accuracy: " + (n_correct / n) + " (" + n_correct + "/" + n + ")<br>\n";
+        evaluation = "corrupt sequences: " + (n_corrupt / n_sequences).toFixed(4) + " (" + n_corrupt + "/" + n_sequences + ")<br>\n";
+        evaluation += "sequence accuracy: " + (n_correct / n_sequences).toFixed(4) + " (" + n_correct + "/" + n_sequences + ")<br>\n";
         evaluation += "true positives: &nbsp;" + n_tp + "<br>\n";
         evaluation += "false positives: " + n_fp + "<br>\n";
         evaluation += "false negatives: " + n_fn + "<br>\n";
@@ -191,6 +212,7 @@ function create_table() {
         evaluation += "<br>\n" + table;
         
         $("#table").html(evaluation);
+        hide_zero_rows();
     });
 }
 
@@ -281,3 +303,10 @@ function highlight_positions_with_truth(text, predicted_positions, wrong_positio
     return text;
 }
 
+function hide_zero_rows() {
+    if ($("#hide_zeros").is(":checked")) {
+        $(".all_zeros").hide();
+    } else {
+        $(".all_zeros").show();
+    }
+}
