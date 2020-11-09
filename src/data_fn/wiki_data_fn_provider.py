@@ -6,8 +6,9 @@ import numpy as np
 from src.settings import paths
 from src.helper.files import read_sequences
 from src.settings import symbols
-from src.noise.token_typo_inducer import TokenTypoInducer
 from src.encoding.character_encoder import CharacterEncoder
+from src.noise.noise_inducer import NoiseInducer
+from src.noise.token_typo_inducer import TokenTypoInducer
 
 
 class WikiDataFnProvider:
@@ -17,10 +18,9 @@ class WikiDataFnProvider:
                  start_batch: int = 0,
                  max_len: Optional[int] = None,
                  bidirectional_mask: bool = False,
-                 noise_prob: Optional[float] = None,
+                 noise_inducer: Optional[NoiseInducer] = None,
                  mask_noisy: bool = False,
                  pad_sos: bool = False,
-                 seed: Optional[int] = None,
                  dataset_file_path: Optional[str] = None):
         self.encoder = encoder
         self.batch_size = batch_size
@@ -28,14 +28,12 @@ class WikiDataFnProvider:
         self.max_len = max_len
         self.bidirectional_mask = bidirectional_mask
         self.pad_sos = pad_sos
-        self.noise = noise_prob is not None
-        if self.noise:
-            self.mask_noisy = mask_noisy
-            self.corruptor = TokenTypoInducer(noise_prob, seed)
+        self.noise_inducer = noise_inducer
+        self.mask_noisy = mask_noisy
         self.dataset_file_path = dataset_file_path
 
     def read_sequences(self):
-        return read_sequences(paths.WIKI_TRAINING_SENTENCES_SHUFFLED)
+        return read_sequences(paths.WIKI_TRAINING_PARAGRAPHS)
 
     def read_batches(self):
         batch = []
@@ -84,12 +82,15 @@ class WikiDataFnProvider:
         corrupt_sequences = []
         masks = []
         for sequence in batch:
-            if self.noise:
-                corrupt_sequence, mask = self.corruptor.corrupt(sequence)
+            if self.noise_inducer is not None:
+                if isinstance(self.noise_inducer, TokenTypoInducer):
+                    corrupt_sequence, mask = self.noise_inducer.corrupt(sequence)
+                else:
+                    corrupt_sequence = self.noise_inducer.induce_noise(sequence)
                 corrupt_sequences.append(corrupt_sequence)
             else:
                 corrupt_sequences.append(sequence)
-            if self.noise and self.mask_noisy:
+            if self.noise_inducer is not None and self.mask_noisy:
                 masks.append(mask)
             else:
                 masks.append([1] * len(corrupt_sequences[-1]))

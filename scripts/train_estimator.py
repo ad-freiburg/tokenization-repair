@@ -15,7 +15,7 @@ params = [
     Parameter("epochs", "-e", "int", default=1),
     Parameter("batch_size", "-bs", "int"),
     Parameter("sequence_length", "-len", "int"),
-    Parameter("noise_prob", "-p", "float"),
+    Parameter("noise", "-noise", "str"),
     Parameter("start_batch", "-start", "int"),
     Parameter("steps", "-steps", "int"),
     Parameter("keep_n_checkpoints", "-keep", "int"),
@@ -36,6 +36,8 @@ from src.data_fn.acl_corpus_data_fn_provider import ACLCorpusDataFnProvider
 from src.data_fn.arxiv_data_fn_provider import ArxivDataFnProvider
 from src.data_fn.file_reader_data_fn_provider import FileReaderDataFnProvider
 from src.encoding.character_encoder import get_encoder, get_acl_encoder, get_arxiv_encoder
+from src.noise.token_typo_inducer import TokenTypoInducer
+from src.noise.ocr_noise_inducer import OCRNoiseInducer
 
 
 if __name__ == "__main__":
@@ -101,9 +103,14 @@ if __name__ == "__main__":
             model.rename(model.specification.name + "_acl")
             print("renamed model to %s" % model.specification.name)
 
-    p = parameters["noise_prob"]
-    if p == 0:
-        p = None
+    if parameters["noise"] == "ocr":
+        noise_inducer = OCRNoiseInducer(p=0.05, seed=42)
+    else:
+        p = float(parameters["noise"])
+        if p > 0:
+            noise_inducer = TokenTypoInducer(p, seed=42)
+        else:
+            noise_inducer = None
 
     dataset_file_path = None
     if parameters["dataset"] == "acl":
@@ -124,9 +131,8 @@ if __name__ == "__main__":
                                   start_batch=parameters["start_batch"],
                                   pad_sos=backward,
                                   max_len=parameters["sequence_length"],
-                                  noise_prob=p,
+                                  noise_inducer=noise_inducer,
                                   mask_noisy=bidir,
-                                  seed=42,
                                   bidirectional_mask=bidir,
                                   dataset_file_path=dataset_file_path)
         print("Initialised data fn provider.")

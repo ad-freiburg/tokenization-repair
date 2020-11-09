@@ -5,6 +5,8 @@ from enum import Enum
 import random
 import string
 
+from src.noise.noise_inducer import NoiseInducer
+
 
 INSERT_CHARACTERS = string.ascii_letters
 
@@ -19,12 +21,10 @@ class TypoType(Enum):
 TYPO_TYPES = list(TypoType)
 
 
-class TokenTypoInducer:
-    def __init__(self,
-                 p: float,
-                 seed: int):
-        self.rdm = random.Random(seed)
-        self. p = p
+class TokenTypoInducer(NoiseInducer):
+    def __init__(self, p: float, seed: int):
+        super().__init__(seed)
+        self.p = p
 
     def flip_coin(self):
         return self.rdm.uniform(0, 1) < self.p
@@ -35,7 +35,7 @@ class TokenTypoInducer:
     def random_position(self, max: int) -> int:
         return self.rdm.randint(0, max)
 
-    def random_char(self, except_char: Optional[str]=None) -> str:
+    def random_char(self, except_char: Optional[str] = None) -> str:
         char = self.rdm.choice(INSERT_CHARACTERS)
         if except_char is not None:
             while char == except_char:
@@ -90,3 +90,7 @@ class TokenTypoInducer:
                 corrupt_sequence += token
                 mask.extend([1] * len(token))
         return corrupt_sequence, mask
+
+    def induce_noise(self, sequence: str) -> str:
+        corrupt, mask = self.corrupt(sequence)
+        return corrupt

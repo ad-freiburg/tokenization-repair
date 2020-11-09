@@ -5,7 +5,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 params = [Parameter("model_name", "-name", "str"),
           Parameter("vocabulary", "-voc", "str"),
           Parameter("dataset", "-data", "str"),
-          Parameter("noise", "-noise", "float"),
+          Parameter("noise", "-noise", "str"),
           Parameter("batch_size", "-bs", "int"),
           Parameter("epochs", "-e", "int"),
           Parameter("start_batch", "-start", "int")]
@@ -23,6 +23,8 @@ from src.data_fn.arxiv_robust_data_fn_provider import ArxivRobustDataFnProvider
 from src.data_fn.file_reader_robust_data_fn_provider import FileReaderRobustDataFnProvider
 from src.estimator.bidirectional_labeling_estimator import BidirectionalLabelingEstimator, \
     BidirectionalLabelingEstimatorSpecification
+from src.noise.token_typo_inducer import TokenTypoInducer
+from src.noise.ocr_noise_inducer import OCRNoiseInducer
 
 
 if __name__ == "__main__":
@@ -60,6 +62,14 @@ if __name__ == "__main__":
             model._save_specification()
             model._save_encoder()
 
+    noise_inducer = None
+    if parameters["noise"] == "ocr":
+        noise_inducer = OCRNoiseInducer(p=0.05, seed=1337)
+    else:
+        p_noise = float(parameters["noise"])
+        if p_noise > 0:
+            noise_inducer = TokenTypoInducer(p_noise, seed=1337)
+
     for e_i in range(parameters["epochs"]):
         training_file_path = None
         if parameters["dataset"] == "acl":
@@ -74,7 +84,8 @@ if __name__ == "__main__":
 
         print("training file path:", training_file_path)
 
-        provider = provider_class(encoder, batch_size=batch_size, noise_prob=noise, max_len=seq_len, seed=42,
-                                  labeling_output=True, start_batch=start_batch, training_file_path=training_file_path)
+        provider = provider_class(encoder, batch_size=batch_size, max_len=seq_len, labeling_output=True,
+                                  start_batch=start_batch, training_file_path=training_file_path,
+                                  noise_inducer=noise_inducer)
 
         model.train_with_data_fn_provider(provider, None)

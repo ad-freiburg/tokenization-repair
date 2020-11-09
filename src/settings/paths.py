@@ -29,7 +29,8 @@ ESTIMATORS_DIR = DUMP_DIR + "estimators/"
 DATA_DIR = DUMP_DIR + "data/"
 
 # WIKIPEDIA DIRECTORY
-WIKI_DIRS = [""]
+WIKI_DIRS = ["/home/hertel/wikipedia/",
+             "/data/1/matthias-hertel/wikipedia/"]
 WIKI_DIR = None
 for dir in WIKI_DIRS:
     if path_exists(dir):
@@ -55,7 +56,7 @@ ACL_TRAINING_FILE = DUMP_DIR + "acl_training.txt"
 BENCHMARKS_DIR = DUMP_DIR + "benchmarks/"
 
 # sentence files
-WIKI_SENTENCES_DIR = BENCHMARKS_DIR  # WIKI_DIR + "sentences/"
+WIKI_SENTENCES_DIR = WIKI_DIR + "sentences/"
 WIKI_TRAINING_SENTENCES = WIKI_SENTENCES_DIR + "training.txt"
 WIKI_TRAINING_SENTENCES_SHUFFLED = WIKI_SENTENCES_DIR + "training_shuffled.txt"
 WIKI_TUNING_SENTENCES = WIKI_SENTENCES_DIR + "tuning.txt"

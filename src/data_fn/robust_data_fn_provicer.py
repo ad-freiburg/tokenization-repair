@@ -4,10 +4,10 @@ import numpy as np
 import tensorflow as tf
 
 from src.encoding.character_encoder import CharacterEncoder
-from src.noise.token_typo_inducer import TokenTypoInducer
 from src.datasets.wikipedia import Wikipedia
 from src.settings import symbols
 from src.sequence.functions import get_space_positions_in_merged
+from src.noise.noise_inducer import NoiseInducer
 
 
 def x_y_training_example(sequence: str, encoder: CharacterEncoder) -> Tuple[List[int], List[int]]:
@@ -34,19 +34,16 @@ class RobustDataFnProvider:
                  batch_size: int,
                  max_len: int,
                  start_batch: int = 0,
-                 noise_prob: Optional[float] = None,
-                 seed: Optional[int] = None,
                  labeling_output: bool = False,
-                 training_file_path: Optional[str] = None):
+                 training_file_path: Optional[str] = None,
+                 noise_inducer: Optional[NoiseInducer] = None):
         self.encoder = encoder
         self.batch_size = batch_size
         self.start_batch = start_batch
         self.max_len = max_len
-        self.noise = noise_prob is not None
-        if self.noise:
-            self.corruptor = TokenTypoInducer(noise_prob, seed)
         self.labeling_output = labeling_output
         self.training_file_path = training_file_path
+        self.noise_inducer = noise_inducer
 
     def read_sequences(self):
         return Wikipedia.training_sequences()
@@ -54,8 +51,8 @@ class RobustDataFnProvider:
     def get_batches(self) -> List[str]:
         batch = []
         for sequence in self.read_sequences():
-            if self.noise:
-                sequence, _ = self.corruptor.corrupt(sequence)
+            if self.noise_inducer is not None:
+                sequence = self.noise_inducer.induce_noise(sequence)
             batch.append(sequence)
             if len(batch) == self.batch_size:
                 yield batch
