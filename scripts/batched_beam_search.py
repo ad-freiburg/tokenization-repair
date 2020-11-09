@@ -89,12 +89,16 @@ if __name__ == "__main__":
     insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
     print("penalties:", insertion_penalty, deletion_penalty)
 
+    add_epsilon = benchmark.name == "nastase" and model_name == "arxiv_fwd1024" and \
+                  parameters["labeling_model"] == "arxiv_labeling"
+
     corrector = BatchedBeamSearchCorrector(model.model,
                                            insertion_penalty=insertion_penalty,
                                            deletion_penalty=deletion_penalty,
                                            n_beams=parameters["beams"],
                                            verbose=benchmark_name == "0",
-                                           labeling_model=labeling_model)
+                                           labeling_model=labeling_model,
+                                           add_epsilon=add_epsilon)
 
     for s_i, sequence in enumerate(sequences):
         if s_i == parameters["n_sequences"]:

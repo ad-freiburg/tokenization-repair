@@ -29,7 +29,11 @@ if __name__ == "__main__":
     lookahead = parameters["lookahead"]
     sequence_file = parameters["sequences"]
     cases_path = paths.CASES_FILE_NOISY if benchmark_name.startswith("0.1") else paths.CASES_FILE_CLEAN
-    cases_path = cases_path % model_name
+    cases_path = cases_path % (model_name, "" if benchmark_name.startswith("0") else "_" + benchmark_name)
+    EPSILON = 1e-16
+    add_epsilon = benchmark_name in ("nastase", "nastase-500", "pdftotext") \
+                  and model_name == "arxiv_fwd1024" and \
+                  parameters["labeling"] == "arxiv_labeling"
 
     sequence_cases = load_object(cases_path)
     # sequence_cases: List[Case]
@@ -60,6 +64,7 @@ if __name__ == "__main__":
         if s_i >= len(sequence_cases):
             break
         print(s_i)
+        print(corrupt)
 
         cases = sequence_cases[s_i]
         if model_name.startswith("bwd"):
@@ -81,9 +86,13 @@ if __name__ == "__main__":
 
             if labeling:
                 p_space_labeling = labeling_space_probs[labeling_pos]
+                p_nospace_labeling = 1 - p_space_labeling
+                if add_epsilon:
+                    p_space_labeling += EPSILON
+                    p_nospace_labeling += EPSILON
                 #print(labeling_pos, p_space_labeling)
                 space_score += np.log(p_space_labeling)
-                no_space_score += np.log(1 - p_space_labeling)
+                no_space_score += np.log(p_nospace_labeling)
 
             """print(correct[i] if i < len(correct) else "EOS",
                   true_space,

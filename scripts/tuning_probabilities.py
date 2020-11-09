@@ -20,14 +20,14 @@ from src.corrector.beam_search.penalty_tuning import Case
 
 if __name__ == "__main__":
     model_name = parameters["model_name"]
-    if parameters["benchmark"] == "acl_all":
+    if parameters["benchmark"] in ("acl_all", "arxiv", "nastase", "nastase-500", "pdftotext"):
         benchmark_name = parameters["benchmark"]
     else:
         benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
     path = paths.CASES_FILE_NOISY if parameters["noise"] else paths.CASES_FILE_CLEAN
-    path = path % model_name
+    path = path % (model_name, "" if benchmark_name.startswith("0") else "_" + benchmark_name)
 
-    LOOKAHEAD = 5
+    LOOKAHEAD = 2
 
     model = UnidirectionalLMEstimator()
     model.load(model_name)
@@ -94,4 +94,7 @@ if __name__ == "__main__":
 
         if (s_i + 1) % 1000 == 0:
             dump_object(cases, path)
-            print("saved.")
+            print("saved at", path)
+
+    dump_object(cases, path)
+    print("saved at", path)

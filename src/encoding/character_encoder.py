@@ -48,6 +48,14 @@ def get_encoder(n: int = 0) -> CharacterEncoder:
     return CharacterEncoder(encoder)
 
 
-def get_acl_encoder() -> CharacterEncoder:
-    encoder_dict = load_object(paths.ACL_ENCODER_DICT)
+def get_encoder_from_dict(path: str) -> CharacterEncoder:
+    encoder_dict = load_object(path)
     return CharacterEncoder(encoder_dict)
+
+
+def get_acl_encoder() -> CharacterEncoder:
+    return get_encoder_from_dict(paths.ACL_ENCODER_DICT)
+
+
+def get_arxiv_encoder() -> CharacterEncoder:
+    return get_encoder_from_dict(paths.ARXIV_ENCODER_DICT)

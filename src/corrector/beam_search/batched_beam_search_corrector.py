@@ -26,6 +26,9 @@ class Beam:
         return str(self)
 
 
+EPSILON = 1e-16
+
+
 class BatchedBeamSearchCorrector:
     def __init__(self,
                  model: UnidirectionalLMEstimator,
@@ -33,7 +36,8 @@ class BatchedBeamSearchCorrector:
                  deletion_penalty: float,
                  n_beams: int,
                  verbose: bool = False,
-                 labeling_model: Optional[BidirectionalLabelingEstimator] = None):
+                 labeling_model: Optional[BidirectionalLabelingEstimator] = None,
+                 add_epsilon: bool = False):
         self.model = model
         self.backward = model.specification.backward
         self.insertion_penalty = insertion_penalty
@@ -42,6 +46,7 @@ class BatchedBeamSearchCorrector:
         self.space_label = model.encoder.encode_char(' ')
         self.verbose = verbose
         self.labeling_model = labeling_model
+        self.add_epsilon = add_epsilon
 
     def _start_beam(self):
         initial_state = self.model.initial_state()["cell_state"]
@@ -88,8 +93,15 @@ class BatchedBeamSearchCorrector:
         probabilities = result["probabilities"]
         if self.backward:
             probabilities = probabilities[:, ::-1, :]
-        combined_log_p_space = 0 if combined_model_space_prob is None else np.log(combined_model_space_prob)
-        combined_log_p_no_space = 0 if combined_model_space_prob is None else np.log(1 - combined_model_space_prob)
+        if combined_model_space_prob is None:
+            combined_log_p_space = combined_log_p_no_space = 0
+        else:
+            combined_model_nospace_prob = 1 - combined_model_space_prob
+            if self.add_epsilon:
+                combined_model_space_prob += EPSILON
+                combined_model_nospace_prob += EPSILON
+            combined_log_p_space = np.log(combined_model_space_prob)
+            combined_log_p_no_space = np.log(combined_model_nospace_prob)
         new_beams = []
         for b_i, beam in enumerate(beams):
             # no space beam:

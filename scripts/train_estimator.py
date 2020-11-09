@@ -8,7 +8,7 @@ params = [
     Parameter("direction", "-dir", "str",
               help_message="Choose from {fwd, bwd, bidir}.",
               dependencies=[("bidir", Parameter("sigmoidal", "-sigmoid", "boolean"))]),
-    Parameter("vocabulary_size", "-voc", "int"),
+    Parameter("vocabulary", "-voc", "str"),
     Parameter("recurrent_units", "-ru", "int"),
     Parameter("dense_units", "-du", "int"),
     Parameter("dataset", "-data", "str"),
@@ -33,7 +33,9 @@ from src.estimator.unidirectional_lm_estimator import UnidirectionalLMEstimator,
 from src.data_fn.wiki_data_fn_provider import WikiDataFnProvider
 from src.data_fn.acl_data_fn_provider import ACLDataFnProvider
 from src.data_fn.acl_corpus_data_fn_provider import ACLCorpusDataFnProvider
-from src.encoding.character_encoder import get_encoder, get_acl_encoder
+from src.data_fn.arxiv_data_fn_provider import ArxivDataFnProvider
+from src.data_fn.file_reader_data_fn_provider import FileReaderDataFnProvider
+from src.encoding.character_encoder import get_encoder, get_acl_encoder, get_arxiv_encoder
 
 
 if __name__ == "__main__":
@@ -60,11 +62,15 @@ if __name__ == "__main__":
                                           keep_checkpoint_every_hours=keep_every_hours)
 
     if parameters["start_batch"] == 0:
-        if parameters["dataset"] == "acl-all":
+        if parameters["vocabulary"] == "acl":
             encoder = get_acl_encoder()
+        elif parameters["vocabulary"] == "arxiv":
+            encoder = get_arxiv_encoder()
         else:
-            encoder = get_encoder(parameters["vocabulary_size"])
+            voc_size = int(parameters["vocabulary"])
+            encoder = get_encoder(voc_size)
         print("Loaded char encoder.")
+
         if bidir:
             spec = BidirectionalLMEstimatorSpecification(
                 name=parameters["model_name"],
@@ -99,12 +105,18 @@ if __name__ == "__main__":
     if p == 0:
         p = None
 
+    dataset_file_path = None
     if parameters["dataset"] == "acl":
         provider_class = ACLDataFnProvider
     elif parameters["dataset"] == "acl-all":
         provider_class = ACLCorpusDataFnProvider
-    else:
+    elif parameters["dataset"] == "arxiv":
+        provider_class = ArxivDataFnProvider
+    elif parameters["dataset"] == "wikipedia":
         provider_class = WikiDataFnProvider
+    else:
+        provider_class = FileReaderDataFnProvider
+        dataset_file_path = parameters["dataset"]
 
     for e_i in range(parameters["epochs"]):
         provider = provider_class(encoder,
@@ -115,7 +127,8 @@ if __name__ == "__main__":
                                   noise_prob=p,
                                   mask_noisy=bidir,
                                   seed=42,
-                                  bidirectional_mask=bidir)
+                                  bidirectional_mask=bidir,
+                                  dataset_file_path=dataset_file_path)
         print("Initialised data fn provider.")
 
         steps = parameters["steps"]

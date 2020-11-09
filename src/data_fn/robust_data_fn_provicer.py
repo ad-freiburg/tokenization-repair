@@ -36,7 +36,8 @@ class RobustDataFnProvider:
                  start_batch: int = 0,
                  noise_prob: Optional[float] = None,
                  seed: Optional[int] = None,
-                 labeling_output: bool = False):
+                 labeling_output: bool = False,
+                 training_file_path: Optional[str] = None):
         self.encoder = encoder
         self.batch_size = batch_size
         self.start_batch = start_batch
@@ -45,6 +46,7 @@ class RobustDataFnProvider:
         if self.noise:
             self.corruptor = TokenTypoInducer(noise_prob, seed)
         self.labeling_output = labeling_output
+        self.training_file_path = training_file_path
 
     def read_sequences(self):
         return Wikipedia.training_sequences()

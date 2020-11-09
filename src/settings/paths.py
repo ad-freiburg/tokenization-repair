@@ -99,8 +99,8 @@ BIGRAM_HOLDER = DICT_FOLDER + "bigram_holder.pkl"
 # stump dict
 STUMP_DICT = DICT_FOLDER + "token_stumps.pkl"
 # tuning cases
-CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean_%s.pkl"
-CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy_%s.pkl"
+CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean_%s%s.pkl"
+CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy_%s%s.pkl"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"
@@ -119,6 +119,18 @@ ACL_CORPUS_DIR = DUMP_DIR + "acl_corpus/"
 ACL_CORPUS_TRAINING_FILE = ACL_CORPUS_DIR + "training.txt"
 ACL_ENCODER_DICT = ACL_CORPUS_DIR + "encoder_dict.pkl"
 
+# ARXIV DATASET
+ARXIV_BASE_DIR = "/home/hertel/tokenization-repair-dumps/claudius/"
+ARXIV_GROUND_TRUTH_DIR = ARXIV_BASE_DIR + "groundtruth/"
+PDF_EXTRACT_DIR = ARXIV_BASE_DIR + "PDFExtract/"
+ARXIV_TRAINING_FILES = ARXIV_BASE_DIR + "training_files.txt"
+ARXIV_DEVELOPMENT_FILES = ARXIV_BASE_DIR + "development_files.txt"
+ARXIV_TEST_FILES = ARXIV_BASE_DIR + "test_files.txt"
+ARXIV_TRAINING_LINES = ARXIV_BASE_DIR + "training_lines.txt"
+
+ARXIV_CORPUS_DIR = DUMP_DIR + "arxiv_corpus/"
+ARXIV_TRAINING_SEQUENCES = ARXIV_CORPUS_DIR + "training.txt"
+ARXIV_ENCODER_DICT = ARXIV_CORPUS_DIR + "encoder_dict.pkl"
 
 def benchmark_sub_directory(name: str,
                             subset: Subset,

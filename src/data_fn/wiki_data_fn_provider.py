@@ -20,7 +20,8 @@ class WikiDataFnProvider:
                  noise_prob: Optional[float] = None,
                  mask_noisy: bool = False,
                  pad_sos: bool = False,
-                 seed: Optional[int] = None):
+                 seed: Optional[int] = None,
+                 dataset_file_path: Optional[str] = None):
         self.encoder = encoder
         self.batch_size = batch_size
         self.start_batch = start_batch
@@ -31,6 +32,7 @@ class WikiDataFnProvider:
         if self.noise:
             self.mask_noisy = mask_noisy
             self.corruptor = TokenTypoInducer(noise_prob, seed)
+        self.dataset_file_path = dataset_file_path
 
     def read_sequences(self):
         return read_sequences(paths.WIKI_TRAINING_SENTENCES_SHUFFLED)
