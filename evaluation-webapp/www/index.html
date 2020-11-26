@@ -8,19 +8,36 @@
 	
 	<body>
 		<header>
-			<h1>Tokenization Repair</h1>
+			<h1>Tokenization Repair in the Presence of Spelling Errors</h1>
 		</header>
 		<div class="content">
 			<h1>Evaluation</h1>
-			<p>
-			    <select id="select_benchmark"></select> <br>
-			    <select id="select_subset">
+			<table style="border: none">
+			  <tr>
+			    <td style="border: none">benchmark:</td>
+			    <td style="border: none">
+			      <select id="select_benchmark"></select>
+			    </td>
+			  </tr>
+			  <tr>
+			    <td style="border: none">set:</td>
+			    <td style="border: none">
+			      <select id="select_subset">
 			    	<option>development</option>
 			    	<option>test</option>
-			    </select> <br>
-				<select id="select_predictions"></select> <br>
-				ignore spaces around punctuation: <input type="checkbox" id="ignore_punctuation"> <br>
-				hide rows with TP=FP=FN=0: <input type="checkbox" id="hide_zeros">
+			      </select>
+			    </td>
+			  </tr>
+			  <tr>
+			    <td style="border: none">predictions:</td>
+			    <td style="border: none">
+			      <select id="select_predictions"></select>
+			    </td>
+			  </tr>
+			</table>
+			<p>
+			  ignore spaces around punctuation: <input type="checkbox" id="ignore_punctuation"><br>
+			  hide rows with TP=FP=FN=0: <input type="checkbox" id="hide_zeros">
 			</p>
 			<p>
 				<div id="table"></div>

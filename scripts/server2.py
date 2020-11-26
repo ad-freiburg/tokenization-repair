@@ -1,3 +1,4 @@
+import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import project
@@ -26,7 +27,10 @@ backend = Backend()
 
 
 def run():
-    port = 1234
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    else:
+        port = 1234
     server = ('', port)
     httpd = HTTPServer(server, RequestHandler)
     print("serving at port", port)
