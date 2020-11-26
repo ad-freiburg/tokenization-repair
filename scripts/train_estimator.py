@@ -35,9 +35,10 @@ from src.data_fn.acl_data_fn_provider import ACLDataFnProvider
 from src.data_fn.acl_corpus_data_fn_provider import ACLCorpusDataFnProvider
 from src.data_fn.arxiv_data_fn_provider import ArxivDataFnProvider
 from src.data_fn.file_reader_data_fn_provider import FileReaderDataFnProvider
-from src.encoding.character_encoder import get_encoder, get_acl_encoder, get_arxiv_encoder
+from src.encoding.character_encoder import get_encoder, get_acl_encoder, get_arxiv_encoder, get_mixed_encoder
 from src.noise.token_typo_inducer import TokenTypoInducer
 from src.noise.ocr_noise_inducer import OCRNoiseInducer
+from src.noise.char_and_punctuation_noise_inducer import CharAndPunctuationNoiseInducer
 
 
 if __name__ == "__main__":
@@ -68,6 +69,8 @@ if __name__ == "__main__":
             encoder = get_acl_encoder()
         elif parameters["vocabulary"] == "arxiv":
             encoder = get_arxiv_encoder()
+        elif parameters["vocabulary"] == "mixed":
+            encoder = get_mixed_encoder()
         else:
             voc_size = int(parameters["vocabulary"])
             encoder = get_encoder(voc_size)
@@ -99,12 +102,12 @@ if __name__ == "__main__":
         model.load(parameters["model_name"])
         encoder = model.encoder
         print("Loaded model.")
-        if parameters["dataset"] == "acl" and not model.specification.name.endswith("acl"):
-            model.rename(model.specification.name + "_acl")
-            print("renamed model to %s" % model.specification.name)
+
 
     if parameters["noise"] == "ocr":
         noise_inducer = OCRNoiseInducer(p=0.05, seed=42)
+    elif parameters["noise"] == "new":
+        noise_inducer = CharAndPunctuationNoiseInducer(p=0.2, seed=42)
     else:
         p = float(parameters["noise"])
         if p > 0:

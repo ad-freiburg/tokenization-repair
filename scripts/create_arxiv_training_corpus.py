@@ -18,6 +18,7 @@ def is_wrong_split(sentence):
             return True
     return False
 
+
 def split_sentences(text):
     remerged = []
     for sentence in sent_tokenize(text):

@@ -2,11 +2,10 @@ from typing import Optional, Tuple
 
 import sys
 import random
+import os
 
 from project import src
-from src.settings import paths
 from src.helper.files import read_lines
-from src.arxiv.dataset import to_input_file
 
 from create_pdfextract_benchmark import get_input_sequence
 
@@ -35,19 +34,14 @@ def match_line(true_line, input_lines) -> Optional[Tuple[int, int]]:
 if __name__ == "__main__":
     random.seed(5112020)
 
-    pdf_extractor = sys.argv[1]  # "pdftotext"
-    subset = sys.argv[2]
+    input_files_directory = sys.argv[1]
+    groundtruth_files_directory = sys.argv[2]
+    files_file = sys.argv[3]
+    out_path = sys.argv[4]
+    groundtruth_file_suffix = ".body.txt"
+    input_file_suffix = ".txt"  # ".final.txt"
 
-    if subset == "development":
-        files = paths.ARXIV_DEVELOPMENT_FILES
-    elif subset == "test":
-        files = paths.ARXIV_TEST_FILES
-    else:
-        raise Exception("Unknown subset '%s'." % subset)
-
-    files = read_lines(files)
-
-    base_path = paths.ARXIV_BASE_DIR
+    files = read_lines(files_file)
 
     n_matched = 0
     n_corrupt = 0
@@ -55,8 +49,14 @@ if __name__ == "__main__":
     sequence_pairs = []
 
     for file in files:
-        true_path = base_path + "groundtruth/" + file
-        input_path = base_path + pdf_extractor + "/" + to_input_file(file)
+        true_path = groundtruth_files_directory + file
+        input_path = input_files_directory + file[:-len(groundtruth_file_suffix)] + input_file_suffix
+        if not os.path.exists(input_path):
+            print("skipped %s (file not found)" % input_path)
+            continue
+        elif not os.path.exists(true_path):
+            print("skipped %s (file not found)" % true_path)
+            continue
 
         true_lines = read_lines(true_path)
         true_lines = [standardise_spaces(line) for line in true_lines]
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         input_lines = [line for line in input_lines if len(line) > 0]
         input_lines_removed = [remove_changeable_characters(line) for line in input_lines]
 
-        print(file, len(true_lines), len(input_lines))
+        print(file, len(true_lines), len(input_lines), n_matched)
 
         for line in true_lines:
             line_removed = remove_changeable_characters(line)
@@ -95,8 +95,6 @@ if __name__ == "__main__":
     print("%i corrupt sequences (%.2f%%)" % (n_corrupt, n_corrupt / n_matched * 100))
 
     random.shuffle(sequence_pairs)
-
-    out_path = paths.BENCHMARKS_DIR + pdf_extractor + "/" + subset + "/"
 
     with open(out_path + "correct_all.txt", "w") as correct_file, open(out_path + "corrupt_all.txt", "w") as corrupt_file:
         for corrupt, correct in sequence_pairs:

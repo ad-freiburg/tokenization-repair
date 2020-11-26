@@ -78,19 +78,21 @@ if __name__ == "__main__":
     if penalties == "0":
         insertion_penalty = deletion_penalty = 0
     else:
-        penalty_holder = PenaltyHolder(two_pass=parameters["sequences"] != "corrupt")
+        # penalty_holder = PenaltyHolder(two_pass=parameters["sequences"] != "corrupt")
+        penalty_holder = PenaltyHolder(seq_acc=True)  # TODO
         penalty_name = model_name
         if parameters["labeling_model"] != "0":
             penalty_name += "_" + parameters["labeling_model"]
         penalty_name = penalty_name.replace("_acl", "")  # dirty hack for fine-tuned models which have no fitted penalties
-        if parameters["lookahead"] > 0:
-            penalty_name += "_lookahead%i" % parameters["lookahead"]
+        #if parameters["lookahead"] > 0:
+        #    penalty_name += "_lookahead%i" % parameters["lookahead"]  # TODO
         insertion_penalty, deletion_penalty = penalty_holder.get(penalty_name, penalties)
     insertion_penalty, deletion_penalty = modify_penalties(insertion_penalty, deletion_penalty)
     print("penalties:", insertion_penalty, deletion_penalty)
 
-    add_epsilon = benchmark.name == "nastase" and model_name == "arxiv_fwd1024" and \
-                  parameters["labeling_model"] == "arxiv_labeling"
+    #add_epsilon = benchmark.name == "nastase" and model_name == "arxiv_fwd1024" and \
+    #              parameters["labeling_model"] == "arxiv_labeling"
+    add_epsilon = parameters["labeling_model"] != "0"
 
     corrector = BatchedBeamSearchCorrector(model.model,
                                            insertion_penalty=insertion_penalty,

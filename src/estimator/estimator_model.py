@@ -194,6 +194,10 @@ class EstimatorModel:
         """
         model_dir = paths.ESTIMATORS_DIR + name + "/"
         self.specification = load_object(model_dir + "specification.pkl")
+        if self.specification.name != name:
+            self.specification.name = name
+            print("Renamed model to %s." % name)
+            self._save_specification()
         try:
             self.encoder = load_object(model_dir + "encoder.pkl")
         except ImportError:
@@ -301,7 +305,6 @@ class EstimatorModel:
         self.specification.name = new_name
         self._save_specification()
         self._save_encoder()
-        self.estimator = self._make_estimator()
 
     @abc.abstractmethod
     def _initial_state(self):

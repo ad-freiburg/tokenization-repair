@@ -31,9 +31,10 @@ if __name__ == "__main__":
     cases_path = paths.CASES_FILE_NOISY if benchmark_name.startswith("0.1") else paths.CASES_FILE_CLEAN
     cases_path = cases_path % (model_name, "" if benchmark_name.startswith("0") else "_" + benchmark_name)
     EPSILON = 1e-16
-    add_epsilon = benchmark_name in ("nastase", "nastase-500", "pdftotext") \
-                  and model_name == "arxiv_fwd1024" and \
-                  parameters["labeling"] == "arxiv_labeling"
+    #add_epsilon = benchmark_name in ("nastase", "nastase-500", "pdftotext") \
+    #              and model_name == "arxiv_fwd1024" and \
+    #              parameters["labeling"] == "arxiv_labeling"
+    add_epsilon = parameters["labeling"] != "0"
 
     sequence_cases = load_object(cases_path)
     # sequence_cases: List[Case]

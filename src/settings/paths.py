@@ -89,6 +89,7 @@ LABELING_DECISION_THRESHOLD_FILE = DICT_FOLDER + "labeling_decision_thresholds.p
 # beam search penalties
 BEAM_SEARCH_PENALTY_FILE = DICT_FOLDER + "beam_search_penalties.pkl"
 TWO_PASS_BEAM_SEARCH_PENALTY_FILE = DICT_FOLDER + "two_pass_beam_search_penalties.pkl"
+SEQ_ACC_BEAM_SEARCH_PENALTY_FILE = DICT_FOLDER + "beam_search_penalties_sequence_accuracy.pkl"
 # token frequencies
 TOKEN_FREQUENCY_DICT = DICT_FOLDER + "token_frequencies.pkl"
 # unigrams
@@ -102,6 +103,8 @@ STUMP_DICT = DICT_FOLDER + "token_stumps.pkl"
 # tuning cases
 CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean_%s%s.pkl"
 CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy_%s%s.pkl"
+# mixed encoder
+MIXED_ENCODER_DICT = DICT_FOLDER + "mixed_encoder_dict.pkl"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"
@@ -132,6 +135,7 @@ ARXIV_TRAINING_LINES = ARXIV_BASE_DIR + "training_lines.txt"
 ARXIV_CORPUS_DIR = DUMP_DIR + "arxiv_corpus/"
 ARXIV_TRAINING_SEQUENCES = ARXIV_CORPUS_DIR + "training.txt"
 ARXIV_ENCODER_DICT = ARXIV_CORPUS_DIR + "encoder_dict.pkl"
+
 
 def benchmark_sub_directory(name: str,
                             subset: Subset,

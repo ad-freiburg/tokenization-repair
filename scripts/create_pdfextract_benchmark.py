@@ -33,6 +33,8 @@ def get_input_sequence(s_true, s_in):
     corrected_input = ""
     t_i = s_i = 0
     while s_i < len(s_in):
+        if t_i >= len(s_true):
+            return None
         if s_true[t_i] == s_in[s_i]:
             corrected_input += s_true[t_i]
             t_i += 1

@@ -16,7 +16,7 @@ parameters = getter.get()
 
 import tensorflow as tf
 
-from src.encoding.character_encoder import get_encoder, get_arxiv_encoder
+from src.encoding.character_encoder import get_encoder, get_arxiv_encoder, get_mixed_encoder
 from src.data_fn.robust_data_fn_provicer import RobustDataFnProvider
 from src.data_fn.acl_robust_data_fn_provider import ACLRobustDataFnProvider
 from src.data_fn.arxiv_robust_data_fn_provider import ArxivRobustDataFnProvider
@@ -25,6 +25,7 @@ from src.estimator.bidirectional_labeling_estimator import BidirectionalLabeling
     BidirectionalLabelingEstimatorSpecification
 from src.noise.token_typo_inducer import TokenTypoInducer
 from src.noise.ocr_noise_inducer import OCRNoiseInducer
+from src.noise.char_and_punctuation_noise_inducer import CharAndPunctuationNoiseInducer
 
 
 if __name__ == "__main__":
@@ -41,6 +42,8 @@ if __name__ == "__main__":
 
     if parameters["vocabulary"] == "arxiv":
         encoder = get_arxiv_encoder()
+    elif parameters["vocabulary"] == "mixed":
+        encoder = get_mixed_encoder()
     else:
         vocab_size = int(parameters["vocabulary"])
         encoder = get_encoder(vocab_size)
@@ -56,15 +59,13 @@ if __name__ == "__main__":
         model.initialize(spec, encoder)
     else:
         model.load(name)
-        if parameters["dataset"] == "acl" and not model.specification.name.endswith("acl"):
-            model.specification.name = model.specification.name + "_acl"
-            print("renamed model to %s" % model.specification.name)
-            model._save_specification()
-            model._save_encoder()
+        print("Model loaded.")
 
     noise_inducer = None
     if parameters["noise"] == "ocr":
         noise_inducer = OCRNoiseInducer(p=0.05, seed=1337)
+    elif parameters["noise"] == "new":
+        noise_inducer = CharAndPunctuationNoiseInducer(p=0.2, seed=1337)
     else:
         p_noise = float(parameters["noise"])
         if p_noise > 0:

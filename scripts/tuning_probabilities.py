@@ -4,8 +4,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [Parameter("model_name", "-m", "str"),
           Parameter("benchmark", "-b", "str"),
-          Parameter("noise", "-noise", "boolean"),
-          Parameter("continue", "-c", "boolean")]
+          Parameter("noise", "-noise", "boolean")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
@@ -20,12 +19,12 @@ from src.corrector.beam_search.penalty_tuning import Case
 
 if __name__ == "__main__":
     model_name = parameters["model_name"]
-    if parameters["benchmark"] in ("acl_all", "arxiv", "nastase", "nastase-500", "pdftotext"):
-        benchmark_name = parameters["benchmark"]
-    else:
-        benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
     path = paths.CASES_FILE_NOISY if parameters["noise"] else paths.CASES_FILE_CLEAN
-    path = path % (model_name, "" if benchmark_name.startswith("0") else "_" + benchmark_name)
+    path = path % (model_name, parameters["benchmark"])
+    if parameters["benchmark"] == "wikipedia":
+        benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
+    else:
+        benchmark_name = parameters["benchmark"]
 
     LOOKAHEAD = 2
 
@@ -34,10 +33,10 @@ if __name__ == "__main__":
 
     space_label = model.encoder.encode_char(' ')
 
-    if parameters["continue"]:
-        cases = load_object(path)
-    else:
-        cases = []
+    #if parameters["continue"]:
+    #    cases = load_object(path)
+    #else:
+    cases = []
 
     benchmark = Benchmark(benchmark_name, Subset.TUNING)
     sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)

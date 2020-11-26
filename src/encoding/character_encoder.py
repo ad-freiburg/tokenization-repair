@@ -59,3 +59,7 @@ def get_acl_encoder() -> CharacterEncoder:
 
 def get_arxiv_encoder() -> CharacterEncoder:
     return get_encoder_from_dict(paths.ARXIV_ENCODER_DICT)
+
+
+def get_mixed_encoder() -> CharacterEncoder:
+    return get_encoder_from_dict(paths.MIXED_ENCODER_DICT)

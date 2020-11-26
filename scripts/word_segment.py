@@ -73,7 +73,10 @@ if __name__ == "__main__":
 
     for s_i, sequence in enumerate(sequences):
         start_time = timestamp()
-        predicted = segmenter.correct(sequence)
+        try:
+            predicted = segmenter.correct(sequence)
+        except RecursionError:
+            predicted = sequence
         runtime = time_diff(start_time)
         print(predicted)
         if writer is not None:

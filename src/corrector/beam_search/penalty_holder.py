@@ -6,8 +6,13 @@ from src.settings import paths
 
 
 class PenaltyHolder:
-    def __init__(self, two_pass: bool = False, autosave: bool = True):
-        self.file = paths.TWO_PASS_BEAM_SEARCH_PENALTY_FILE if two_pass else paths.BEAM_SEARCH_PENALTY_FILE
+    def __init__(self, two_pass: bool = False, seq_acc: bool = False, autosave: bool = True):
+        if seq_acc:
+            self.file = paths.SEQ_ACC_BEAM_SEARCH_PENALTY_FILE
+        elif two_pass:
+            self.file = paths.TWO_PASS_BEAM_SEARCH_PENALTY_FILE
+        else:
+            self.file = paths.BEAM_SEARCH_PENALTY_FILE
         if file_exists(self.file):
             self.penalties = load_object(self.file)
         else:
