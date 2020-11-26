@@ -16,7 +16,7 @@ The latest stable version is 1.1.1 (June 17, 2020).
 
 1. Start the Docker container and mount the data directory.
 
-       docker run -it -v -p <PORT>:1234 <DATA-DIR>:/external tokenization-repair
+       docker run -it -p <PORT>:1234 -v <DATA-DIR>:/external tokenization-repair
 
 1. Inside the container, repair some tokens!
    Type `make help` to get a specification of all the make targets.

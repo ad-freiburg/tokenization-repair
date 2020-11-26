@@ -148,6 +148,15 @@ def accuracy_r_test_sampling(acc1, acc2, num_samples=1024):
     return count / num_samples
 
 
+def get_or_add(index_dict, key):
+    if key in index_dict.keys():
+        return index_dict[key]
+    else:
+        r = len(index_dict)
+        index_dict[key] = r
+        return r
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2 or len(sys.argv) > 6:
         print()
@@ -198,17 +207,25 @@ if __name__ == "__main__":
     # method name (second line of the file), and the 0-1 list (third line of the
     # file).
     results = {}
+    rename_dict = {'BS fw wiki': 'UNI', 'BS bidir wiki': "BID wiki",
+                   'BS bidir wiki robust': 'BID wiki+',
+                   'BS bidir combo robust': 'BID combo+'}
     for file_name in os.listdir(dir_name):
         with open(os.path.join(dir_name, file_name)) as f:
-            parameter_setting = f.readline().rstrip().replace(
-                "expected token errors", "tokos").replace(
-                "1.0 tokos", "100% tokos").replace(
-                "0.1 tokos", "10% tokos")
+            # parameter_setting = f.readline().rstrip()
+            # parameter_setting = parameter_setting.replace(
+            #    "expected token errors", "tokos").replace(
+            #    "1.0 tokos", "100% tokos").replace(
+            #    "0.1 tokos", "10% tokos")
+            parameter_setting = file_name.split('.txt')[0]
             results[parameter_setting] = {}
             while True:
                 method_name = f.readline().rstrip()
                 if method_name == "":
                     break
+                for old_name, new_name in rename_dict.items():
+                    if method_name == old_name:
+                        method_name = new_name
                 accuracies = list(map(int, f.readline().rstrip()))
                 results[parameter_setting][method_name] = accuracies
     # print(methods_with_results)
@@ -221,11 +238,13 @@ if __name__ == "__main__":
 
     # Key of the parameter settings and method names used to sort them in the same
     # order as in our table
-    ps_keys = { 'no typos, 10% tokos': 1, 'no typos, 100% tokos': 2, 'no typos, no spaces': 3,
-                '10% typos, 10% tokos': 4, '10% typos, 100% tokos': 5, '10% typos, no spaces': 6 }
-    mn_keys = { 'greedy': 1, 'bigrams': 2, 'bidirectional': 3, 'bidirectional robust': 4,
-                'BS fw': 5, 'BS bw': 6, 'BS fw robust': 7, 'BS bw robust': 8,
-                'two-pass': 9, 'two-pass robust': 10, 'BS fw+bi': 11, 'BS fw+bi robust': 12 }
+    # ps_keys = { 'no typos, 10% tokos': 1, 'no typos, 100% tokos': 2, 'no typos, no spaces': 3,
+    #             '10% typos, 10% tokos': 4, '10% typos, 100% tokos': 5, '10% typos, no spaces': 6 }
+    # mn_keys = { 'greedy': 1, 'bigrams': 2, 'bidirectional': 3, 'bidirectional robust': 4,
+    #             'BS fw': 5, 'BS bw': 6, 'BS fw robust': 7, 'BS bw robust': 8,
+    #             'two-pass': 9, 'two-pass robust': 10, 'BS fw+bi': 11, 'BS fw+bi robust': 12 }
+    ps_keys = {}
+    mn_keys = {}
 
     # Iterate over all or some combinations and show the difference in the
     # accuracy and the p-value for some or a selection, depending on the input
@@ -234,13 +253,15 @@ if __name__ == "__main__":
         parameter_settings = [arg_parameter_setting]
     method_names_1 = method_names if arg_method_name_1 == None else [arg_method_name_1]
     method_names_2 = method_names if arg_method_name_2 == None else [arg_method_name_2]
-    for parameter_setting in sorted(parameter_settings, key = lambda x: ps_keys[x]):
+    for parameter_setting in sorted(parameter_settings, key = lambda x: get_or_add(ps_keys, x)):
         print("\x1b[1m%s\x1b[0m" % parameter_setting)
         print()
-        for method_name_1 in sorted(method_names_1, key = lambda x: mn_keys[x]):
-            for method_name_2 in sorted(method_names_2, key = lambda x: mn_keys[x]):
+        for method_name_1 in sorted(method_names_1, key = lambda x:
+                get_or_add(mn_keys, x)):
+            for method_name_2 in sorted(method_names_2, key = lambda x:
+                    get_or_add(mn_keys, x)):
                 if len(method_names_1) > 1 and len(method_name_2) > 1 and \
-                        mn_keys[method_name_1] >= mn_keys[method_name_2]:
+                        get_or_add(mn_keys, method_name_1) >= get_or_add(mn_keys, method_name_2):
                     continue
                 acc_1 = results[parameter_setting][method_name_1]
                 acc_2 = results[parameter_setting][method_name_2]
