@@ -5,13 +5,13 @@ $(document).ready(function() {
     
     benchmarks = [];
     
-    $.get("../benchmarks", function(data) {
+    $.get("../benchmarks/", function(data) {
         $(data).find("a").each(function() {
             name = $(this).attr("href");
             if (!name.endsWith(".txt")) {
                 name = name.substring(0, name.length - 1);
-                console.log(name);
                 benchmarks.push(name);
+		console.log(name);
                 $("#select_benchmark").append(new Option(name, name));
             }
         });
