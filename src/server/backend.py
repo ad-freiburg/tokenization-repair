@@ -20,18 +20,13 @@ QUERY_PREFIX = "repair?query="
 MAX_QUERY_LENGTH = 512
 
 
-MODES = [("bidir", "Bidirectional labeling model non-robust"),
-         ("bidir-r", "Bidirectional labeling model robust"),
-         ("bs-fw", "Beam search forward non-robust"),
-         ("bs-fw-r", "Beam search forward robust"),
-         ("bs-bw", "Beam search backward non-robust"),
-         ("bs-bw-r", "Beam search backward robust"),
-         ("2-pass", "Two-pass beam search non-robust"),
-         ("2-pass-r", "Two-pass beam search robust"),
-         ("bs-bi", "Beam search bidirectional non-robust"),
-         ("bs-bi-r", "Beam search bidirectional robust (best method)"),
-         ("spell", "Spelling correction")]
-DEFAULT_MODE = "bs-bi-r"
+MODES = [("unidir", "UNI wikipedia"),
+         ("bidir", "BID wikipedia"),
+         ("bidir-r", "BID wikipedia+"),
+         ("combo", "BID combo+"),
+         ("the-one", "BID the one"),
+         ("spell", "spelling correction")]
+DEFAULT_MODE = "the-one"
 
 
 def mode_select_html(selected_mode: str):
@@ -107,34 +102,26 @@ class Backend:
         self.file_contents = {file: read_file(FOLDER + file) for file in FILES}
         fwd = load_unidirectional_model(backward=False, robust=False)
         fwd_robust = load_unidirectional_model(backward=False, robust=True)
-        bwd = load_unidirectional_model(backward=True, robust=False)
-        bwd_robust = load_unidirectional_model(backward=True, robust=True)
         bidir = load_bidirectional_model(robust=False)
         bidir_robust = load_bidirectional_model(robust=True)
-        self.bidir = get_labeling_token_repairer(bidir, robust=False)
-        self.bidir_robust = get_labeling_token_repairer(bidir_robust, robust=True)
-        self.bs_fw = get_bs_token_repairer(fwd)
-        self.bs_fw_robust = get_bs_token_repairer(fwd_robust)
-        self.bs_bw = get_bs_token_repairer(bwd)
-        self.bs_bw_robust = get_bs_token_repairer(bwd_robust)
-        self.two_pass = load_two_pass_corrector(robust=False, typos=False, p=INF, forward_model=fwd, backward_model=bwd,
-                                                verbose=False)
-        self.two_pass_robust = load_two_pass_corrector(robust=True, typos=True, p=INF, forward_model=fwd_robust,
-                                                       backward_model=bwd_robust, verbose=False)
-        self.bs_bi = get_bs_token_repairer(fwd, bidirectional_model=bidir)
-        self.bs_bi_robust = get_bs_token_repairer(fwd_robust, bidirectional_model=bidir_robust)
+        combo_fwd = UnidirectionalLMEstimator()
+        combo_fwd.load("combined_mixed_forward_robust")
+        combo_labeling = BidirectionalLabelingEstimator()
+        combo_labeling.load("combined_mixed_labeling_robust")
+        self.unidir = get_bs_token_repairer(fwd)
+        self.bidir = get_bs_token_repairer(fwd, bidir)
+        self.bidir_robust = get_bs_token_repairer(fwd_robust, bidir_robust)
+        self.combo = get_bs_token_repairer(combo_fwd, combo_labeling)
+        self.the_one = get_bs_token_repairer(combo_fwd, combo_labeling)
+        self.the_one.insertion_penalty = -7.2
+        self.the_one.deletion_penalty = -8.3
         self.spelling_corrector = get_spelling_corrector(fwd)
         self.correctors = {
+            "unidir": self.unidir,
             "bidir": self.bidir,
             "bidir-r": self.bidir_robust,
-            "bs-fw": self.bs_fw,
-            "bs-fw-r": self.bs_fw_robust,
-            "bs-bw": self.bs_bw,
-            "bs-bw-r": self.bs_bw_robust,
-            "2-pass": self.two_pass,
-            "2-pass-r": self.two_pass_robust,
-            "bs-bi": self.bs_bi,
-            "bs-bi-r": self.bs_bi_robust,
+            "combo": self.combo,
+            "the-one": self.the_one,
             "spell": self.spelling_corrector
         }
 

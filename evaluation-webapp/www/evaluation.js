@@ -396,20 +396,6 @@ function highlight_positions_with_truth(text, predicted_positions, wrong_positio
             pos_preprocessed += 1;
         }
     }
-    /*for (pos of all_positions.reverse()) {
-        if (wrong_positions.has(pos)) {
-            color = "red";
-        } else {
-            color = "green";
-        }
-        if (predicted_positions.has(pos)) {
-            html_element = "u"
-        } else {
-            html_element = "span"
-        }
-        highlighted = "<" + html_element + " style=\"background-color:" + color + "\">" + text[pos] + "</" + html_element + ">"
-        text = text.substring(0, pos) + highlighted + text.substring(pos + 1);
-    }*/
     return html;
 }
 
