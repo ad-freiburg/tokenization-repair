@@ -22,23 +22,43 @@ $(document).ready(function() {
     
     $("#select_benchmark").change(function() {
         set_prediction_options();
-    })
+    });
     
     $("#select_subset").change(function() {
         set_prediction_options();
-    })
+    });
     
     $("#select_predictions").change(function() {
         create_table();
-    })
+    });
     
     $("#ignore_punctuation").change(function() {
         create_table();
-    })
+    });
     
     $("#hide_zeros").change(function () {
         hide_zero_rows();
-    })
+    });
+    
+    // GET ORIGINAL WIKIPEDIA SEQUENCES
+    wiki_development_sequences = []
+    $.get("../benchmarks/development.txt", function(data) {
+        for (sequence of data.split("\n")) {
+            if (sequence.length > 0) {
+                wiki_development_sequences.push(sequence);
+            }
+        }
+        console.log("dev sequences:" + wiki_development_sequences.length);
+    });
+    wiki_test_sequences = []
+    $.get("../benchmarks/test.txt", function(data) {
+        for (sequence of data.split("\n")) {
+            if (sequence.length > 0) {
+                wiki_test_sequences.push(sequence);
+            }
+        }
+        console.log("test sequences: " + wiki_test_sequences.length);
+    });
 });
 
 function set_prediction_options() {
@@ -80,8 +100,59 @@ function read_benchmark() {
     });
 }
 
+function get_inserted_nonspace_positions(original, misspelled) {
+    original_tokens = original.split(" ");
+    misspelled_tokens = misspelled.split(" ");
+    pos = 0;
+    differences = new Set();
+    for (var i = 0; i < original_tokens.length; i++) {
+        if (original_tokens[i].length < misspelled_tokens[i].length) {
+            if (misspelled_tokens[i].substring(1) == original_tokens[i]) {
+                differences.add(pos);
+            } else {
+                for (var j = 0; j < misspelled_tokens[i].length; j++) {
+                    if (j == original_tokens[i].length || misspelled_tokens[i][j] != original_tokens[i][j]) {
+                        differences.add(pos + j);
+                        break;
+                    }
+                }
+            }
+        }
+        pos += misspelled_tokens[i].length;
+    }
+    return differences;
+}
+
+function remove_nonspace_positions(sequence, positions) {
+    txt = ""
+    pos = 0;
+    for (var i = 0; i < sequence.length; i++) {
+        if (sequence[i] == " ") {
+            if (!txt.endsWith(" ")) {
+                txt += sequence[i];
+            }
+        } else if (positions.has(pos)) {
+            pos += 1;
+        } else {
+            pos += 1;
+            txt += sequence[i];
+        }
+    }
+    return txt;
+}
+
 function create_table() {
     $("#table").html("evaluating...");
+    
+    error_tolerant = benchmark.startsWith("0.1") || benchmark.startsWith("WikiT");
+    console.log("error tolerant: " + error_tolerant);
+    if (error_tolerant) {
+        if (subset == "development") {
+            original_sequences = wiki_development_sequences;
+        } else {
+            original_sequences = wiki_test_sequences;
+        }
+    }
     
     selected = $("#select_predictions option:selected").val();
     predictions_file = results_dir + selected;
@@ -115,13 +186,28 @@ function create_table() {
             if (corrupt_sequences[i].replaceAll(' ', '') == predicted_sequences[i].replaceAll(' ', '')) {
                 n_sequences += 1;
                 
+                // tolerance preprocessing
+                
+                if (error_tolerant) {
+                    original_sequence = original_sequences[i];
+                    diff_positions =  get_inserted_nonspace_positions(original_sequences[i], correct_sequences[i]);
+                    
+                    correct_preprocessed = remove_nonspace_positions(correct_sequences[i], diff_positions);
+                    corrupt_preprocessed = remove_nonspace_positions(corrupt_sequences[i], diff_positions);
+                    predicted_preprocessed = remove_nonspace_positions(predicted_sequences[i], diff_positions);
+                } else {
+                    original_sequence = correct_sequences[i];
+                    correct_preprocessed = correct_sequences[i];
+                    corrupt_preprocessed = corrupt_sequences[i];
+                    predicted_preprocessed = predicted_sequences[i];
+                }
+                
                 // ground truth and prediction
                 
-                [ground_truth, highlight_true] = get_differences(corrupt_sequences[i], correct_sequences[i]);
-                correct_highlighted = highlight_positions(correct_sequences[i], highlight_true);
-                [predictions, highlight_predicted] = get_differences(corrupt_sequences[i], predicted_sequences[i]);
-                [_unused, wrong_positions] = get_differences(correct_sequences[i], predicted_sequences[i]);
-                predicted_highlighted = highlight_positions_with_truth(predicted_sequences[i], highlight_predicted, wrong_positions);
+                [ground_truth, highlight_true] = get_differences(corrupt_preprocessed, correct_preprocessed);
+                [predictions, highlight_predicted] = get_differences(corrupt_preprocessed, predicted_preprocessed);
+                [_unused, wrong_positions] = get_differences(correct_preprocessed, predicted_preprocessed);
+                predicted_highlighted = highlight_positions_with_truth(predicted_sequences[i], highlight_predicted, wrong_positions, predicted_preprocessed);
                 
                 // evaluate TP, FP, FN
                 
@@ -182,7 +268,7 @@ function create_table() {
                 // .. sequences
                 row += "<td>" + i + "</td>";
                 row += "<td style=\"color:" + corrupt_color + "\">" + corrupt_sequences[i] + "</td>";
-                row += "<td>" + correct_highlighted + "</td>";
+                row += "<td>" + original_sequence + "</td>";
                 row += "<td>" + predicted_highlighted + "</td>";
                 // .. evaluation counts
                 row += "<td>" + tp.length + "</td>";
@@ -276,17 +362,41 @@ function compare_numbers(a, b) {
     return a - b;
 }
 
-function highlight_positions_with_truth(text, predicted_positions, wrong_positions) {
+function highlight_positions_with_truth(text, predicted_positions, wrong_positions, preprocessed_sequence) {
     predicted_positions = new Set(predicted_positions);
     wrong_positions = new Set(wrong_positions);
-    all_positions = union(predicted_positions, wrong_positions);
-    all_positions = Array.from(all_positions).sort(compare_numbers);
-    if (benchmark == "nastase") {
-        console.log(predicted_positions);
-        console.log(wrong_positions);
-        console.log(all_positions);
+    html = "";
+    pos_text = 0;
+    pos_preprocessed = 0;
+    while (pos_text < text.length) {
+        if (pos_preprocessed == preprocessed_sequence.length || text[pos_text] != preprocessed_sequence[pos_preprocessed]) {
+            html += "<strike>" + text[pos_text] + "</strike>";
+            pos_text += 1;
+        } else {
+            if (wrong_positions.has(pos_preprocessed)) {
+                color = "red";
+            } else if (predicted_positions.has(pos_preprocessed)) {
+                color = "green";
+            } else {
+                color = null;
+            }
+            if (predicted_positions.has(pos_preprocessed)) {
+                html_element = "u";
+            } else {
+                html_element = "span";
+            }
+            if (color == null) {
+                html += text[pos_text];
+            } else {
+                open_tag = "<" + html_element + " style=\"background-color:" + color + "\">";
+                close_tag = "</" + html_element + ">";
+                html += open_tag + text[pos_text] + close_tag;
+            }
+            pos_text += 1;
+            pos_preprocessed += 1;
+        }
     }
-    for (pos of all_positions.reverse()) {
+    /*for (pos of all_positions.reverse()) {
         if (wrong_positions.has(pos)) {
             color = "red";
         } else {
@@ -299,8 +409,8 @@ function highlight_positions_with_truth(text, predicted_positions, wrong_positio
         }
         highlighted = "<" + html_element + " style=\"background-color:" + color + "\">" + text[pos] + "</" + html_element + ">"
         text = text.substring(0, pos) + highlighted + text.substring(pos + 1);
-    }
-    return text;
+    }*/
+    return html;
 }
 
 function hide_zero_rows() {
