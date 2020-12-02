@@ -5,7 +5,7 @@ help:
 	@echo "Type 'make start-server' to start the web demo."
 
 repair:
-	python3 demos/tokenization_repair.py
+	python3 demos/tokenization_repair.py -h
 
 evaluation:
 	python3 demos/evaluation.py

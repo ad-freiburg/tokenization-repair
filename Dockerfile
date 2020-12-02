@@ -19,4 +19,4 @@ CMD ["/bin/bash", "--rcfile", "bashrc"]
 # docker build -t tokenization-repair .
 
 ### Run the container:
-# docker run -it -v <DATA-DIR>:/external tokenization-repair
+# docker run -it -v <DATA-DIR>:/external -p 1234:1234 tokenization-repair

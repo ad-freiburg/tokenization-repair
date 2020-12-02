@@ -63,13 +63,12 @@ if __name__ == "__main__":
         start_time = timestamp()
         predicted, segmentation = corrector.correct(sequence)
         runtime = time_diff(start_time)
-        print(predicted)
-        print(segmentation)
+        print("spelling result:", predicted)
+        print("tokenization result:", segmentation)
         if file_writer is not None:
             file_writer.add(predicted, runtime)
             file_writer.save()
             segmentation_file_writer.add(segmentation, runtime)
             segmentation_file_writer.save()
         else:
-            print(runtime)
-            print(corrector.total_model_time)
+            print("runtime:", runtime)

@@ -15,7 +15,6 @@ def get_penalty_name(model, labeling_model):
     penalty_name = model.specification.name
     if labeling_model is not None:
         penalty_name += "_%s" % labeling_model.specification.name
-    penalty_name += "_lookahead2"
     return penalty_name
 
 
@@ -29,7 +28,7 @@ def get_penalties(model,
     benchmark_name = get_benchmark_name(noise_level=0.1 if typos else 0,
                                         p=token_errors)
     penalty_name = get_penalty_name(model, labeling_model)
-    holder = PenaltyHolder(two_pass=two_pass)
+    holder = PenaltyHolder(seq_acc=True)
     penalties = holder.get(penalty_name, benchmark_name)
     return penalties
 
