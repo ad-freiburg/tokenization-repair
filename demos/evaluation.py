@@ -21,10 +21,11 @@ def print_help():
     print()
     print("Optional argument:")
     print("    <original file>: File with the correctly spelled sequences. "
-          "This file must be located at DATA/benchmarks/.")
+          "This file must be located at DATA/benchmarks/. "
+          "Use this argument for the typo-ambiguity-tolerant evaluation on the wikipedia benchmarks with typos.")
     print()
     print("Example:")
-    print("    python3 demos/evaluation.py 0.1_1 test beam_search_labeling_ce.txt test.txt")
+    print("    python3 demos/evaluation.py Wiki_typos_10_percent development google.txt development.txt")
 
 
 def get_arguments():

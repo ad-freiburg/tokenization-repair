@@ -2,7 +2,7 @@ This is version 1.1.2 of the Tokenization Repair software.
 
 ## Installation guide ##
 
-1. Get the code (code.zip) of the latest stable version from here: naacl2021-344.hopto.org
+1. Get the code (code.zip) of the latest stable version from here: http://naacl2021-344.hopto.org
 
 1. Download the data (data.zip) from the same link and extract it to a directory DATA-DIR. It contains benchmarks, result files and trained models. Additionally, you can get the training data (training_shuffled.zip) from the same link.
 
