@@ -1,9 +1,8 @@
-This is version 1.1.2 (beta) of the Tokenization Repair software.
-The latest stable version is 1.1.1 (June 17, 2020).
+This is version 1.1.2 of the Tokenization Repair software.
 
 ## Installation guide ##
 
-1. Get the code (code.zip) of the latest stable version from here: https://ad-research.cs.uni-freiburg.de/data/tokenization-repair/
+1. Get the code (code.zip) of the latest stable version from here: naacl2021-344.hopto.org
 
 1. Download the data (data.zip) from the same link and extract it to a directory DATA-DIR. It contains benchmarks, result files and trained models. Additionally, you can get the training data (training_shuffled.zip) from the same link.
 
@@ -20,8 +19,3 @@ The latest stable version is 1.1.1 (June 17, 2020).
 
 1. Inside the container, repair some tokens!
    Type `make help` to get a specification of all the make targets.
-
-## EMNLP 2020 Reproducibility Webpage ##
-
-For instructions on how to start the web server and demo, see 
-https://github.com/ad-freiburg/tokenization-repair/tree/master/repro-emnlp2020
