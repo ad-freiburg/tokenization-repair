@@ -144,7 +144,7 @@ function remove_nonspace_positions(sequence, positions) {
 function create_table() {
     $("#table").html("evaluating...");
     
-    error_tolerant = benchmark.startsWith("0.1") || benchmark.startsWith("WikiT");
+    error_tolerant = benchmark.startsWith("0.1") || benchmark.startsWith("WikiT") || benchmark.startsWith("Wiki_typos");
     console.log("error tolerant: " + error_tolerant);
     if (error_tolerant) {
         if (subset == "development") {
