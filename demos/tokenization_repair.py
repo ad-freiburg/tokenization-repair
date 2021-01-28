@@ -31,7 +31,7 @@ PENALTIES2BENCHMARKS = {
 }
 
 
-def get_corrector(approach: str, penalties: Optional[str]):
+def get_corrector(approach: str, penalties: Optional[str], insertion_penalty: Optional[float], deletion_penalty: Optional[float]):
     fwd_model_name, bid_model_name = APPROACHES2MODELS[approach]
     fwd_model = UnidirectionalLMEstimator()
     fwd_model.load(fwd_model_name)
@@ -56,6 +56,10 @@ def get_corrector(approach: str, penalties: Optional[str]):
             model_key += "_" + bid_model_name
         benchmark_key = PENALTIES2BENCHMARKS[penalties]
         p_ins, p_del = holder.get(model_key, benchmark_key)
+    if insertion_penalty is not None:
+        p_ins = -insertion_penalty
+    if deletion_penalty is not None:
+        p_del = -deletion_penalty
     corrector = BatchedBeamSearchCorrector(fwd_model, insertion_penalty=p_ins, deletion_penalty=p_del, n_beams=5,
                                            verbose=benchmark is None, labeling_model=bid_model,
                                            add_epsilon=bid_model is not None)
@@ -73,6 +77,10 @@ if __name__ == "__main__":
                         help="Select the tokenization repair method (default: ONE).")
     parser.add_argument("-p", dest="penalties", type=str, choices=PENALTIES, required=False,
                         help="Choose penalties optimized for one of the benchmarks (default: no penalties).")
+    parser.add_argument("-p_ins", dest="p_ins", type=float, required=False, default=None,
+                        help="Set the insertion penalty explicitely (default: None).")
+    parser.add_argument("-p_del", dest="p_del", type=float, required=False, default=None,
+                        help="Set the deletion penalty explicitely (default: None).")
     parser.add_argument("-b", dest="benchmark", type=str, required=False,
                         help="Select a benchmark to run the approach on (default: run in interactive console).")
     parser.add_argument("--test", action="store_true",
@@ -83,16 +91,20 @@ if __name__ == "__main__":
 
     approach = args.approach
     penalties = args.penalties
+    p_ins = args.p_ins
+    p_del = args.p_del
     benchmark = args.benchmark
     test = args.test
     out_file = args.out_file
     print("approach:", approach)
     print("penalties:", penalties)
+    print("p_ins:", p_ins)
+    print("p_del:", p_del)
     print("benchmark:", benchmark)
     print("test:", test)
     print("out file:", out_file)
 
-    corrector = get_corrector(approach, penalties)
+    corrector = get_corrector(approach, penalties, p_ins, p_del)
     print("P_ins = %.1f" % -corrector.insertion_penalty)
     print("P_del = %.1f" % -corrector.deletion_penalty)
 

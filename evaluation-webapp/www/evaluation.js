@@ -11,7 +11,7 @@ $(document).ready(function() {
             if (!name.endsWith(".txt")) {
                 name = name.substring(0, name.length - 1);
                 benchmarks.push(name);
-		console.log(name);
+                console.log(name);
                 $("#select_benchmark").append(new Option(name, name));
             }
         });
