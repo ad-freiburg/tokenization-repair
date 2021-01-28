@@ -1,4 +1,3 @@
-Located data folder: /home/hertel/tokenization-repair-dumps/data_naacl2021/
 1409
 2999
 3135
