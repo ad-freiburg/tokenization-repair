@@ -65,6 +65,7 @@ if __name__ == "__main__":
 
     input_file = open(matched_dir + "corrupt.txt", "w")
     nastase_file = open(matched_dir + "nastase.txt", "w")
+    source_files_file = open(matched_dir + "source_files.txt", "w")
 
     files = listdir(raw_dir)
     files = sorted([file for file in files if get_publication_year(file) < 2005])
@@ -102,7 +103,9 @@ if __name__ == "__main__":
                         else:
                             input_file.write(input_sequence + '\n')
                             nastase_file.write(output_sequence + '\n')
+                            source_files_file.write(file + '\n')
                             break
 
     input_file.close()
     nastase_file.close()
+    source_files_file.close()

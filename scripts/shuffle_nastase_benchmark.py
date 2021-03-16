@@ -6,7 +6,7 @@ if __name__ == "__main__":
     random.seed(13102020)
 
     n = 0
-    for file in ["corrupt.txt", "nastase.txt"]:
+    for file in ["corrupt.txt", "nastase.txt", "source_files.txt"]:
         print(file)
         with open(directory + file) as f:
             lines = f.readlines()

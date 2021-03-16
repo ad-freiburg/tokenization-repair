@@ -1,0 +1,74 @@
+header {
+    background-color: DodgerBlue;
+    margin: 0;
+    padding: 5pt;
+}
+
+header h1 {
+    margin: 0;
+    padding: 5pt;
+    text-align: center;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    padding-left: 10pt;
+}
+
+html, input, select {
+    font-family: Helvetica, sans-serif;
+}
+
+table, td, th {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline;
+}
+
+.tooltip, .tooltiptext {
+    border-radius: 6px;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    text-align: left;
+    padding: 5px;
+    background-color: inherit;
+
+    /* Position of the tooltip text */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 0;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.WRONG {
+    background-color: lightpink;
+}
+
+.TOKENIZATION_ERROR {
+    background-color: lightblue;
+}
+
+.OCR_ERROR {
+    background-color: lightgreen;
+}
+
+.MIXED {
+    background-color: orchid;
+}
