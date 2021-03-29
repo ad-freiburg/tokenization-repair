@@ -7,8 +7,8 @@ function read_results() {
         results = data;
         approaches = Object.keys(data.correct);
         fill_results_table();
-        create_approach_checkboxes();
         show_sequences();
+        select_sequences();
         show_error_free_sequences();
     });
 }
@@ -20,7 +20,7 @@ function fill_results_table() {
     gt_total = gt_tokenization + gt_ocr + gt_mixed;
     gt_negatives = results.total.NONE;
     tbody = $("#results_table_body");
-    row = "<tr><td>ground truth</td>";
+    row = "<tr><td></td><td>ground truth</td>";
     row += "<td>" + gt_tokenization + "</td>";
     row += "<td>" + gt_ocr + "</td>";
     row += "<td>" + gt_mixed + "</td>";
@@ -35,12 +35,16 @@ function fill_results_table() {
         mixed_correct = results.correct[approach].MIXED;
         total_correct = tokenization_correct + ocr_correct + mixed_correct;
         false_positives = gt_negatives - results.correct[approach].NONE;
-        row = "<tr><td>" + approach + "</td>";
+        checkbox = create_approach_checkbox(approach);
+        row = "<tr>";
+        row += "<td>" + checkbox + "</td>";
+        row += "<td>" + approach + "</td>";
         row += "<td>" + tokenization_correct + " (" + (tokenization_correct / gt_tokenization * 100).toFixed(1) + "%)</td>";
         row += "<td>" + ocr_correct + " (" + (ocr_correct / gt_ocr * 100).toFixed(1) + "%)</td>";
         row += "<td>" + mixed_correct + " (" + (mixed_correct / gt_mixed * 100).toFixed(1) + "%)</td>";
         row += "<td>" + total_correct + " (" + (total_correct / gt_total * 100).toFixed(1) + "%)</td>";
         row += "<td>" + false_positives + " (" + (false_positives / gt_negatives * 100).toFixed(1) + "%)</td>";
+        row += "</tr>";
         tbody.append(row);
     });
 }
@@ -53,15 +57,10 @@ function get_sequence_class(approach) {
     return "sequence_" + approach.replaceAll("+", "");
 }
 
-function create_approach_checkboxes() {
-    selectors_div = $("#approach_checkboxes");
-    for (var i = 0; i < approaches.length; i += 1) {
-        approach = approaches[i];
-        checkbox_id = get_checkbox_id(approach);
-        checkbox = "<input type=\"checkbox\" id=\"" + checkbox_id + "\" checked onchange=\"select_sequences()\">";
-        html = checkbox + " " + approach + "<br>";
-        selectors_div.append(html);
-    }
+function create_approach_checkbox(approach) {
+    checkbox_id = get_checkbox_id(approach);
+    checkbox = "<input type=\"checkbox\" id=\"" + checkbox_id + "\" onchange=\"select_sequences()\">";
+    return checkbox;
 }
 
 function arrays_equal(a, b) {
