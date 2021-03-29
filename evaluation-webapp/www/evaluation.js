@@ -266,7 +266,7 @@ function create_table() {
                 }
                 
                 // .. sequences
-                row += "<td>" + i + "</td>";
+                row += "<td>" + (i + 1) + "</td>";
                 row += "<td style=\"color:" + corrupt_color + "\">" + corrupt_sequences[i] + "</td>";
                 row += "<td>" + original_sequence + "</td>";
                 row += "<td>" + predicted_highlighted + "</td>";

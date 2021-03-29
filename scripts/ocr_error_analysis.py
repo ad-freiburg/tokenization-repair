@@ -94,7 +94,7 @@ def get_ground_truth_labels(correct_sequence: str, corrupt_sequence: str) -> Lis
 
 if __name__ == "__main__":
     set = "development"
-    start = 160
+    start = 0
     end = 319
 
     benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/ACL/" + set + "/"
@@ -105,7 +105,11 @@ if __name__ == "__main__":
     approaches = [
         "google",
         "the_one",
-        "the_one+google"
+        "the_one+google",
+        "gold+google",
+        "hunspell",
+        "the_one+hunspell",
+        "gold+hunspell"
     ]
 
     predicted_sequences = {
