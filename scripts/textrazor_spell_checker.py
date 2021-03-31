@@ -3,7 +3,7 @@ import sys
 import math
 
 from project import src
-from src.helper.files import read_lines
+from src.helper.files import read_lines, read_file
 
 
 class TextRazorSpellChecker:
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     in_file = sys.argv[1]
     batch_size = 20
 
-    textrazor.api_key = "aa9af0833fc32984993743c270d987e5d22b3bc3464d7d30a076d7b9"
+    textrazor.api_key = read_file("textrazor_api_key.txt")
 
     corrector = TextRazorSpellChecker()
 
