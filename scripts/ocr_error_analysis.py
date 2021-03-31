@@ -104,8 +104,12 @@ if __name__ == "__main__":
 
     approaches = [
         "google",
+        "TextRazor",
         "the_one",
         "the_one+google",
+        "the_one+postprocessing",
+        "the_one+postprocessing+google",
+        "the_one+postprocessing+TextRazor",
         "gold+google",
         "hunspell",
         "the_one+hunspell",
