@@ -7,16 +7,17 @@ from src.helper.files import read_lines
 from src.settings import paths
 
 
-def read_error_dict(tsv_file: str) -> Dict[str, List[Tuple[str, int]]]:
+def read_error_dict(tsv_file: str, min_frequency: int = 10) -> Dict[str, List[Tuple[str, int]]]:
     errors = {}
     for line in read_lines(tsv_file):
         wrong, correct, freq = line.split("\t")
         freq = int(freq)
-        if len(correct) <= 3 and " " not in wrong and " " not in correct:
-            if correct not in errors:
-                errors[correct] = [(wrong, freq)]
-            else:
-                errors[correct].append((wrong, freq))
+        if freq >= min_frequency:
+            if len(correct) <= 3 and " " not in wrong and " " not in correct:
+                if correct not in errors:
+                    errors[correct] = [(wrong, freq)]
+                else:
+                    errors[correct].append((wrong, freq))
     return errors
 
 
@@ -48,6 +49,20 @@ class ACLNoiseInducer(NoiseInducer):
     def sample_insertion(self):
         return sample(self.rdm, self.error_dict[""])
 
+    def sample_replacement(self, keys: List[str]) -> Optional[Tuple[int, str]]:
+        keys = [key for key in keys if key in self.error_dict]
+        total_freq = 0
+        for key in keys:
+            total_freq += sum(freq for _, freq in self.error_dict[key])
+        threshold = self.rdm.random() * total_freq
+        accumulated = 0
+        for key in keys:
+            for replacement, freq in self.error_dict[key]:
+                accumulated += freq
+                if accumulated > threshold:
+                    return len(key), replacement
+        return None
+
     def corrupt_token(self, token: str) -> str:
         corrupt = ""
         i = 0
@@ -59,14 +74,12 @@ class ACLNoiseInducer(NoiseInducer):
                         corrupt += token[i]
                     i += 1
                 elif i < len(token):
-                    errors = []
-                    if token[i] in self.error_dict:
-                        errors.extend([((1, err), freq) for err, freq in self.error_dict[token[i]]])
+                    keys = [token[i]]
                     if i + 1 < len(token) and token[i:(i + 2)] in self.error_dict:
-                        errors.extend([((2, err), freq) for err, freq in self.error_dict[token[i:(i + 2)]]])
+                        keys.append(token[i:(i + 2)])
                     if i + 2 < len(token) and token[i:(i + 3)] in self.error_dict:
-                        errors.extend([((3, err), freq) for err, freq in self.error_dict[token[i:(i + 3)]]])
-                    sampled_error = sample(self.rdm, errors)
+                        keys.append(token[i:(i + 3)])
+                    sampled_error = self.sample_replacement(keys)
                     if sampled_error is None:
                         corrupt += token[i]
                         i += 1

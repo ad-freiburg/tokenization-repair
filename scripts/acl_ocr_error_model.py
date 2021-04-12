@@ -1,5 +1,6 @@
 import project
 from src.noise.acl_noise_inducer import ACLNoiseInducer
+from src.helper.time import time_diff, timestamp
 
 
 if __name__ == "__main__":
@@ -16,6 +17,15 @@ if __name__ == "__main__":
                 insertion_count += freq
     insertion_prob = insertion_count / total_count
     print(f"{insertion_prob * 100:.2f}% char insertions ({insertion_count}/{total_count})")
+    sequence = "Tokenization Repair in the Presence of Spelling Errors"
+    start_time = timestamp()
+    corrupt_sequences = []
+    for _ in range(100):
+        corrupt_sequences.append(inducer.induce_noise(sequence))
+    runtime = time_diff(start_time)
+    for s in corrupt_sequences:
+        print(s)
+    print(runtime)
     while True:
         sequence = input("> ")
         for _ in range(100):
