@@ -1,8 +1,7 @@
-FROM ubuntu:18.04
+FROM tensorflow/tensorflow:1.12.0-gpu-py3
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y make vim
-RUN apt-get install -y python3 python3-pip
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY Makefile Makefile
