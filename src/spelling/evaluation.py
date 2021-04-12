@@ -69,7 +69,7 @@ def longest_common_subsequence(seq1, seq2) -> List[Tuple[int, int]]:
             i -= 1
         else:
             j -= 1
-    return matched
+    return matched[::-1]
 
 
 def get_ground_truth_labels(correct_sequence: str, corrupt_sequence: str) -> List[TokenErrorType]:
