@@ -53,7 +53,7 @@ def get_span_gaps(matched_spans: List[Tuple[Tuple[int, int], Tuple[int, int]]],
             gaps.append((gap1, gap2))
         pos1 = span1[1] + 1
         pos2 = span2[1] + 1
-    if pos1 < seq1_len or pos2 < seq1_len:
+    if pos1 < seq1_len or pos2 < seq2_len:
         gap1 = (pos1, seq1_len - 1)
         gap2 = (pos2, seq2_len - 1)
         gaps.append((gap1, gap2))

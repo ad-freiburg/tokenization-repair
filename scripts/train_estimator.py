@@ -39,6 +39,7 @@ from src.encoding.character_encoder import get_encoder, get_acl_encoder, get_arx
 from src.noise.token_typo_inducer import TokenTypoInducer
 from src.noise.ocr_noise_inducer import OCRNoiseInducer
 from src.noise.char_and_punctuation_noise_inducer import CharAndPunctuationNoiseInducer
+from src.noise.acl_noise_inducer import ACLNoiseInducer
 
 
 if __name__ == "__main__":
@@ -103,11 +104,12 @@ if __name__ == "__main__":
         encoder = model.encoder
         print("Loaded model.")
 
-
     if parameters["noise"] == "ocr":
         noise_inducer = OCRNoiseInducer(p=0.05, seed=42)
     elif parameters["noise"] == "new":
         noise_inducer = CharAndPunctuationNoiseInducer(p=0.2, seed=42)
+    elif parameters["noise"] == "acl":
+        noise_inducer = ACLNoiseInducer(p=0.1, insertion_prob=0.2079, seed=42)
     else:
         p = float(parameters["noise"])
         if p > 0:

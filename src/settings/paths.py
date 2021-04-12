@@ -106,6 +106,8 @@ CASES_FILE_CLEAN = DICT_FOLDER + "decision_cases_clean_%s%s.pkl"
 CASES_FILE_NOISY = DICT_FOLDER + "decision_cases_noisy_%s%s.pkl"
 # mixed encoder
 MIXED_ENCODER_DICT = DICT_FOLDER + "mixed_encoder_dict.pkl"
+# ocr errors
+OCR_ERROR_FREQUENCIES_FILE = DICT_FOLDER + "ocr_error_frequencies.tsv"
 
 # INTERMEDIATE RESULTS DIRECTORY
 INTERMEDIATE_DIR = DUMP_DIR + "intermediate/"
