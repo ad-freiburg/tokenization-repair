@@ -36,10 +36,10 @@ class Case:
 
 
 if __name__ == "__main__":
-    model_name = "combined_mixed_forward_robust"  # sys.argv[1]  # "fwd1024_noise0.2"
-    labeling_model_name = "combined_mixed_labeling_robust"  # sys.argv[2]  # "labeling_noisy_ce"
-    benchmark_name = "joint"  # sys.argv[3]  # "nastase-500.split"
-    approach = ""  # sys.argv[4] if len(sys.argv) > 4 else ""  # "BS-fwd wikipedia"
+    model_name = "fwd1024_acl_noise"  # sys.argv[1]  # "fwd1024_noise0.2"
+    labeling_model_name = "labeling_acl_noise"  # sys.argv[2]  # "labeling_noisy_ce"
+    benchmark_name = "nastase-big"  # sys.argv[3]  # "nastase-500.split"
+    approach = "BS-bidir combo+OCR"  # sys.argv[4] if len(sys.argv) > 4 else ""  # "BS-fwd wikipedia"
     stepsize = 0.1
     n = -1
 
@@ -48,7 +48,8 @@ if __name__ == "__main__":
     labeling = labeling_model_name != "0"
     title = "%s (%s)" % (approach, benchmark_name)
 
-    BENCHMARKS = ["0_0.1", "0.1_0.1", "arxiv-910k", "nastase-big"]
+    #BENCHMARKS = ["0_0.1", "0.1_0.1", "arxiv-910k", "nastase-big"]
+    BENCHMARKS = ["nastase-big"]
 
     all_insertion_intervals = []
     all_deletion_intervals = []

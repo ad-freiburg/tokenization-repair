@@ -83,7 +83,7 @@ if __name__ == "__main__":
         penalty_name = model_name
         if parameters["labeling_model"] != "0":
             penalty_name += "_" + parameters["labeling_model"]
-        penalty_name = penalty_name.replace("_acl", "")  # dirty hack for fine-tuned models which have no fitted penalties
+        # penalty_name = penalty_name.replace("_acl", "")  # dirty hack for fine-tuned models which have no fitted penalties
         #if parameters["lookahead"] > 0:
         #    penalty_name += "_lookahead%i" % parameters["lookahead"]  # TODO
         insertion_penalty, deletion_penalty = penalty_holder.get(penalty_name, penalties)
