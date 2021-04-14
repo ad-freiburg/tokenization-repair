@@ -11,6 +11,7 @@ from src.settings import paths
 from src.evaluation.samples import get_space_corruptions
 from src.sequence.functions import map_positions
 from src.evaluation.metrics import precision_recall_f1
+from src.evaluation.json_results_holder import JsonResultsHolder
 
 
 def filter_corruptions_by_type(corruptions, type):
@@ -219,3 +220,12 @@ class Evaluator:
         fn = self.num_fn()
         precision, recall, f1 = precision_recall_f1(tp, fp, fn)
         return f1
+
+    def save_json(self, benchmark: str, subset: str, key: str):
+        results_holder = JsonResultsHolder(benchmark, subset)
+        tp = self.num_tp()
+        fp = self.num_fp()
+        fn = self.num_fn()
+        precision, recall, f1 = precision_recall_f1(tp, fp, fn)
+        sequence_accuracy = self.sequence_accuracy()
+        results_holder.add_result(key, precision, recall, f1, sequence_accuracy)

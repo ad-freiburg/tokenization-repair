@@ -15,17 +15,21 @@ $(document).ready(function() {
                 $("#select_benchmark").append(new Option(name, name));
             }
         });
-        set_prediction_options()
+        show_overview_table();
+        set_prediction_options();
+        show_benchmark_results_table();
     });
     
     // GET PREDICTION FILES
     
     $("#select_benchmark").change(function() {
         set_prediction_options();
+        show_benchmark_results_table();
     });
     
     $("#select_subset").change(function() {
         set_prediction_options();
+        show_benchmark_results_table();
     });
     
     $("#select_predictions").change(function() {
@@ -143,6 +147,7 @@ function remove_nonspace_positions(sequence, positions) {
 
 function create_table() {
     $("#table").html("evaluating...");
+    $("#sequences").html("");
     
     error_tolerant = benchmark.startsWith("0.1") || benchmark.startsWith("WikiT") || benchmark.startsWith("Wiki_typos");
     console.log("error tolerant: " + error_tolerant);
@@ -287,17 +292,20 @@ function create_table() {
         recall = n_tp / (n_tp + n_fn);
         f1 = 2 * precision * recall / (precision + recall);
         
-        evaluation = "corrupt sequences: " + (n_corrupt / n_sequences).toFixed(4) + " (" + n_corrupt + "/" + n_sequences + ")<br>\n";
-        evaluation += "sequence accuracy: " + (n_correct / n_sequences).toFixed(4) + " (" + n_correct + "/" + n_sequences + ")<br>\n";
-        evaluation += "true positives: &nbsp;" + n_tp + "<br>\n";
-        evaluation += "false positives: " + n_fp + "<br>\n";
-        evaluation += "false negatives: " + n_fn + "<br>\n";
-        evaluation += "precision: " + precision.toFixed(4) + "<br>\n";
-        evaluation += "recall: &nbsp;&nbsp;&nbsp;" + recall.toFixed(4) + "<br>\n";
-        evaluation += "F1-score: &nbsp;" + f1.toFixed(4) + "<br>\n";
-        evaluation += "<br>\n" + table;
+        evaluation = "<table>";
+        evaluation = "<tr><td>corrupt sequences</td><td>" + (n_corrupt / n_sequences).toFixed(4) + " (" + n_corrupt + "/" + n_sequences + ")</td></tr>\n";
+        evaluation += "<tr><td>sequence accuracy</td><td>" + (n_correct / n_sequences).toFixed(4) + " (" + n_correct + "/" + n_sequences + ")</td></tr>\n";
+        evaluation += "<tr><td>true positives</td><td>" + n_tp + "</td></tr>\n";
+        evaluation += "<tr><td>false positives</td><td>" + n_fp + "</td></tr>\n";
+        evaluation += "<tr><td>false negatives</td><td>" + n_fn + "</td></tr>\n";
+        evaluation += "<tr><td>precision</td><td>" + precision.toFixed(4) + "</td></tr>\n";
+        evaluation += "<tr><td>recall</td><td>" + recall.toFixed(4) + "</td></tr>\n";
+        evaluation += "<tr><td>F1-score</td><td>" + f1.toFixed(4) + "</td></tr>\n";
+        evaluation += "</table>";
         
         $("#table").html(evaluation);
+        $("#sequences").html(table);
+        
         hide_zero_rows();
     });
 }
@@ -405,4 +413,93 @@ function hide_zero_rows() {
     } else {
         $(".all_zeros").show();
     }
+}
+
+function percent(fraction) {
+    return (fraction * 100).toFixed(2) + " %";
+}
+
+function show_benchmark_results_table() {
+    benchmark = $("#select_benchmark").val();
+    subset = $("#select_subset").val();
+    results_path = "../results/" + benchmark + "/" + subset + "/results.json";
+    console.log(results_path);
+    table_body = "";
+    $.getJSON(results_path, function(results) {
+        keys = Object.keys(results);
+        keys.sort();
+        for (key of keys) {
+            console.log(results[key]);
+            table_body += "<tr>";
+            table_body += "<td>" + key + "</td>";
+            table_body += "<td>" + percent(results[key].precision) + "</td>";
+            table_body += "<td>" + percent(results[key].recall) + "</td>";
+            table_body += "<td>" + percent(results[key].f1) + "</td>";
+            table_body += "<td>" + percent(results[key].sequence_accuracy) + "</td>";
+            table_body += "</tr>";
+        }
+        $("#tbody_benchmark_results").html(table_body);
+    });
+}
+
+function show_overview_table() {
+    benchmark_results = {};
+    for (benchmark of benchmarks) {
+        for (subset of ["development", "test"]) {
+            results_path = "../results/" + benchmark + "/" + subset + "/results.json";
+            console.log(results_path);
+            $.ajax({url: results_path,
+                    async: false,
+                    success: function(result) {
+                        benchmark_results[benchmark] = result;
+                    }
+            });
+        }
+    }
+    console.log(benchmark_results);
+    overview_benchmarks = Object.keys(benchmark_results);
+    overview_benchmarks.sort();
+    overview_benchmarks.reverse();
+    overview_approaches = new Set();
+    for (benchmark of overview_benchmarks) {
+        for (approach of Object.keys(benchmark_results[benchmark])) {
+            overview_approaches.add(approach);
+        }
+    }
+    overview_approaches = Array.from(overview_approaches);
+    overview_approaches.sort();
+    overview_approaches.reverse();
+    // table head
+    thead = "<tr>";
+    thead += "<th rowspan=\"2\">Approach</th>";
+    for (benchmark of overview_benchmarks) {
+        thead += "<th colspan=\"2\">" + benchmark + "</th>";
+    }
+    thead += "</tr><tr>";
+    for (benchmark of overview_benchmarks) {
+        thead += "<th>F1</th>";
+        thead += "<th>Acc</th>";
+    }
+    thead += "</tr>";
+    $("#thead_overview_table").html(thead);
+    // table body
+    tbody = "";
+    for (approach of overview_approaches) {
+        row = "<tr>";
+        row += "<td>" + approach + "</td>";
+        for (benchmark of overview_benchmarks) {
+            if (benchmark_results[benchmark][approach]) {
+                f1 = percent(benchmark_results[benchmark][approach].f1);
+                acc = percent(benchmark_results[benchmark][approach].sequence_accuracy);
+            } else {
+                f1 = "-";
+                acc = "-";
+            }
+            row += "<td>" + f1 + "</td>";
+            row += "<td>" + acc + "</td>";
+        }
+        row += "</tr>";
+        tbody += row;
+    }
+    $("#tbody_overview_table").html(tbody);
 }

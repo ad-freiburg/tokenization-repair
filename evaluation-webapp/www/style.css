@@ -1,3 +1,7 @@
+html {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
 header {
     background-color: DodgerBlue;
     margin: 0;
@@ -22,6 +26,10 @@ table, td, th {
 
 td {
 	word-break: break-all;
+}
+
+td, th {
+    padding: 0pt 3pt;
 }
 
 .content {

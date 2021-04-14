@@ -81,3 +81,4 @@ if __name__ == "__main__":
         print()
 
     print_evaluator(evaluator)
+    evaluator.save_json(benchmark.name, subset.name.lower(), file_name)
