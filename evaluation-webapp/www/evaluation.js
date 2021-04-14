@@ -428,6 +428,7 @@ function show_benchmark_results_table() {
     $.getJSON(results_path, function(results) {
         keys = Object.keys(results);
         keys.sort();
+        keys.reverse();
         for (key of keys) {
             console.log(results[key]);
             table_body += "<tr>";

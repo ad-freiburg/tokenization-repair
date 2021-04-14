@@ -1,9 +1,9 @@
 $("document").ready(function() {
-    read_results();
+    read_results("results.json");
 });
 
-function read_results() {
-    $.getJSON("results.json", function(data) {
+function read_results(file) {
+    $.getJSON(file, function(data) {
         results = data;
         approaches = Object.keys(data.correct);
         fill_results_table();
@@ -26,6 +26,9 @@ function fill_results_table() {
     row += "<td>" + gt_mixed + "</td>";
     row += "<td>" + gt_total + "</td>";
     row += "<td>-</td>";
+    row += "<td>-</td>";
+    row += "<td>-</td>";
+    row += "<td>-</td>";
     row += "</tr>";
     tbody.append(row);
     approaches.forEach(function(approach) {
@@ -35,6 +38,10 @@ function fill_results_table() {
         mixed_correct = results.correct[approach].MIXED;
         total_correct = tokenization_correct + ocr_correct + mixed_correct;
         false_positives = gt_negatives - results.correct[approach].NONE;
+        false_negatives = gt_total - total_correct;
+        precision = total_correct / (total_correct + false_positives);
+        recall = total_correct / gt_total;
+        f1 = 2 * precision * recall / (precision + recall);
         checkbox = create_approach_checkbox(approach);
         row = "<tr>";
         row += "<td>" + checkbox + "</td>";
@@ -44,6 +51,9 @@ function fill_results_table() {
         row += "<td>" + mixed_correct + " (" + (mixed_correct / gt_mixed * 100).toFixed(1) + "%)</td>";
         row += "<td>" + total_correct + " (" + (total_correct / gt_total * 100).toFixed(1) + "%)</td>";
         row += "<td>" + false_positives + " (" + (false_positives / gt_negatives * 100).toFixed(1) + "%)</td>";
+        row += "<td>" + (precision * 100).toFixed(2) + "%</td>";
+        row += "<td>" + (recall * 100).toFixed(2) + "%</td>";
+        row += "<td>" + (f1 * 100).toFixed(2) + "%</td>";
         row += "</tr>";
         tbody.append(row);
     });
