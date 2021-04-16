@@ -26,7 +26,9 @@ html, input, select {
 table, td, th {
     border: 1px solid black;
     border-collapse: collapse;
-    padding: 5px;
+    padding: 1pt 3pt;
+    max-width: 100%;
+    word-break: break-word;
 }
 
 .tooltip {
@@ -44,6 +46,7 @@ table, td, th {
     text-align: left;
     padding: 5px;
     background-color: inherit;
+    word-break: normal;
 
     /* Position of the tooltip text */
     position: absolute;

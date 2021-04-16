@@ -1,9 +1,88 @@
 $("document").ready(function() {
-    read_results("results.json");
+    get_result_files();
 });
 
-function read_results(file) {
-    $.getJSON(file, function(data) {
+function get_result_files() {
+    result_files = [];
+    $.get("results/", function(data) {
+        $(data).find("a").each(function() {
+            name = $(this).attr("href");
+            result_files.push(name);
+            $("#select_results_file").append(new Option(name, name));
+        });
+        $("#select_results_file").val(-1);
+        show_overview_table();
+    });
+}
+
+function show_overview_table() {
+    overview_results = {};
+    n_files_read = 0;
+    result_files.forEach(function(file) {
+        $.get("results/" + file, function(data) {
+            benchmark = file.substring(0, file.length - 5);
+            overview_results[benchmark] = {};
+            gt_positives = data.total.MIXED + data.total.OCR_ERROR + data.total.TOKENIZATION_ERROR;
+            gt_negatives = data.total.NONE;
+            keys = Object.keys(data.correct);
+            for (key of keys) {
+                tp = data.correct[key].MIXED + data.correct[key].OCR_ERROR + data.correct[key].TOKENIZATION_ERROR;
+                fp = gt_negatives - data.correct[key].NONE;
+                fn = gt_positives - tp;
+                precision = tp / (tp + fp);
+                recall = tp / (tp + fn);
+                f1 = 2 * precision * recall / (precision + recall);
+                overview_results[benchmark][key] = f1;
+            }
+            n_files_read += 1;
+            if (n_files_read == result_files.length) {
+                create_overview_table();
+            }
+        });
+    });
+}
+
+function create_overview_table() {
+    benchmarks = Object.keys(overview_results);
+    benchmarks.sort();
+    approaches = new Set();
+    for (benchmark of benchmarks) {
+        for (approach of Object.keys(overview_results[benchmark])) {
+            approaches.add(approach);
+        }
+    }
+    approaches = Array.from(approaches);
+    approaches.sort()
+    // thead
+    thead = "<tr>";
+    thead += "<th>Approach</th>";
+    for (benchmark of benchmarks) {
+        thead += "<th>" + benchmark + "</th>";
+    }
+    thead += "</tr>";
+    $("#thead_overview").html(thead);
+    // tbody
+    tbody = "";
+    for (approach of approaches) {
+        tbody += "<tr>";
+        tbody += "<td>" + approach + "</td>";
+        for (benchmark of benchmarks) {
+            if (overview_results[benchmark][approach]) {
+                result = overview_results[benchmark][approach];
+                result = (result * 100).toFixed(2) + " %";
+            } else {
+                result = "-";
+            }
+            tbody += "<td>" + result + "</td>";
+        }
+        tbody += "</tr>";
+    }
+    $("#tbody_overview").html(tbody);
+}
+
+function read_results() {
+    file = $("#select_results_file").val();
+    $.getJSON("results/" + file, function(data) {
         results = data;
         approaches = Object.keys(data.correct);
         fill_results_table();
@@ -20,6 +99,7 @@ function fill_results_table() {
     gt_total = gt_tokenization + gt_ocr + gt_mixed;
     gt_negatives = results.total.NONE;
     tbody = $("#results_table_body");
+    tbody.html("");
     row = "<tr><td></td><td>ground truth</td>";
     row += "<td>" + gt_tokenization + "</td>";
     row += "<td>" + gt_ocr + "</td>";

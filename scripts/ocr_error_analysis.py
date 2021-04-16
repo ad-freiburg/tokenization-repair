@@ -1,4 +1,5 @@
 import json
+import sys
 
 import project
 from src.helper.files import read_lines, write_file
@@ -6,28 +7,47 @@ from src.spelling.evaluation import TokenErrorType, get_ground_truth_labels, lon
 
 
 if __name__ == "__main__":
+    benchmark = sys.argv[1]  # "arXiv.OCR.no_spaces"  #"ACL"
     set = "development"
     start = 0
-    end = 319
+    end = 999  # 319
 
-    benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/ACL/" + set + "/"
+    benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/" + benchmark + "/" + set + "/"
+    out_file = "/home/hertel/tr-adgit/spelling-evaluation-webapp/results/" + benchmark + "." + set + ".json"
 
     corrupt_paragraphs = read_lines(benchmark_dir + "corrupt.txt")
     spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")
 
-    approaches = [
-        "google",
-        "TextRazor",
-        "the_one",
-        "the_one+google",
-        "the_one+postprocessing",
-        "the_one+postprocessing+google",
-        "the_one+postprocessing+TextRazor",
-        "gold+google",
-        "hunspell",
-        "the_one+hunspell",
-        "gold+hunspell"
-    ]
+    if benchmark == "ACL":
+        approaches = [
+            "google",
+            "TextRazor",
+            "the_one",
+            "the_one+google",
+            "the_one+postprocessing",
+            "the_one+postprocessing+google",
+            "the_one+postprocessing+TextRazor",
+            "gold+google",
+            "hunspell",
+            "the_one+hunspell",
+            "gold+hunspell",
+            "BS-bid-OCR",
+            "BS-bid-OCR+google"
+        ]
+    elif benchmark == "arXiv.OCR":
+        approaches = [
+            "google",
+            "BS-bid-OCR",
+            "BS-bid-OCR+google"
+        ]
+    elif benchmark == "arXiv.OCR.no_spaces":
+        approaches = [
+            "google",
+            "BS-bid-OCR",
+            "BS-bid-OCR+google"
+        ]
+    else:
+        raise Exception("unknown benchmark '%s'" % benchmark)
 
     predicted_sequences = {
         approach: read_lines(benchmark_dir + approach + ".txt") for approach in approaches
@@ -93,4 +113,4 @@ if __name__ == "__main__":
                     for approach in approaches},
         "sequences": sequences_data
     }
-    write_file(benchmark_dir + "results.json", json.dumps(data))
+    write_file(out_file, json.dumps(data))

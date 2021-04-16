@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser.add_argument("--runtime", action="store_true", default=False)
     parser.add_argument("-input_file", "-i", type=str)
     parser.add_argument("-output_file", "-o", type=str)
-    parser.add_argument("-p", type=float, default=0.1)
+    parser.add_argument("-p", type=float, default=0.05)
     parser.add_argument("-seed", type=int, default=42)
     parser.add_argument("--print_insertion_prob", "-pib", action="store_true", default=False)
     args = parser.parse_args()

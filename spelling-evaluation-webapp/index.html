@@ -8,10 +8,18 @@
     
     <body>
 		<header>
-			<h1>Tokenization Repair: Spelling Evaluation on the ACL benchmark (development set)</h1>
+			<h1>Tokenization Repair in the Presence of Spelling Errors</h1>
 		</header>
 		<div class="content">
-		    <h2>Results</h2>
+		    <h1>Spelling Evaluation</h1>
+		    <h2>Overview</h2>
+		    <table>
+		        <thead id="thead_overview"></thead>
+		        <tbody id="tbody_overview"></tbody>
+		    </table>
+		    <h2>Benchmark</h2>
+		    Choose file: <select id="select_results_file" onchange="read_results()"></select>
+		    <h3>Results</h3>
 		    <p>
 		        <table>
 		            <thead>
@@ -32,7 +40,7 @@
 		            </tbody>
 		        </table>
 		    </p>
-		    <h2>Sequences</h2>
+		    <h3>Sequences</h3>
 		            <input type="checkbox" id="checkbox_show_error_free_sequences" checked onchange="show_error_free_sequences()">
 		            show sequences without errors
 	        <div id="sequences"></div>
