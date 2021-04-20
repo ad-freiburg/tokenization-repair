@@ -75,3 +75,7 @@ table, td, th {
 .MIXED {
     background-color: orchid;
 }
+
+.ground_truth_hidden {
+    background-color: white;
+}

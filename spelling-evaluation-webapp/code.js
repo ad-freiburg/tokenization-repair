@@ -189,8 +189,8 @@ function show_sequences() {
             table_class = "sequence_with_error";
         }
         table = "<p class=\"" + table_class + "\"><b>Sequence " + (i + 1) + "</b><table><tbody>";
-        table += "<tr><td>input</td><td>" + get_labeled_token_sequence(sequence.corrupt) + "</td></tr>";
-        table += "<tr><td>ground truth</td><td>" + get_labeled_token_sequence(sequence.correct) + "</td></tr>";
+        table += "<tr><td>input</td><td>" + get_labeled_token_sequence(sequence.corrupt, true) + "</td></tr>";
+        table += "<tr><td>ground truth</td><td>" + get_labeled_token_sequence(sequence.correct, true) + "</td></tr>";
         for (var j = 0; j < approaches.length; j += 1) {
             approach = approaches[j];
             sequence_class = get_sequence_class(approach);
@@ -203,7 +203,7 @@ function show_sequences() {
     }
 }
 
-function get_labeled_token_sequence(sequence_object) {
+function get_labeled_token_sequence(sequence_object, is_ground_truth = false) {
     tokens = sequence_object.tokens;
     labels = sequence_object.labels;
     html = "";
@@ -216,7 +216,11 @@ function get_labeled_token_sequence(sequence_object) {
         if (label == "NONE") {
             html += token;
         } else {
-            html += "<div class=\"tooltip " + label + "\">";
+            classes = "tooltip " + label;
+            if (is_ground_truth) {
+                classes += " ground_truth";
+            }
+            html += "<div class=\"" + classes + "\">";
             html += token;
             html += "<span class=\"tooltiptext\">" + label + "</span>";
             html += "</div>";
@@ -243,5 +247,20 @@ function show_error_free_sequences() {
         $(".error_free_sequence").show();
     } else {
         $(".error_free_sequence").hide();
+    }
+}
+
+function hide_groundtruth_labels() {
+    show_groundtruth_labels = document.getElementById("checkbox_show_groundtruth_labels").checked;
+    if (show_groundtruth_labels) {
+        elements = $(".ground_truth_hidden");
+        for (el of elements) {
+            el.className = el.className.replace("ground_truth_hidden", "ground_truth");
+        }
+    } else {
+        elements = $(".ground_truth");
+        for (el of elements) {
+            el.className = el.className.replace("ground_truth", "ground_truth_hidden");
+        }
     }
 }
