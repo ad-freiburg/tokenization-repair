@@ -201,6 +201,7 @@ function show_sequences() {
         table += "</tbody></table></p>";
         sequences_div.append(table);
     }
+    hide_groundtruth_labels();
 }
 
 function get_labeled_token_sequence(sequence_object, is_ground_truth = false) {

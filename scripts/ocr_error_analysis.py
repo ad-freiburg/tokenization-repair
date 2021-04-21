@@ -4,6 +4,7 @@ import sys
 import project
 from src.helper.files import read_lines, write_file
 from src.spelling.evaluation import TokenErrorType, get_ground_truth_labels, longest_common_subsequence
+from spelling_evaluation_space_preference import get_token_edit_labels
 
 
 if __name__ == "__main__":
@@ -22,23 +23,36 @@ if __name__ == "__main__":
         approaches = [
             "google",
             "TextRazor",
+            "hunspell",
+            "natas",
             "the_one",
             "the_one+google",
             "the_one+postprocessing",
             "the_one+postprocessing+google",
             "the_one+postprocessing+TextRazor",
-            "gold+google",
-            "hunspell",
             "the_one+hunspell",
+            "gold",
+            "gold+google",
             "gold+hunspell",
+            "gold+postprocessing",
+            "gold+postprocessing+google",
             "BS-bid-OCR",
-            "BS-bid-OCR+google"
+            "BS-bid-OCR+google",
+            "BS-bid-OCR+natas",
+            "BS-bid-OCR+postprocessing",
+            "BS-bid-OCR+postprocessing+google",
+            "BS-bid-OCR+postprocessing+natas",
         ]
     elif benchmark == "arXiv.OCR":
         approaches = [
             "google",
+            "natas",
             "BS-bid-OCR",
-            "BS-bid-OCR+google"
+            "BS-bid-OCR+google",
+            "BS-bid-OCR+natas",
+            "BS-bid-OCR+postprocessing",
+            "BS-bid-OCR+postprocessing+google",
+            "BS-bid-OCR+postprocessing+natas"
         ]
     elif benchmark == "arXiv.OCR.no_spaces":
         approaches = [
@@ -61,7 +75,8 @@ if __name__ == "__main__":
             enumerate(zip(corrupt_paragraphs, spelling_paragraphs)):
         if i < start or i > end:
             continue
-        errors = get_ground_truth_labels(spelling, corrupt)
+        print("sequence", i)
+        errors = get_token_edit_labels(spelling, corrupt)
         for error in errors:
             error_counts[error] += 1
         correct_tokens = spelling.split()

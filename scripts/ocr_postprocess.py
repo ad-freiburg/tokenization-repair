@@ -72,9 +72,12 @@ def remove_symbols(word):
 if __name__ == "__main__":
     input_file = sys.argv[1]
     tokenized_file = sys.argv[2]
+    n = -1 if len(sys.argv) < 4 else int(sys.argv[3])
 
     input_lines = read_lines(input_file)
     tokenized_lines = read_lines(tokenized_file)
+    if n > 0:
+        input_lines = input_lines[:n]
 
     for sequence, tokenized in zip(input_lines, tokenized_lines):
         input_spaces = get_space_positions(sequence)
