@@ -475,3 +475,26 @@ Martin Platek
 Namely, the morpho-phonemic/graphemic rules can be formalized in a general and very elegant way. It also has computational advantages, but the lexicons must contain entries with diacritics and other sophistications in order to produce the needed surface forms. Non-linguist users need an easy-to-extend dictionary rote which words can be inserted (almost) automatically. The lexical basis of Humor contain surface characters only and no transformations are applied.
 Fox Eng 13:13 9:14 194 171 s
 Normally, compositionality in such structures simply refers to the application of the functional element, the verb, to its arguments. Yet, such examples indicate that in order to capture the systematicity of such ambiguity, something else is at play, where a richer notion of composition is operative. What then accounts for the polysemy of the verbs in the examples above? The basic idea I will pursue is the following. Rather than treating the expressions that behave as arguments to a function as simple, passive objects, imagine that they are as active in the semantics as the verb itself. The product of function application would be sensitive to both the function and its active argument. Something like this is suggested in Keenan and Faltz (1985), as the Meaning-Form Correlation Principle. I will refer to such behavior as cocompositionality (see below). What I have in mind can best be illustrated by returning to the examples in 28.
+presented for COLING--86
+Q-hypotheses 67 60 16 71 52
+2 http://crl.nmsu.edu/shiraz 3 http://crl.nmsu.edu/expedition we developed a, morphological grammar for Persian using a unification-based formalism (Zajac, 1998). A sample rule is shown in Figure 6 (cf.
+Paola Merlo Modularity and Information Content Classes
+2.1 Forme et Fonction
+Workshop, pp. 187-192.
+4. Construct a list, Arg-List, of the phrases which fill the SUBCAT list slots of
+Basic 96.6 92.3 94.4 76.3 91.9 83.1
+Sentence no./ LINK =/R previous mention K/D the price R 1/apartment the 33-year-old housewife = 1/Y.J. Park the past 15 years K the inequities in the current land-ownership system - - D In case of doubt just leave the line in blank and comment at the back of the page using the key number to identify the DD you are commenting on.
+As a result, it was shown that about 70% (952) of all utterances should be improved to use polite expressions. This result shows that a current translation system is not enough to make a conversation smoothly. Not surprisingly, if all expressions were polite, some Japanese speakers would feel insulted. Therefore, Japanese speakers do not have to use polite expression in all utterances.
+4 Due to the smaller grammar and lexicon of Clark et al, our parser can only be evaluated on slightly over 94% of the sentences in section 23, whereas the figures for Clark et al (2002) are on 97%.
+Thesis, The University of Western Ontario.
+Adv 88.3% 8.51% 3.19% 100% 382 78 36 496
+Figure 4: left, a derived tree, middle, its derivation, right, an elementary tree participating in the derivation.
+Linguistic Data Consortium
+A. Peters and J, Kock (1997), The digital phone operator, User appreciation and evaluation of the VIOS speech recognition system, Technical Report 97-05, Alparon, Delft University of Technology.
+3.7 Presuppositions and Implicatures
+Hiroshi Kinukawa
+Tree Maximum Rooc
+Benjamin Han. 2003. Text temporal analysis. Research status summary. Draft of January 2003.
+VSM and come comparably to global
+4-3-11 Takeda, Kofu 400 Japan
+In genuine nodes can be removed from the graph U without affecting the language accepted by G = <U, S, P>.

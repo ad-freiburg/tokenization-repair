@@ -4,11 +4,11 @@ import project
 from src.helper.files import read_lines
 from src.spelling.evaluation import get_ground_truth_labels, TokenErrorType
 from src.plot.histogram import plot_rate_histogram, plot_histogram, save_histogram_data
-
+from spelling_evaluation_space_preference import get_token_edit_labels
 
 if __name__ == "__main__":
     folder = "/home/hertel/tokenization-repair-dumps/data/spelling/ACL/development/"
-    out_folder = "acl_error_distribution_20-40/"
+    out_folder = "acl_error_distribution_new/"
     n = 477
 
     analysis_type = sys.argv[1]  # "total", "spelling", "tokenization"
@@ -29,9 +29,9 @@ if __name__ == "__main__":
 
     for s_i, (correct, corrupt) in enumerate(zip(read_lines(folder + "spelling.txt"),
                                                  read_lines(folder + "corrupt.txt"))):
-        token_errors = get_ground_truth_labels(correct, corrupt)
+        token_errors = get_token_edit_labels(correct, corrupt)
         n_tokens = len(token_errors)
-        if n_tokens < 20 or n_tokens > 40:
+        if n_tokens < 30:  # or n_tokens > 40
             continue
         n_spelling_errors = len([error for error in token_errors if error in error_types])
         error_rate = n_spelling_errors / n_tokens
