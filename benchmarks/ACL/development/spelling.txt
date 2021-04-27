@@ -466,7 +466,7 @@ We have therefore added a principle which says that constructions that are analy
 (Fritz pulls the brake.) anziehen C0/CI/(C3) Die Mütter zieht dem,
 Does Mr. Brown have a book? @*We must stop to complain.
 all aspect expressions, including both simple primary aspect forms and complex aspect forms, are systematically organized. We are implementing the system using the KPML multilingual generator (Bateman, 1997), interpreting the intrinsic semantics of each aspect form in terms of existing temporal logic theories. In this paper we focus on the generation of complex aspect.
-bolette@cst ku dk
+bolette@cst.ku.dk
 Generalized Quantifiers and Natural Language.
 [14] D. Wu. 1997. Statistical inversion transduction grammars an bilingual parsing of parallel corpora. Computational
 Copeck, Terry and Stan Szpakowicz. 2003. Picking phrases, picking sentences. In DUC Workshop at HLT/NAACL-2003 Workshop on
