@@ -57,6 +57,21 @@ def preprocess_sequence(sequence: str):
     return ' '.join(sequence.split())
 
 
+def reverse_engineer_line_breaks(input_text: str, prediction_no_spaces: str) -> str:
+    transformed = ""
+    i = j = 0
+    while i < len(input_text):
+        if input_text[i:(i + 2)] == "- " and (j >= len(prediction_no_spaces) or prediction_no_spaces[j] != "-"):
+            i += 2
+            transformed += "-"
+        else:
+            transformed += input_text[i]
+            if input_text[i] != " ":
+                j += 1
+            i += 1
+    return transformed
+
+
 if __name__ == "__main__":
     directory = "/home/hertel/tokenization-repair-dumps/nastase/acl-201302_word-resegmented/"
     raw_dir = directory + "raw/"
@@ -72,8 +87,8 @@ if __name__ == "__main__":
 
     # files = ["X98-1031.txt"]
 
-    for file in files:
-        print(file)
+    for file_i, file in enumerate(files):
+        print(file_i, file)
         lines = get_lines(raw_dir + file)
         lines_no_spaces = lines_remove_spaces(lines)
         re_segged = get_lines(re_segged_dir + file + ".re-segged")
@@ -91,6 +106,9 @@ if __name__ == "__main__":
                     if text_no_spaces.replace('-', '') == prediction_line_no_spaces.replace('-', ''):
                         #print(file, i)
                         transformed_input = reverse_engineer(input_text, prediction_line_no_spaces)
+                        #if transformed_input != input_text.strip():
+                        #    print(input_text)
+                        #    print(transformed_input)
                         #print(transformed_input)
                         #print(prediction_line)
                         input_sequence = preprocess_sequence(transformed_input)
@@ -101,6 +119,8 @@ if __name__ == "__main__":
                             print(input_sequence)
                             print(output_sequence)
                         else:
+                            input_sequence = reverse_engineer_line_breaks(input_text, prediction_line_no_spaces)
+                            input_sequence = preprocess_sequence(input_sequence)
                             input_file.write(input_sequence + '\n')
                             nastase_file.write(output_sequence + '\n')
                             source_files_file.write(file + '\n')
