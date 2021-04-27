@@ -64,9 +64,7 @@ def preprocess(tokens: List[str]):
     return [t for t in tokens if t != "\n" and t != "\t"]
 
 
-def get_ocr_errors(raw_dir: str, cleaned_dir: str, file: str) -> List[Tuple[str, str]]:
-    raw_tokens = read_tokens(raw_dir + file)
-    cleaned_tokens = read_tokens(cleaned_dir + file)
+def get_ocr_errors(raw_tokens: List[str], cleaned_tokens: List[str]) -> List[Tuple[str, str]]:
     matching_subsequence = longest_common_subsequence(raw_tokens, cleaned_tokens)
     matched_spans = unite_matched_spans(matching_subsequence)
     span_gaps = get_span_gaps(matched_spans, len(raw_tokens), len(cleaned_tokens))
@@ -78,6 +76,13 @@ def get_ocr_errors(raw_dir: str, cleaned_dir: str, file: str) -> List[Tuple[str,
             char_len_ratio = len(''.join(unmatched_raw)) / len(''.join(unmatched_cleaned))
             if 0.5 <= char_len_ratio <= 2:
                 ocr_errors.append((" ".join(unmatched_raw), " ".join(unmatched_cleaned)))
+    return ocr_errors
+
+
+def extract_ocr_errors(raw_dir: str, cleaned_dir: str, file: str) -> List[Tuple[str, str]]:
+    raw_tokens = read_tokens(raw_dir + file)
+    cleaned_tokens = read_tokens(cleaned_dir + file)
+    ocr_errors = get_ocr_errors(raw_tokens, cleaned_tokens)
     return ocr_errors
 
 
@@ -100,7 +105,7 @@ def main(args):
             arguments = [[raw_dir, cleaned_dir, files[i]] for i in range(start, end)]
 
             with mp.Pool(n_cpus) as pool:
-                results = pool.starmap(get_ocr_errors, arguments)
+                results = pool.starmap(extract_ocr_errors, arguments)
 
             for k, result in enumerate(results):
                 file = files[start + k]

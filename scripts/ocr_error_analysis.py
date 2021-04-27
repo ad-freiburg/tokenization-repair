@@ -60,6 +60,8 @@ if __name__ == "__main__":
             "BS-bid-OCR",
             "BS-bid-OCR+google"
         ]
+    elif benchmark == "arXiv.gamma":
+        approaches = []
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
 
