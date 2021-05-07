@@ -20,8 +20,9 @@ def corrupt_all(path, outpath, take=None, freq=10000):
     with open(path, 'r') as src_file, open(outpath, 'w') as out_file:
         with multiprocessing.Pool(12) as pool:
             tic = time.time()
+            #for idx, corrupt in enumerate(map(corrupt_sequence_function, src_file)):
             for idx, corrupt in enumerate(pool.imap(corrupt_sequence_function, src_file)):
-                out_file.write(corrupt )  # print(corrupt, file=sys.stderr)
+                out_file.write(corrupt)  # print(corrupt, file=sys.stderr)
                 if take is not None and idx >= take:
                     break
                 if (idx % freq == freq - 1 or (take is not None and idx + 1 >= take)
@@ -42,6 +43,7 @@ def corrupt_all(path, outpath, take=None, freq=10000):
                     last_out = out
 
         pool.join()
+        print()
 
 
 if __name__ == '__main__':
