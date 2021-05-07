@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 def corrupt_sequence_function(sequence):
     global noise_inducer
-    return noise_inducer.induce_noise(sequence)
+    return noise_inducer.induce_noise(sequence[:-1])
 
 
 def corrupt_all(path, outpath, take=None, freq=10000):
@@ -22,7 +22,7 @@ def corrupt_all(path, outpath, take=None, freq=10000):
             tic = time.time()
             # for idx, corrupt in enumerate(map(corrupt_sequence_function, src_file)):
             for idx, corrupt in enumerate(pool.imap(corrupt_sequence_function, src_file)):
-                out_file.write(corrupt)  # print(corrupt, file=sys.stderr)
+                out_file.write(corrupt + '\n')  # print(corrupt, file=sys.stderr)
                 if take is not None and idx >= take:
                     break
                 if (idx % freq == freq - 1 or (take is not None and idx + 1 >= take)
@@ -47,7 +47,8 @@ def corrupt_all(path, outpath, take=None, freq=10000):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        "Efficient generation of ACL-like benchmark by inducing similar OCR errors")
     parser.add_argument(
         '--src-path', help='source dataset path',
         default='/nfs/datasets/tokenization-repair/training_mixed.txt'
