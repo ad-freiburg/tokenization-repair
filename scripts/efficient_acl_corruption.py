@@ -20,7 +20,7 @@ def corrupt_all(path, outpath, take=None, freq=10000):
     with open(path, 'r') as src_file, open(outpath, 'w') as out_file:
         with multiprocessing.Pool(12) as pool:
             tic = time.time()
-            #for idx, corrupt in enumerate(map(corrupt_sequence_function, src_file)):
+            # for idx, corrupt in enumerate(map(corrupt_sequence_function, src_file)):
             for idx, corrupt in enumerate(pool.imap(corrupt_sequence_function, src_file)):
                 out_file.write(corrupt)  # print(corrupt, file=sys.stderr)
                 if take is not None and idx >= take:
@@ -54,11 +54,9 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--dest-path', help='destination dataset path',
-        default='/nfs/students/mostafa-mohamed/tokenization-repair-paper/training_ocr_2nd.txt'
+        default='/nfs/students/mostafa-mohamed/tokenization-repair-paper/training_ocr.txt'
     )
     args = parser.parse_args()
-
-    #outpath = '/nfs/students/mostafa-mohamed/tokenization-repair-paper/training_ocr.txt'
 
     noise_inducer = ACLNoiseInducer(p=0.1, insertion_prob=0.2079, seed=42)
     corrupt_all(args.src_path, args.dest_path)
