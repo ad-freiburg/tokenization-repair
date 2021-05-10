@@ -1,3 +1,4 @@
+import sys
 from typing import List, Tuple
 
 import project
@@ -20,7 +21,8 @@ def get_ocr_character_edits(raw: str, cleaned: str) -> List[Tuple[str, str]]:
 
 
 if __name__ == "__main__":
-    in_file = "/home/hertel/tokenization-repair-dumps/nastase/ocr_errors.txt"
+    #in_file = "/home/hertel/tokenization-repair-dumps/nastase/ocr_errors.txt"
+    in_file = sys.argv[1]  # "icdar_ocr_errors.txt"
     print_readable = False
 
     error_frequencies = {}

@@ -25,7 +25,7 @@ def edit_distance(s: str, t: str) -> Tuple[int, List[Tuple[int, EditOperation, s
     d[0, :] = range(m + 1)
     d[:, 0] = range(n + 1)
     nospace_ops = np.zeros_like(d)
-    edit_operations = [[EditOperation.INSERT] * m]
+    edit_operations = [[None] + [EditOperation.INSERT] * m]
     for i, s_char in enumerate(s):
         edit_operations.append([EditOperation.DELETE])
         for j, t_char in enumerate(t):
@@ -52,9 +52,10 @@ def edit_distance(s: str, t: str) -> Tuple[int, List[Tuple[int, EditOperation, s
             d[i + 1, j + 1] = cost[0]
             nospace_ops[i + 1, j + 1] = cost[1]
             edit_operations[-1].append(action)
-    #print(d)
-    #print(nospace_ops)
-    #print(edit_operations)
+    """print(d)
+    print(nospace_ops)
+    for ops in edit_operations:
+        print(ops)"""
     # backtrace
     backtrace = []
     i = n

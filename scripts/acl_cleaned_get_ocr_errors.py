@@ -101,7 +101,7 @@ def main(args):
     with open(out_file, "w") as out_file:
         for b_i in range(batches):
             start = b_i * batch_size
-            end = start + batch_size
+            end = min(start + batch_size, len(files))
             arguments = [[raw_dir, cleaned_dir, files[i]] for i in range(start, end)]
 
             with mp.Pool(n_cpus) as pool:

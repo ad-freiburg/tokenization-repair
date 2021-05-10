@@ -3,7 +3,7 @@ import sys
 
 import project
 from src.helper.files import read_lines, write_file
-from src.spelling.evaluation import TokenErrorType, get_ground_truth_labels, longest_common_subsequence
+from src.spelling.evaluation import TokenErrorType, longest_common_subsequence
 from spelling_evaluation_space_preference import get_token_edit_labels
 
 
@@ -21,27 +21,11 @@ if __name__ == "__main__":
 
     if benchmark == "ACL":
         approaches = [
+            "nastase",
             "google",
-            "TextRazor",
-            "hunspell",
-            "natas",
-            "the_one",
-            "the_one+google",
-            "the_one+postprocessing",
-            "the_one+postprocessing+google",
-            "the_one+postprocessing+TextRazor",
-            "the_one+hunspell",
-            "gold",
-            "gold+google",
-            "gold+hunspell",
-            "gold+postprocessing",
-            "gold+postprocessing+google",
             "BS-bid-OCR",
-            "BS-bid-OCR+google",
-            "BS-bid-OCR+natas",
             "BS-bid-OCR+postprocessing",
             "BS-bid-OCR+postprocessing+google",
-            "BS-bid-OCR+postprocessing+natas",
         ]
     elif benchmark == "arXiv.OCR":
         approaches = [
@@ -60,7 +44,29 @@ if __name__ == "__main__":
             "BS-bid-OCR",
             "BS-bid-OCR+google"
         ]
-    elif benchmark == "arXiv.gamma":
+    elif benchmark == "arXiv.gamma.hyphen":
+        approaches = [
+            "google",
+            "BS-bid-OCR",
+            "BS-bid-OCR+postprocessing",
+            "BS-bid-OCR+postprocessing+google",
+        ]
+    elif benchmark == "arXiv.powerlaw.hyphen":
+        approaches = []
+    elif benchmark == "arXiv.powerlaw-scale1.hyphen":
+        approaches = []
+    elif benchmark == "arXiv.powerlaw.zero.hyphen":
+        approaches = [
+            "google",
+            "BS-bid-OCR",
+            "BS-bid-OCR+postprocessing",
+            "BS-bid-OCR+postprocessing+google",
+        ]
+    elif benchmark == "ACL.powerlaw.zero.hyphen":
+        approaches = [
+            "google",
+        ]
+    elif benchmark == "icdar2017.monograph" or benchmark == "icdar2017.periodical":
         approaches = []
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
@@ -78,6 +84,8 @@ if __name__ == "__main__":
         if i < start or i > end:
             continue
         print("sequence", i)
+        print(spelling)
+        print(corrupt)
         errors = get_token_edit_labels(spelling, corrupt)
         for error in errors:
             error_counts[error] += 1
