@@ -29,15 +29,17 @@ def introduce_hyphens(sequence, p):
 
 
 if __name__ == "__main__":
-    hyphenation_rate = 0.5 #0.0114
+    hyphenation_rate = 0.0114
 
     in_file = sys.argv[1]
-    #out_file = sys.argv[2]
+    out_file = sys.argv[2]
 
-    #out_file = open(out_file, "w")
+    out_file = open(out_file, "w")
 
-    for line in read_lines(in_file):
+    for i, line in enumerate(read_lines(in_file)):
         line = introduce_hyphens(line, hyphenation_rate)
-        print(line)
+        out_file.write(line + "\n")
+        if i % 10000 == 0:
+            print(i, "lines")
 
-    #out_file.close()
+    out_file.close()
