@@ -235,13 +235,13 @@ First we consider the problems of intensional logic. The model of intenslonal lo
 +hi:l -h i :2 - rnd: 2 +rnd: 1
 S: \[BRENNANu: Brennan,
 ? The search procedure is developed to work most efficiently when the input sentences are processed mainly monotonically from left to right.
-2.2 An experimental procedure for understanding derived nouns and compounds In an experimental program, implemented in LPA Mac Prolog, we structured a very restricted lexicon of Swedish stems and affixes (basal lexical ent,'ies, BI.A) according to the approach outlined above. Each verbal stem was provided with a list of elements of its typical event refer-ent, e.g.: lex(\[ l~ir\], m(teach, stem), v, vt, \[ agent, sem_object, domain, place, time, resultl, \[\]).
+2.2 An experimental procedure for understanding derived nouns and compounds In an experimental program, implemented in LPA MacProlog, we structured a very restricted lexicon of Swedish stems and affixes (basal lexical ent,'ies, BI.A) according to the approach outlined above. Each verbal stem was provided with a list of elements of its typical event refer-ent, e.g.: lex(\[ l~ir\], m(teach, stem), v, vt, \[ agent, sem_object, domain, place, time, resultl, \[\]).
 5.3 Improving User Interfaces
 4.1 Problems with Commonly Used Measures The Dice coefficient computed for bigrams (BI-GRAM) is an example of a measure that is demon-strably inappropriate for estimating word similar-ity. Because it is based exclusively on com-plete bigrams, it often fails to discover any sim-ilarity between words that look very much alike.
 Simmons F.S. & Yu Y.H. (1992) "The Acquisition and Use of Context-dependent Grammars for English", Computational
 We then augmented OSTIA with three kinds of learning biases, which are specific to natural language phonology, and are assumed explicitly or implicitly by every the-ory of phonology: faithfulness (underlying segments tend to be realized similarly on the surface), community (similar segments behave similarly), and context (phonolog-ical rules need access to variables in their context). These biases are so fundamental to generative phonology that they are left implicit in many theories. But explicitly modifying the OSTIA algorithm with these biases allowed it to learn more compact, accurate, and general transducers, and our implementation successfully earns a num-ber of rules from English and German. The algorithm is also successful in learning the composition of multiple rules applied in series. The more difficult problem of decom-posing the learned underlying/surface correspondences into simple, individual rules remains unsolved.
 ROSE =1
->> DECIDE: DOE$ *IRVING BIRD* IGNORE THE THREAT? *NO IRVING BIRD DECIDED HE WOULD TELL JOE BEAR WHERE THE HONEY WAS, IRVING BIRD TOLD HIM IT WAS AT THE BEEHIVE.
+>> DECIDE: DOE$ *IRVINGBIRD* IGNORE THE THREAT? *NO IRVING BIRD DECIDED HE WOULD TELL JOE BEAR WHERE THE HONEY WAS, IRVING BIRD TOLD HIM IT WAS AT THE BEEHIVE.
 We make the following conventions about our PDA.
 A: walk across a platform
 3.1 Vector Routing Model
@@ -258,7 +258,7 @@ Steve Cassidy & Steven Bird (2000) Querying databases of annotated speech, Proce
 French string.
 Total 79 2 7 214 0 138 1.000 0.898 0.946 Table 4: The learner is trained using only positive examples. Positive examples are tested with the leave-one-out methodology. Negative examples are tested on rules learned with all positive examples.
 Daniel Gildea and Martha Palmer. 2002. The Necessity of Parsing for Predicate Argument Recognition. In Proceed-ings of the 40th Meeting of the Association for Computa-tional Linguistics (ACL 2002): 239-246, Philadelphia, PA.
-Appelt took a different approach: his planning-based generator manipulated word order explicitly/Appelt 1985/.
+Appelt took a different approach: his planning-based generator manipulated word order explicitly /Appelt 1985/.
 While a well-founded set of speech act labels would be useful, it has not been clear what the theoretical foundation should be. As a result, no speech act set has yet become standard. Labels are proposed intuitively or by trial and error.
 (infcrcncc) hdy might \\.: mt to cat the meat.
 MISC 71.51 39.70 51.06
@@ -266,27 +266,27 @@ Definitions of relations of this sort specify constraints hat apply to the nucle
 E. Agirre and G. Rigau. 1995. A Proposal for Word Sense Disambiguation using Conceptual Distance.
 In Proceedings of the Second Conference on Applied Natural Language Processing. Asso-ciation for Computational Linguistics.
 5) Copy of screen can be taken by the hard copy unit attached to it.
-HowNet is a Chinese ontology with a graph structure of word senses called? concepts?, and each concept contains 7 fields including lexical entries in Chinese, English gloss, POS tags for the word in Chinese and English, and a definition of the concept including its category and semantic relations (Dong and Dong, 2000). For example, one translation for? beat.v? is?: In this work, we make use of contextual lexical entries from the same semantic frame, as illustrated above. In this example, the ?cause_harm? frame contains two lexical entries?? beat.v? and ?strike.v?.
+HowNet is a Chinese ontology with a graph structure of word senses called ?concepts?, and each concept contains 7 fields including lexical entries in Chinese, English gloss, POS tags for the word in Chinese and English, and a definition of the concept including its category and semantic relations (Dong and Dong, 2000). For example, one translation for ?beat.v? is ?: In this work, we make use of contextual lexical entries from the same semantic frame, as illustrated above. In this example, the ?cause_harm? frame contains two lexical entries ? ?beat.v? and ?strike.v?.
 CSL\[, Stanford, Callfo~n\[a 1984; x
 Ralph Weischedel, Damaris Ayuso, Sean Boisen,
 Adj-discover
 Stevenson, S. (1994). A competitive attachment model for resolving syntactic ambiguities in natural language parsing. Doctoral dissertation, University of Maryland,
-A news release from Stectran, dated 1975, states that their system can nrovide, besides the transcription, "an overview of the information arranged in conceptual fashion" "After analysis of the semantic or legal road map which has been prepared for him," the release goes on, " the attorney is then in a position to demand additional litigation support from Stentran in the form of key words, phrases, dates, con-junctive recall of concepts or ideas, or any verbal patterns which he feels can asist him in reaching legal conclusions. I ! American Journal of Computational Linguistics Microfiche 37 : 22 DREXEL I.l"URRY QUARTERLY COVERS CURREII'T ISSUES 1 N SERI4LS L I DP\ARIA?ij!l! P ..I... - - - . - - - - . - - . - . - - - - ---. . ..* -II.-__ _ _ ------ -.- PHiLACELPHIA--The Drexel Library Quarterly, Volume 11, no. 3, e~a e in ei - "Current issues in Seris i; librari~rlship." Serials 1ibrarians of te difficulty ident to their work.
+A news release from Stectran, dated 1975, states that their system can nrovide, besides the transcription, "an overview of the information arranged in conceptual fashion" "After analysis of the semantic or legal road map which has been prepared for him," the release goes on, "the attorney is then in a position to demand additional litigation support from Stentran in the form of key words, phrases, dates, con-junctive recall of concepts or ideas, or any verbal patterns which he feels can asist him in reaching legal conclusions.I! American Journal of Computational Linguistics Microfiche 37 : 22 DREXEL I.l"URRY QUARTERLY COVERS CURREII'T ISSUES 1N SERI4LS LI DP\ARIA?ij!l!P..I... - - - . - - - - . - - . - . - - - - ---. . ..* -II.-__ _ _ ------ -.- PHiLACELPHIA--The Drexel Library Quarterly, Volume 11, no. 3, e~aeinei- "Current issues in Serisi; librari~rlship." Serials 1ibrarians ofte difficulty ident to their work.
 Computer Science
-It is intriguing that choice c, "Mike wanted to work for IBM, but they hired John", is probably the best of the three choices even though it requires the audience to do the most inferencing. In c we have omitted state Ml-that John wanted to work for IBM-yet the audience is able to recover this information quite easily given the presence of the but. Given the ease with which choice c is undemoud, we are led to the suggestion that there may be a very general "template" being recognized here-that choice c is seen by an audience as an instance of the pattern: <expression of agent A's goal>, but <.realization of agent B's goal> and that this template alwa~ carries with it the inference that the two goals must be incompatible and therefore A's goal has not be satisfied.
-Working Papers of the lnll"illcr Project, available I, y gopher from dsv. su. se : /pub/ In tFi\]ter .
-Hidden Units 0 and 2 are involved in the network's learning of vowel harmony. They both respond to consonants as well as vowels, but for the moment let us consider just their responses to the activation of the input units representing vowels. Hidden Unit 2 responds trongly to the \[-front\] vowels /a /, /1 /, /o / and/u /, but shows negligible activation in response to the \[+ front\] vowels /e /, / i /, /5 /and/ i i /. Hidden Unit 0 shows the reverse pattern, except that its response to the \[+front\] vowel /5 / is not as large as that to the other \[+front\] vowels. The most likely explanation for this is that it is due simply to the low frequency of this vowel in the corpus. It is the lowest-frequency vowel, with only 44 tokens. These patterns are shown in Figures 9 and 10.
-D. Marcu, L. Carlson, and M. Watanabe. 2000. An empirical study in multilingual natural language generation: What should a text planner do? In Pro-ceedings of INLG? 2000, pages 17? 23, Mitzpe Ra-mon, Israel.
+It is intriguing that choice c, "Mike wanted to work for IBM, but they hired John", is probably the best of the three choices even though it requires the audience to do the most inferencing. In c we have omitted state Ml - that John wanted to work for IBM - yet the audience is able to recover this information quite easily given the presence of the but. Given the ease with which choice c is undemoud, we are led to the suggestion that there may be a very general "template" being recognized here - that choice c is seen by an audience as an instance of the pattern: <expression of agent A's goal>, but <.realization of agent B's goal> and that this template alwa~ carries with it the inference that the two goals must be incompatible and therefore A's goal has not be satisfied.
+Working Papers of the lnll"illcr Project, available I,y gopher from dsv.su.se:/pub/IntFi\]ter.
+Hidden Units 0 and 2 are involved in the network's learning of vowel harmony. They both respond to consonants as well as vowels, but for the moment let us consider just their responses to the activation of the input units representing vowels. Hidden Unit 2 responds trongly to the \[-front\] vowels /a/, /1/, /o/ and /u/, but shows negligible activation in response to the \[+front\] vowels /e/, /i/, /5/ and/ ii/. Hidden Unit 0 shows the reverse pattern, except that its response to the \[+front\] vowel /5/ is not as large as that to the other \[+front\] vowels. The most likely explanation for this is that it is due simply to the low frequency of this vowel in the corpus. It is the lowest-frequency vowel, with only 44 tokens. These patterns are shown in Figures 9 and 10.
+D. Marcu, L. Carlson, and M. Watanabe. 2000. An empirical study in multilingual natural language generation: What should a text planner do? In Pro-ceedings of INLG?2000, pages 17?23, Mitzpe Ra-mon, Israel.
 Training Testing
 In most research on concept acquisition from corpora, concepts are modeled as vectors of relations extracted from syntactic structures.
 McKeown, Kathleen R. (1985). Discourse
 3. Definitions of Meaningfulness
 These systems promise to make major improvements in the ease of use of database management and other computer systems. However, they have only begun to l This material is based upon work supported in part by the National Science Foundation under Grant Nos. 1ST-8009673 and IST-8311400 and in part by the Defense Advanced Research Pro-jects Agency under Contract No. MDA 903-81-C-0335, ARPA Order No. 2223. Views and conclusions contained in this paper are the authors' and should not be interpreted as representing the official opinion or policy of DARPA, the U.S. Government, or any person or agency connected with them.
-tlowever in a construction-based fmmalism, the interaction between the constructions can be predicted by examining the semantics of the constructions. In tile Dative rule, the Goal participant must be focused on as having some sort of control over the Theme. The point is that what i~ means for a Goal participant to be affected in a Goal- transfer scenalio is for the Goal to be transferred possession or control of tile Theme.
+tlowever in a construction-based fmmalism, the interaction between the constructions can be predicted by examining the semantics of the constructions. In tile Dative rule, the Goal participant must be focused on as having some sort of control over the Theme. The point is that what i~ means for a Goal participant to be affected in a Goal-transfer scenalio is for the Goal to be transferred possession or control of tile Theme.
 MULTEXT (Multilingual Text Tools and Corpora)
 2001. Interactive conceptual tutoring in atlas-andes.
 So You Want to Cut Down on Salt ...
-Masson: Paris.
+Masson : Paris.
 We assume that the primary content of texts is drawn from a knowledge base, which may consist of several component modules in the implementation.
 It is important to emphasize again that the judges were not made aware of the purpose of the experiment, nor were they told that any of the explanations were computer-generated.
 Multiple Affixation
@@ -295,7 +295,7 @@ Retrieval -3000 documents per
 The semantic role played by the immediate parental semantic onstituent of the word.
 6.1 Supertagger Accuracy
 (1992). A practical part-of-speech tagger. In Proceedings of 3rd Conference on Applied Natural
-/* Translation Rules */ translate(Syn, LogForml) :- transmod(Syn, 8-true, 8-LogForm), simplify(LogForm,\[ \],LogForml).
+/* Translation Rules */ translate(Syn,LogForml) :- transmod(Syn,8-true,8-LogForm), simplify(LogForm,\[ \],LogForml).
 With option of #8, option of Finite String as part of this option, devote several cards of an issue to microfiche readers, their advantages and dis-advantages and cost.
 To demonstrate this integrated approach to sentence generation, we show below the gen-eration of some sentences in two stages - firstly, assertion of knowledge into the KB, and secondly, the evaluation of a series of speech-acts, which selectively express components of this knowledge.
 Precision Recall Precision Recall Accuracy Brackets Without, Oct 16 90.74% 90.72% 84.62% 83.48% 94.95% 0.6 With, Oct 16 94.19% 94.86% 91.63% 91.91% 98.00% 0.48 With, Dec 9 97.33% 97.13% 95.40% 95.13% 98.64% 0.19 Table 1. Improvement in parsing of questions.
@@ -303,18 +303,18 @@ Gale, William; Church, Kenneth; and
 O O
 Chomsky, N. Problems of knowledge and freedom.
 U: How about United.
-La structure arborescente suivante, "~A" " sera notre: " II I 0 A I ? lliIj Cette representation n'exclut pas, ~videmment, l'adJonetion d'autres informations sur un son.Jet donn~, et, en partlculier, de3 poin' teurs caract~risant son appartenance ~ une autre arborescence.
+La structure arborescente suivante, "~A" " sera notre: " II I 0 A I ? lliIj Cette representation n'exclut pas, ~videmment, l'adJonetion d'autres informations sur un son.Jet donn~, et, en partlculier, de 3 poin'teurs caract~risant son appartenance ~ une autre arborescence.
 Las Cruces, NM, June. Association for
 WAYNE STATE UNIVERSITY: DESCRIPTION of
 I%OULLIER (U, F.)
-"'Rhetorical Structure Theory: Toward a functional theory of text organization." Text 8(3). 243-28 I.
+"'Rhetorical Structure Theory: Toward a functional theory of text organization." Text 8(3). 243-28I.
 Generative Power
-7'he wall is part of a housc. \[n some (:rises, the he:gallon of \[A is ingr It\] suggests the ingredi(mcc of the object A to another type (J, such that there exists a type 1) which is greater than 13 and (7 in the lattice of types : The spoke wheel is not a part of a ear (it Zs part of a bike').
+7'he wall is part of a housc. \[n some (:rises, the he:gallon of \[A is ingr It\] suggests the ingredi(mcc of the object A to another type (J, such that there exists a type 1) which is greater than 13 and (7 in the lattice of types: The spoke wheel is not a part of a ear (it Zs part of a bike').
 Hare, R.M. "Wanting: Some Pitfalls," in Binkley, Bronaugh, and Morras (l'ds). Agent. Action, and Reason. Toronto: U. Toronto Press, 197l.
 Anaphora. Linguistics and Philosophy, 17;261-327.
 Fig. 4 - Overview of the SCAN spoken document system architecture.
 The main loop of PHRED passes to the fetching component the set of constraints a PC pair must satisfy.
-In other words, the "conceptual symbols" do not represent separate pieces of the universde disoour8 taken at random, but are probably ordered by some classificational system, resembling the biological classification.
+In other words, the "conceptual symbols" do not represent separate pieces of the univers de disoour8 taken at random, but are probably ordered by some classificational system, resembling the biological classification.
 N21 Right.
 StAkE $malI
 Pisa, 1984b, pp. 167-176.
@@ -330,7 +330,7 @@ RESOURCES /
 For words ending in super heavy syllables too, alternation exists only between R(egular) and I(rregular) patterns. The regular ones (final stress) are predicted with 96.80% accuracy for Encoding 2 and 96.35% for Encoding 3. The irregular patterns reach success cores of 55.83% for Encoding 2 and 61.67% for Encoding 3, again yield-ing a highly significant difference.
 Therefore the temporal order has to be accounted for.
 (5%) The horse raced past the barn fell.
-U~J J
+U ~ JJ
 (2) The roots are placed in tanks.
 Oxford 50562 Moby 52508
 3. PLANS FOR THE COMING YEAR
