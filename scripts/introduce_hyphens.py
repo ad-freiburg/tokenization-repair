@@ -2,7 +2,7 @@ import sys
 import random
 
 import project
-from src.helper.files import read_lines
+from src.helper.files import read_sequences
 from src.helper.stochastic import flip_coin
 
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     out_file = open(out_file, "w")
 
-    for i, line in enumerate(read_lines(in_file)):
+    for i, line in enumerate(read_sequences(in_file)):
         line = introduce_hyphens(line, hyphenation_rate)
         out_file.write(line + "\n")
         if i % 10000 == 0:

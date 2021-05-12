@@ -1,5 +1,6 @@
 import json
 import sys
+import multiprocessing as mp
 
 import project
 from src.helper.files import read_lines, write_file
@@ -7,17 +8,23 @@ from src.spelling.evaluation import TokenErrorType, longest_common_subsequence
 from spelling_evaluation_space_preference import get_token_edit_labels
 
 
+def get_token_errors(sequence_id, ground_truth, corrupt_sequence):
+    print(sequence_id)
+    print(corrupt_sequence)
+    return get_token_edit_labels(ground_truth, corrupt_sequence)
+
+
 if __name__ == "__main__":
     benchmark = sys.argv[1]  # "arXiv.OCR.no_spaces"  #"ACL"
-    set = "development"
-    start = 0
-    end = 999  # 319
+    set = "test" if "-test" in sys.argv else "development"
+    n_sequences = 1000
 
     benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/" + benchmark + "/" + set + "/"
     out_file = "/home/hertel/tr-adgit/spelling-evaluation-webapp/results/" + benchmark + "." + set + ".json"
 
-    corrupt_paragraphs = read_lines(benchmark_dir + "corrupt.txt")
-    spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")
+    corrupt_paragraphs = read_lines(benchmark_dir + "corrupt.txt")[:n_sequences]
+    spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")[:n_sequences]
+    n_sequences = len(corrupt_paragraphs)
 
     if benchmark == "ACL":
         approaches = [
@@ -66,8 +73,22 @@ if __name__ == "__main__":
         approaches = [
             "google",
         ]
-    elif benchmark == "icdar2017.monograph" or benchmark == "icdar2017.periodical":
-        approaches = []
+    elif benchmark == "icdar2017":
+        approaches = [
+            "google",
+        ]
+    elif benchmark == "icdar2019":
+        approaches = [
+            "google",
+        ]
+    elif benchmark == "arXiv.spans":
+        approaches = [
+            "google",
+        ]
+    elif benchmark == "ACL.spans":
+        approaches = [
+            "google",
+        ]
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
 
@@ -79,14 +100,20 @@ if __name__ == "__main__":
     correct_prediction_counts = {approach: {error: 0 for error in TokenErrorType} for approach in approaches}
     sequences_data = []
 
+    n_processes = max(mp.cpu_count() - 1, 1)
+    with mp.Pool(n_processes) as pool:
+        sequence_errors = pool.starmap(get_token_errors,
+                                       list(zip(range(len(spelling_paragraphs)),
+                                                spelling_paragraphs,
+                                                corrupt_paragraphs)))
+
     for i, (corrupt, spelling) in \
             enumerate(zip(corrupt_paragraphs, spelling_paragraphs)):
-        if i < start or i > end:
-            continue
         print("sequence", i)
         print(spelling)
         print(corrupt)
-        errors = get_token_edit_labels(spelling, corrupt)
+        #errors = get_token_edit_labels(spelling, corrupt)
+        errors = sequence_errors[i]
         for error in errors:
             error_counts[error] += 1
         correct_tokens = spelling.split()
@@ -122,7 +149,7 @@ if __name__ == "__main__":
     total_errors = sum(error_counts[error] for error in TokenErrorType if error != TokenErrorType.NONE)
     print(error_counts)
     for approach in approaches:
-        print(correct_prediction_counts[approach])
+        print(approach, correct_prediction_counts[approach])
 
     for approach in approaches:
         print("\n" + approach)
