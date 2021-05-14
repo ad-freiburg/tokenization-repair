@@ -150,7 +150,7 @@ The rules that RIPPER learned on the basis of the Exchange 1 automatic features 
 Prepa- Seasoning ration
 Abstract
 For each syntactic category the corresponding attributes are defined, for each attribute the set of possible values is defined. So, given a set of syntactic relations and a set of syntactic categories with the corresponding attributes and values, the set of possible S-trees is defined. This set is called T: the domain of
-II 13 It 12 I
+1 3 4 2
 [3J S.P. Dennis, The Design and Testing of a Fully Automatic Indexing-Searching System for Documents Consisting of Expository Text, in Information Retrieval: A Critical Review, G. Schecter, editor, Thompson Book Co., Washington, 1967, p. 67-94.
 [7] Huang, X D , Hon, H W , and Lee. K F. "Multiple codebook semi-continuous hidden Murkov models for speaker-independent continuous speech recognition". CMU Technical Report CMU-CS-89.136, C. Science.
 that signal speech repairs and intonational Fluent Abridged Modification Fresh Intonational Feature Speech Repairs Repairs Starts Boundaries
