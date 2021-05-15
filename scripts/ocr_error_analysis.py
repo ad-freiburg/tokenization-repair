@@ -17,7 +17,7 @@ def get_token_errors(sequence_id, ground_truth, corrupt_sequence):
 if __name__ == "__main__":
     benchmark = sys.argv[1]  # "arXiv.OCR.no_spaces"  #"ACL"
     set = "test" if "-test" in sys.argv else "development"
-    n_sequences = 1000
+    n_sequences = 333 if benchmark == "ACL" else 1000
 
     benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/" + benchmark + "/" + set + "/"
     out_file = "/home/hertel/tr-adgit/spelling-evaluation-webapp/results/" + benchmark + "." + set + ".json"
@@ -26,71 +26,18 @@ if __name__ == "__main__":
     spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")[:n_sequences]
     n_sequences = len(corrupt_paragraphs)
 
-    if benchmark == "ACL":
+    if benchmark in ("ACL", "arXiv.OCR", "Wiki.typos.spaces", "Wiki.typos.no_spaces"):
         approaches = [
-            "nastase",
+            # TODO "nastase",
             "google",
-            "BS-bid-OCR",
-            "BS-bid-OCR+postprocessing",
-            "BS-bid-OCR+postprocessing+google",
-        ]
-    elif benchmark == "arXiv.OCR":
-        approaches = [
-            "google",
-            "natas",
-            "BS-bid-OCR",
-            "BS-bid-OCR+google",
-            "BS-bid-OCR+natas",
-            "BS-bid-OCR+postprocessing",
-            "BS-bid-OCR+postprocessing+google",
-            "BS-bid-OCR+postprocessing+natas"
-        ]
-    elif benchmark == "arXiv.OCR.no_spaces":
-        approaches = [
-            "google",
-            "BS-bid-OCR",
-            "BS-bid-OCR+google"
-        ]
-    elif benchmark == "arXiv.gamma.hyphen":
-        approaches = [
-            "google",
-            "BS-bid-OCR",
-            "BS-bid-OCR+postprocessing",
-            "BS-bid-OCR+postprocessing+google",
-        ]
-    elif benchmark == "arXiv.powerlaw.hyphen":
-        approaches = []
-    elif benchmark == "arXiv.powerlaw-scale1.hyphen":
-        approaches = []
-    elif benchmark == "arXiv.powerlaw.zero.hyphen":
-        approaches = [
-            "google",
-            "BS-bid-OCR",
-            "BS-bid-OCR+postprocessing",
-            "BS-bid-OCR+postprocessing+google",
-        ]
-    elif benchmark == "ACL.powerlaw.zero.hyphen":
-        approaches = [
-            "google",
-        ]
-    elif benchmark == "icdar2017":
-        approaches = [
-            "google",
-        ]
-    elif benchmark == "icdar2019":
-        approaches = [
-            "google",
-        ]
-    elif benchmark == "arXiv.spans":
-        approaches = [
-            "google",
-        ]
-    elif benchmark == "ACL.spans":
-        approaches = [
-            "google",
+            "ours+google",
         ]
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
+    if benchmark == "ACL":
+        approaches.append("nastase")
+    if benchmark == "arXiv.OCR":
+        approaches.append("BID-the-one-from-paper")
 
     predicted_sequences = {
         approach: read_lines(benchmark_dir + approach + ".txt") for approach in approaches

@@ -15,7 +15,8 @@ $(document).ready(function() {
                 $("#select_benchmark").append(new Option(name, name));
             }
         });
-        show_overview_table();
+        show_overview_table("development");
+        show_overview_table("test");
         set_prediction_options();
         show_benchmark_results_table();
     });
@@ -443,19 +444,17 @@ function show_benchmark_results_table() {
     });
 }
 
-function show_overview_table() {
+function show_overview_table(subset) {
     benchmark_results = {};
     for (benchmark of benchmarks) {
-        for (subset of ["development", "test"]) {
-            results_path = "../results/" + benchmark + "/" + subset + "/results.json";
-            console.log(results_path);
-            $.ajax({url: results_path,
-                    async: false,
-                    success: function(result) {
-                        benchmark_results[benchmark] = result;
-                    }
-            });
-        }
+        results_path = "../results/" + benchmark + "/" + subset + "/results.json";
+        console.log(results_path);
+        $.ajax({url: results_path,
+                async: false,
+                success: function(result) {
+                    benchmark_results[benchmark] = result;
+                }
+        });
     }
     console.log(benchmark_results);
     overview_benchmarks = Object.keys(benchmark_results);
@@ -482,7 +481,7 @@ function show_overview_table() {
         thead += "<th>Acc</th>";
     }
     thead += "</tr>";
-    $("#thead_overview_table").html(thead);
+    $("#thead_overview_table_" + subset).html(thead);
     // table body
     tbody = "";
     for (approach of overview_approaches) {
@@ -502,5 +501,5 @@ function show_overview_table() {
         row += "</tr>";
         tbody += row;
     }
-    $("#tbody_overview_table").html(tbody);
+    $("#tbody_overview_table_" + subset).html(tbody);
 }

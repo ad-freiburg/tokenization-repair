@@ -59,12 +59,15 @@ if __name__ == "__main__":
         else list(read_sequences(paths.BENCHMARKS_DIR + original_file_name))
 
     evaluator = Evaluator()
-    for original, correct, corrupt, predicted in \
-            zip(original_sequences, correct_sequences, corrupt_sequences, predicted_sequences):
+    for seq_id, (original, correct, corrupt, predicted) in \
+            enumerate(zip(original_sequences, correct_sequences, corrupt_sequences, predicted_sequences)):
 
         if benchmark.name == "acl" and original.startswith("#"):
             print(original)
             continue
+
+        if benchmark.name == "ACL" and subset == SUBSETS["test"] and seq_id == 333:
+            break
 
         correct_processed, corrupt_processed, predicted_processed = \
             tolerant_preprocess_sequences(original, correct, corrupt, predicted)
