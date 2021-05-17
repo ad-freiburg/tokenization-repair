@@ -35,14 +35,14 @@ We describe a generative probabilistic model of natural language, which we call 
 Martin HOLUB
 d They tasted really good.
 [4] Bobrow, D. G. and J. B. Fraser, "A Phonological Rule Tester," Comm. ACM, Volume 11, November, 1968, 766-772.
-Ted Dunning. 1993. Accurate methods for statistics of surprise and coincidence. Computational Linguistics, 19(1): 61-74.
+Ted Dunning. 1993. Accurate methods for statistics of surprise and coincidence. Computational Linguistics, 19(1):61-74.
 14 As discussed above, this problem with Hawkins's and Prince's classification schemes had already been noted by Fraurud--e.g., Fraurud (1990, 416).
 DBTG (Data Base Task Group), 377-380
 Disambiguation. We have been assuming that the "correct" QLF has been chosen before applying our conditional equivalences. However, this is an unrealistic assumption in the fully general case, because it is quite conceivable that lexical disambiguation could require some contextual disambiguation first. Likewise, many PP attachment decisions have to be made on contextual grounds.
 1. The Problem
 Error Measures and Bayes Decision Rules Revisited
 INGLISH allows designers to rest more comfortably with the compromises they have made, knowing that users can systematically discover the coverage of the interface.
-V NP PPto NP <- NP PP.
+V NP PPt o NP <- NP PP.
 V=24
 [l',fl',fr',tl*'.bl*',subst?']
 Benjamin-Cummings Publisher. 1995 [9] Ken Hale. "Preliminary Remarks on Configurationality," Proceedings of NELS 12, pp. 86-96. 1982.
@@ -152,14 +152,14 @@ Abstract
 For each syntactic category the corresponding attributes are defined, for each attribute the set of possible values is defined. So, given a set of syntactic relations and a set of syntactic categories with the corresponding attributes and values, the set of possible S-trees is defined. This set is called T: the domain of
 1 3 4 2
 [3J S.P. Dennis, The Design and Testing of a Fully Automatic Indexing-Searching System for Documents Consisting of Expository Text, in Information Retrieval: A Critical Review, G. Schecter, editor, Thompson Book Co., Washington, 1967, p. 67-94.
-[7] Huang, X D , Hon, H W , and Lee. K F. "Multiple codebook semi-continuous hidden Murkov models for speaker-independent continuous speech recognition". CMU Technical Report CMU-CS-89.136, C. Science.
+[7] Huang, X.D., Hon, H.W., and Lee. K.F. "Multiple codebook semi-continuous hidden Murkov models for speaker-independent continuous speech recognition". CMU Technical Report CMU-CS-89.136, C. Science.
 that signal speech repairs and intonational Fluent Abridged Modification Fresh Intonational Feature Speech Repairs Repairs Starts Boundaries
 3.2 Preferences
 For those things that we were able to mark, our own very unofficial estimate is that we performed in the high nineties in both recall and precision (as can be seen in the enclosed sample article). For example, we correctly marked both expressions problematic for most other systems: "the 21st century" and "Hollywood".
 292 Computational Linguistics, Volume 12, Number 4, October-December 1986 Bradley A. Goodman Reference Identification and Reference Identification Failures
 The proposed formalism utilizes more restricted means than GPSG but offers greater possibilities for expressing generalizations. The elimination of metarules and the introduction of CCRs give it a more homogeneous structure and place cooccurrence restrictions of various kinds in the center of attention.
 ACL, pages 276-283.
-Other general common sense knowledge is built on top of this naive topology. The domain of time is seen as a particular kind of scale defined by change of state, and the axiomatization builds toward such predicates as "regular" and "persist". The domain of belief has three principal subclusters in this application: learning, which includes such predicates as "find", "test" and "manifest"; reasoning, explicating predicates such as "leads-to" and "consistent"; and classifying, with such predicates as "distinguish", "differentiate" and "identify". The domain of modalities explicates such concepts as necessity, possibility, and likelihood.
+Other general commonsense knowledge is built on top of this naive topology. The domain of time is seen as a particular kind of scale defined by change of state, and the axiomatization builds toward such predicates as "regular" and "persist". The domain of belief has three principal subclusters in this application: learning, which includes such predicates as "find", "test" and "manifest"; reasoning, explicating predicates such as "leads-to" and "consistent"; and classifying, with such predicates as "distinguish", "differentiate" and "identify". The domain of modalities explicates such concepts as necessity, possibility, and likelihood.
 Speech Processing
 Suri (1993) performed a critical analysis of the experiment that explained why other factors such as the infrequency of indefinite subjects in naturally occurring discourse, the use of passive or active voice, certain lexical choices, (potentially) stronger reader identification with a victim/near-victim (or with a criminal), and order of text presentation could not explain the distribution of judgments in our experiment. For example, one may suspect hat the use of the passive as in S1 of both Example 5 and Example 6 may influence the judgments given. However, the experiment contained pairs of examples where passive sentences were used for S1 and one was judged acceptable and the other unacceptable by the participants. Similar pairs of examples with S1 in active voice were included with the same results. Thus it must be the case that the judgments given were attributable to some factor other than active/passive voice.
 Baseline 81.9% 78.2% 94.5% 50K 90.4% 47.2% 89.8% 53.1% 96.9% 44.4% 100K 91.8% 54.8% 91.3% 60.0% 97.2% 49.6% 200K 92.3% 57.4% 91.8% 62.4% 97.4% 53.4%
@@ -218,7 +218,7 @@ At this point, the *'s may be erased and, except for category labels, the IRL is
 Correct 65.3% 75.7% 77.9% 82.9%
 Branimir K. Boguraev, Roy J. Byrd, Mary S. Neff
 If the VALUE-slot is satisfied by FILLER, <action-l> will be activated to make further semantic interpretation if necessary. Let us consider another example:
-2. Base forms made from a single utterance.
+2. Baseforms made from a single utterance.
 The car won't start! (said by a man crying on the stoop)
 1995. Automatic condensation of electronic publications by sentence selection. Information Processing &
 A number of recent research efforts have explicitly grounded parser design on linguistic theory (e.g., Bayer et al (1985), Berwick and Weinberg (1984), Marcus (1980), Reyle and Frey (1983), and Wehrli (1983)). Although many of these parsers are based on generative grammar, and transformational grammar in particular, with few exceptions (Wehrli (1983)) the modular approach as suggested by this theory has been lagging (Barton (1984)). Moreover, Chomsky (1986) has recently suggested that rule-based parsers are implausible and that parsers could be based on lexical properties and structure determining principles.
@@ -230,7 +230,7 @@ The goal of this initial work is to assess human-human problems solving in the a
 X. Huang, K. F. Lee, and H. W. Hon, "On
 CONFERENCES 145th ANNUAL MEETING OF AAAS
 V. Vapnik. 1995. The Nature of Statistical Learning
-The resulting program, char align, works at the character level using an approach inspired by the cognate method proposed in Simard et al (1992).
+The resulting program, char_align, works at the character level using an approach inspired by the cognate method proposed in Simard et al (1992).
 First we consider the problems of intensional logic. The model of intensional logc comes to be more complicated because it has a greater descriptive power than predicate logic in general. As Gallin\[3\] pointed out, valid formulas in intensional logic fail to constitute a recursively enumerable set since it is essentially based on type theory. Thus we have no axiomatization for this logic. For this reason, we must restrict the scope of sentences in natural language capable of being treated by intensional logic. But the notation of intensional logic used in PTQ such as '^' and 'v' work efficiently for analysis, For example, consider the following sentences.
 +hi:1 -hi:2 -rnd:2 +rnd:1
 S: \[BRENNANu: Brennan,
@@ -327,7 +327,7 @@ RSCM on an SMT system.
 Many language processing tasks must be developed and tested using annotated data sets or corpora.
 The dialog system exclusive of the parser and error correction code consists of about 17,000 lines of Prolog (and this includes some comments) apportioned as follows: Dialog Controller procedural mechanisms (including IPSIM) 15%, Dialog Controller knowledge base 11%, Domain Processing procedural mechanisms 25%, Domain Processing knowledge base 14%, Linguistic Interface including much language generation code 30%, miscellaneous 5%.
 RESOURCES /
-For words ending in super heavy syllables too, alternation exists only between R(egular) and I(rregular) patterns. The regular ones (final stress) are predicted with 96.80% accuracy for Encoding 2 and 96.35% for Encoding 3. The irregular patterns reach success cores of 55.83% for Encoding 2 and 61.67% for Encoding 3, again yielding a highly significant difference.
+For words ending in superheavy syllables too, alternation exists only between R(egular) and I(rregular) patterns. The regular ones (final stress) are predicted with 96.80% accuracy for Encoding 2 and 96.35% for Encoding 3. The irregular patterns reach success cores of 55.83% for Encoding 2 and 61.67% for Encoding 3, again yielding a highly significant difference.
 Therefore the temporal order has to be accounted for.
 (5B) The horse raced past the barn fell.
 U -> JJ
@@ -345,10 +345,10 @@ The user then moves to the Structuring interface by clicking on the "Structurer"
 2 We use the Jyutping romanization developed by the Linguistics Society of Hong Kong in 1993. See http://www.cpct92.cityu.edu.hk/lshk.
 FEB91-SD 13.9
 Although the programs of Marcus and Riesbeck share many of these same properties, the syntactic processing aspects of those programs are not clearly separated from the particular conceptual representations on which they are based. We believe that the parsing algorithm presented here captures many of the important properties of those programs so that they may be applied to conceptual representations based on other theories of natural language.
-Most spontaneous speech contains disfluencies such as partial words, filled pauses (e.g., ? uh?, ?um?, ?huh?), explicit editing terms (e.g., ?I mean?), parenthetical asides and repairs. Of these repairs pose particularly difficult problems for parsing and related NLP tasks. This paper presents an explicit generative model of speech repairs and shows how it can eliminate this kind of disfluency.
+Most spontaneous speech contains disfluencies such as partial words, filled pauses (e.g., "uh", "um", "huh"), explicit editing terms (e.g., "I mean"), parenthetical asides and repairs. Of these repairs pose particularly difficult problems for parsing and related NLP tasks. This paper presents an explicit generative model of speech repairs and shows how it can eliminate this kind of disfluency.
 extended in order to maintain a coherent discourse structure for the modelling of the producer. Thus rhetorical relations describing planning processes are introduced. With these, the discourse grammar becomes capable of representing a coherent discourse structure for the spoken language despite the fact that the entire discourse segment does not seem as coherent as written text.
 Figure 4: Sample Translations
-Ending an analogy conversational move, makes available to the grammar the "Resume-Initiating" discourse expectation, created when the analogy was first generated. The effects of choosing this discourse expectation are to: 11 Lacking from this theory, however, but hopefully to be included a ta later date, is Webber's not ion of evoked entities \ [27\] (i.e., entities not previously mentioned in the discourse but which are derivative from it - especially, quantified sets).
+Ending an analogy conversational move, makes available to the grammar the "Resume-Initiating" discourse expectation, created when the analogy was first generated. The effects of choosing this discourse expectation are to: 11 Lacking from this theory, however, but hopefully to be included at a later date, is Webber's notion of evoked entities \ [27\] (i.e., entities not previously mentioned in the discourse but which are derivative from it - especially, quantified sets).
 Over the past two years, a number of integrated translation tools which include a translation editor, an on-line terminology database and a translation memory system became commercially available.
 Finally, the surface string "A bottle is a container", represented by node M226, is established to express node M75 and the answer to the query. In general, a surface sentence is generated to EXPRESS-2 a given semantic structure by first generating strings to EXPRESS-2 the substructures of the semantic structure and by assembling these strings into a network version of a list. Thus the semantic structure is processed in a bottom-up fashion.
 CNTS - Language Technology Group
@@ -359,7 +359,7 @@ Darpa Speech and Natural Language
 A system as a substitution for call centers.
 PRED = AGENT
 Table 11: Precision and Recall of SO-PMI of the test set words with 3 different groups of 6 morphemes The precision remains high from 20 morphemes to 6 morphemes, but from table 10 the precision varies with different sets of morphemes. Group 3 gave the lowest precision of 68.77%, whereas other groups gave a high precision close to 80%.
-For the seen adjective-noun bigrams, we used the data of Lapata, McDonald, and Keller (1999), who compiled a set of 90 bigrams as follows. First, 30 adjectives were randomly chosen from a part-of-speech-tagged and lemmatized version of the BNC so that each adjective had exactly two senses according to WordNet (Miller et al 1990) and was unambiguously tagged as ? adjective? 98.6% of the time. Lapata, McDonald, and Keller used the part-of-speech-tagged version that is made available with the BNC and was tagged using CLAWS4 (Leech, Garside, and Bryant 1994), a probabilistic part-of-speech tagger, with error rate ranging from 3% to 4%. The lemmatized version of the corpus was obtained using Karp et al? s (1992) morphological analyzer.
+For the seen adjective-noun bigrams, we used the data of Lapata, McDonald, and Keller (1999), who compiled a set of 90 bigrams as follows. First, 30 adjectives were randomly chosen from a part-of-speech-tagged and lemmatized version of the BNC so that each adjective had exactly two senses according to WordNet (Miller et al 1990) and was unambiguously tagged as "adjective" 98.6% of the time. Lapata, McDonald, and Keller used the part-of-speech-tagged version that is made available with the BNC and was tagged using CLAWS4 (Leech, Garside, and Bryant 1994), a probabilistic part-of-speech tagger, with error rate ranging from 3% to 4%. The lemmatized version of the corpus was obtained using Karp et al's (1992) morphological analyzer.
 is able to create a less restrictive *restrictor* than these other approaches.
 modeling of ARABIC faces many
 Proceedings of AMIA Symposium 1999:181-5.
@@ -368,7 +368,7 @@ It differs from LOB in that it is American English and, more importantly, in tha
 I0) Urgent obligation to confirm the: "change to 118.8" or "118.8" the runway frequency as a sign, the dialog is finished.
 Samuelsson, C. 1994. Grammar Specialization through Entropy Thresholds. Proc. ACL-94, Las
 VP v NP, I.
-A A gt~ ix3, v - palm tree baobab
+v v1 v2 - palm tree baobab
 That is, the descriptions we use are all regular descriptions of phonological objects.
 When the user selects option four he/she will get the following output: the input word ~.-~.
 1 INTRODUCTION
@@ -380,13 +380,13 @@ E*,Z
 2 Higher-Order Unification and NL semantics The basic idea underlying the use of HOU for NL semantics i very simple: the typed λ-calculus is used as a semantic representation language while semantically under-specified elements (e.g. anaphors and ellipses) are represented by free variables whose value is determined by solving higher-order equations. For instance, the discourse (la) has (lb) as a semantic representation where the value of R is given by equation (lc) with solutions (ld) and (le).
 2.1 The Arabic Writing System
 Given two feature structures, the graded unification mechanism (Ua) computes two results, a unifying structure and a unification strength.
-Oepen, S. and J. Carroll (2000) Ambiguity packing in constraint-based parsing? practical results. In Proceedings of the 1st Conference of the North American Chapter of the ACL, 162?169. Seattle, WA.
+Oepen, S. and J. Carroll (2000) Ambiguity packing in constraint-based parsing - practical results. In Proceedings of the 1st Conference of the North American Chapter of the ACL, 162?169. Seattle, WA.
 20. Oviatt, S. L., Cohen, P. R, Fong, M. W. and Frank, M. P., A rapid semi-automatic simulation technique for interactive speech and handwriting, Proceedings of the 1992 International Conference Spoken Language Processing, vol. 2, University of Alberta, J. Ohala (ed.), October, 1992, 1351-1354.
 finiteness of w2 = finite.
 Mechanisms for Language Processing.
 3.3 Generation architecture and aggregation localization While its overall architecture is a conventional pipeline, HYSSOP is unique in encapsulating all aggregation processing in the sentence planner and carrying it out entirely on a deep semantic representation. I contrast, most other systems distribute aggregation over several processing components and across several levels of internal representations: deep semantic, thematic and even surface syntactic for some of them.
 3 Negation
-M0 = argmax P(M o I W, H).
+M0 = argmax P(MD|W,H).
 Li H. F., Heo N. W., Moon K. H., Lee J. H. and Lee G. B. (2000) Lexical Transfer Ambiguity Resolution Using Automatically-Extracted Concept Co-occurrence Information. International Journal of Computer Processing of Oriental Languages, 13/1, pp. 53-68 McRoy S. (1992) Using Multiple Knowledge Sources for Word Sense Discrimination. Computational
 We assume a morphological component such as GERTWOL (1996) to apply before the compositional process tarts. Composition itself is implemented as follows, relying on a separate lexicon for particles. The particle lexicon is hierarchically structured and lists selectional restrictions with respect to the base verb selected. An example for the hierarchical structure is given in figure 7 (without selectional restrictions for matters of simplicity), where heraus- is a hyponym of her- and aus-.
 "Language type" decides if every character in the language can be an MF. In non-segmented language every character can be an MF. In segmented language, punctuation marks and sequences of characters except for delimiters can be an MF.
@@ -402,7 +402,7 @@ III LEARNING AND RECOGNITION PHASES
 Since no horizontal force acted on the pumpkin from the time it left my hand, it will fall at the same place where it left my hands.
 Figure 1: Alignment Example with Crossing biguous while P alignments are those which are less certain. P alignments often appear when a phrase in one language translates as a unit into a phrase in the other language (e.g. idioms, free translations, missing function words) but can also be the result of genuine ambiguity. When two annotators disagree, the union of the P alignments produced by each annotator is recorded as the P alignment in the corpus.
 The two kinds of presentation operators are treated differently. Since top-down operators embody explicit communicative norms, they are given a higher priority. Only when no top-down presentation operator is applicable, will a bottom-up presentation operator be chosen. The overall planning framework is realized by a function called Present. Taking as input a subproof, Present repeatedly executes a basic planning cycle until the input subproof is conveyed. Each cycle carries out one presentation operator, where Present always tries first to choose and apply a top-down operator. If impossible, a bottom-up operator will be chosen. The function Present is first called with the entire proof as the presentation task. The execution of a top-down presentation operator may generate subtasks by calling it recursively.
-Input automata with 25 states . . . . . i . . . . . . . . i ~e m + ? \[\] +
+Input automata with 25 states
 Burnard, L., Baker, P., McEnery, A. & Wilson, A.
 AUTONOMOUS no
 John talked
@@ -410,7 +410,7 @@ John talked
 Church, Kenneth W. (1988). "A stochastic parts program and noun phrase parser for unrestricted text." In Proceedings, Second Conference on Applied Natural Language
 ---> a12 a---> a13 6--> ell --~ el2 ---> el3 Figure 2 ? Examples of the code for accented characters
 Production proceeds by selecting a single random exemplar from a category, and then assembling a corresponding output. To simulate the warping of motor targets toward more highly practiced outputs, each speaker/hearer retains a record of what articulatory targets have been produced over the previous six rounds. An output target value for each target value recorded in the chosen exemplar is established by comparing the reference exemplar target value to every target value recently produced by that articulator.
-TR, (iii) if the question has the form "Which N " (i.e the wh-node depends on its head in the relation of general relationship), then also those TR's are preserved that contain an identical N node (noun) on any level of the tree.
+TR, (iii) if the question has the form "Which N..." (i.e the wh-node depends on its head in the relation of general relationship), then also those TR's are preserved that contain an identical N node (noun) on any level of the tree.
 The DARPA ATIS1 test (for the February 1991 evaluations) has two mandatory test sets, the class A set and the class D1 set.
 Bonnie J. Dorr and Doug Jones. 1996. Role of WordSense Disambiguation in Lexical Acquisition: Predicting Semantics from Syntactic Cues. In Proceedings of the 16th International Conference on Computational
 D.2. An atom is an element, or an element immediately preceded by "NOT".
@@ -433,9 +433,9 @@ The psuedocode for the generation algorithm is shown below, identifying the poin
 Finally, in Section 6, we draw conclusions and propose some future work.
 1. If X=\[\] and Y=\[\], then stop; else if X=\[\] (Y=\[\]) then mark all segments in Y(X) as "inserted" ("omitted") and stop; else continue.
 Gibson, E., Schutze, C., & Salomon, A. (1996). The relationship between the frequency and the processing complexity of linguistic structure. Journal of Psycholinguistic Research 25(1), 59-92.
-Further possible extensions to the work could involve trying t o specify a lexicon so that the generative process ends up with a structure with words as leaves, and one could also attempt to apply the rules in reverse, i.e. To start with a string of lords and produce a structural description. Both problems are, of course, very difficult ones.
-In the first part of this paper, we present our tool: a shallow? parser compiler. In a second part, we present output samples as well as several evaluations for French and for English,where the tool has been used to develop both an NP? chunker and a richer shallow? parser. We also explain why our approach is more tolerant to POS? tagging errors. Finally, we discuss some other practical uses which are made of this shallow? parser compiler.
-742.1 Evaluating Focus-Based Approaches Sidner's algorithmic account, although not exhaustively specified, has lead to the implementation of focus-based approaches to anaphora resolution in several systems, e.g. PIE (Lin, 1995). However, evaluation of the approach as mainly consisted of manual analyses of small sets of problematic cases mentioned in the literature. Precise evaluation over sizable corpora of real-world texts has only recently become possible, through the resources provided as part of the MUC evaluations.
+Further possible extensions to the work could involve trying to specify a lexicon so that the generative process ends up with a structure with words as leaves, and one could also attempt to apply the rules in reverse, i.e. To start with a string of lords and produce a structural description. Both problems are, of course, very difficult ones.
+In the first part of this paper, we present our tool: a shallow-parser compiler. In a second part, we present output samples as well as several evaluations for French and for English, where the tool has been used to develop both an NP-chunker and a richer shallow-parser. We also explain why our approach is more tolerant to POS-tagging errors. Finally, we discuss some other practical uses which are made of this shallow-parser compiler.
+74 2.1 Evaluating Focus-Based Approaches Sidner's algorithmic account, although not exhaustively specified, has lead to the implementation of focus-based approaches to anaphora resolution in several systems, e.g. PIE (Lin, 1995). However, evaluation of the approach as mainly consisted of manual analyses of small sets of problematic cases mentioned in the literature. Precise evaluation over sizable corpora of real-world texts has only recently become possible, through the resources provided as part of the MUC evaluations.
 It uses the rules of the grammar in a form where the metarules have been applied, but the permutations implied by the LP rules have not been explicitly expanded. This means that we have fewer rules to worry about, but slightly more work to do each time we apply one (since we have to check that we are applying it in a way allowed by the LP rules). The extra work is minimised by using the LP rules, at the time when the grammar is first read in, to index ID rules by their possible legal initial substructures. This prevents the parser trying out completely pointless rules.
 N(cat) \[S(np(dog))\]
 This means the agreement between Semcor and DSO is quite low.
@@ -451,7 +451,7 @@ Syntactic analysis
 (12) I went to a party last night. The music was wonderful.
 Unlike specialized terminology, however, proper names are amenable to a speech-inspired translation approach. One tries, when writing foreign names in ones own language, to preserve the way it sounds.
 by the increase of its counterpart:
-AGA 1 N
+AGAIN
 Theorem 3.
 Hull, D., 1997. Automating the construction of bilingual terminology lexicons. Terminology, 4(2).
 Michael Maxwell
@@ -461,7 +461,7 @@ However, this does not always give the correct solution: for example, if the seq
 Formal morphology
 VALUE: DECREASE
 DNV pro PP
-Fig.4:Hierarchies of "sokumen (one side)?
+Fig.4: Hierarchies of "sokumen (one side)"
 I show that Searle's analysis cannot account for many of the examples treated here, and that those examples it does cover can also be handled by the present analysis.
 For the relations, fire units stand for characteristics of the relation itself Note that this differs from most other approaches in treating each role or relation as a distributed pattern. This has several virtues. For one thing, it immediately eliminates the problem of specifying a small set of case roles, in the face of the fact that there seem to he a very large number of very subtle differences between roles that are in many ways very similar. Further, the use of distributed representations allows us to capture both the similarities and differences among case roles. The idea has been proposed on independent linguistic grounds, as well.
 Language Processing in Lisp.
@@ -476,12 +476,12 @@ Michael Dorna. 2000. A Library Package for the Verbmobil Interface Term. Verbmob
 Each PD node has a PD slot, a tagares slot, a valueNum slot, and a status slot. The PD slot contains a pointer to the represented PD itself.
 Littlestone, Nick, and Manfred Warmuth.
 The questions, "what class does a verb belong to?", "what are the relative frequencies of the different patterns it occurs in?", and "is this pattern grammatical?' are intimately connected. Alternation behaviour is a major source of evidence as to how a verb should be classified, and grammaticality judgements are premised upon the patterns a competent speaker has frequently encountered in their experience of the language. The further development of computational lexical semantics of the kind described in this paper requires foundational work on the relation of corpus-based statistical findings to formal knowledge representation.
-CURRENT from TODO; /* loop over all productions whose last element = name of current span */ ( V D E F E GRAMMAR(DEF(#DEF) eq SPAN(CURRENT, 'NAME' ) ) /* separate left and right sides of production */
+CURRENT from TODO; /* loop over all productions whose last element = name of current span */ (VDEF E GRAMMAR(DEF(#DEF) eq SPAN(CURRENT, 'NAME')) /* separate left and right sides of production */
 la. B. Katz and P.H. Winston, "A Two-way Natural Language Interface," in Integrated Interactive Computing Systems, edited by P. Degano and E. Sandewall, North-Holland, Amsterdam, 1982.
 I saw how Peter Paul welcomed and 0
 Monica, California, The Rand
 (3) $1 So we'll switch you to a double room. okay? (4) S1 So we'll switch you to a double room.
-SUB J(6/19,seize) =~ 0.I. 1 <CO>;
+SUBJ(6/19,seize) => 0.I.1 <CO>;
 None of these are usually desirable as concordance lines: boilerplate information, mathematical formulae, navigation tips, hyperlinks, e-mail addresses, post addresses, data on updates, headers, footers, copyright statements, logs, fragments of lists of items. 7% of snippets are discarded on average by this type of filtering in the cited examples.
 4. Means Verb + "by" t make, prepare, draw v t 4e4,, (Process) Gerund form, shape l1 shape (glass) -.
 Annotated Trace of UCEgo's Plan Selection Process.
@@ -495,6 +495,6 @@ We also define the entropy, H or H(M), for the grammar as n = 1 (1). = x.H.
 Our classification scheme distinguishes between fresh starts and modification repairs.
 RO 0.0 0.0 6.0 94.0
 Kay, Martin (1984) Functional Unification
-Rule : s => np,pp,vp
+Rule: s => np,pp,vp
 (b) If a word is not covered by any tree, take it as is into the final right-hand side. Else, take the root of the parse tree with largest span; if tie, prefer the root that ranks higher in the DM.
 Suppose we apply the incremental algorithm to d1 from Figure 1 with < type, color, size > as preferred attributes. The type of d1 listed in the database is dog. This property is selected (since type information is always selected). It rules out d4 (which is a cat).
