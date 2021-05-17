@@ -110,6 +110,12 @@ def get_operations(s, t, edit_distance_matrix, substitutions=True):
     return operations
 
 
+def get_edit_operations(source, target, substitutions):
+    d, matrix = levenshtein(source, target, return_matrix=True, substitutions=substitutions)
+    operations = get_operations(source, target, matrix, substitutions=substitutions)
+    return operations
+
+
 if __name__ == "__main__":
     """print(levenshtein("kitten", "sitting"))
     print(levenshtein("kitten", "sitting", substitutions=False))

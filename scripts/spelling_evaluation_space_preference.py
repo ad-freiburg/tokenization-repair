@@ -18,7 +18,7 @@ class EditOperation(Enum):
     REPLACE = 3
 
 
-def edit_distance(s: str, t: str) -> Tuple[int, List[Tuple[int, EditOperation, str]]]:
+def edit_distance(s: str, t: str, substitutions=False) -> Tuple[int, List[Tuple[int, EditOperation, str]]]:
     n = len(s)
     m = len(t)
     d = np.zeros((n + 1, m + 1), dtype=int)
@@ -44,11 +44,12 @@ def edit_distance(s: str, t: str) -> Tuple[int, List[Tuple[int, EditOperation, s
                     cost = keep_cost
                     action = EditOperation.KEEP
             # replace
-            """elif s_char != " " and t_char != " ":
-                replace_cost = d[i, j] + 1, nospace_ops[i, j] + 1
-                if replace_cost <= cost:
-                    cost = replace_cost
-                    action = EditOperation.REPLACE"""
+            if substitutions:
+                if s_char != " " and t_char != " ":
+                    replace_cost = d[i, j] + 1, nospace_ops[i, j] + 1
+                    if replace_cost <= cost:
+                        cost = replace_cost
+                        action = EditOperation.REPLACE
             d[i + 1, j + 1] = cost[0]
             nospace_ops[i + 1, j + 1] = cost[1]
             edit_operations[-1].append(action)
@@ -98,6 +99,8 @@ def get_labels(sequence: str, edit_operations: List[Tuple[int, EditOperation, st
                 break
         if pos in nospace_edit_positions or end in nospace_edit_positions:
             nospace_edited = True
+        if pos in nospace_insertion_positions or end in nospace_insertion_positions:
+            space_edited = True
         pos = end + 1
         if space_edited and nospace_edited:
             label = TokenErrorType.MIXED

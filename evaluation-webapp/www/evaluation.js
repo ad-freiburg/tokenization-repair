@@ -8,7 +8,7 @@ $(document).ready(function() {
     $.get("../benchmarks/", function(data) {
         $(data).find("a").each(function() {
             name = $(this).attr("href");
-            if (!name.endsWith(".txt")) {
+            if (!name.endsWith(".txt") && name[0] != "?") {
                 name = name.substring(0, name.length - 1);
                 benchmarks.push(name);
                 console.log(name);
@@ -64,6 +64,19 @@ $(document).ready(function() {
         }
         console.log("test sequences: " + wiki_test_sequences.length);
     });
+    APPROACH_ORDER = [
+        "corrupt.txt",
+        "bigrams.txt",
+        "wordsegment.txt",
+        "google_deduced.txt",
+        "BS-fwd.txt",
+        "BS-fwd-OCR.txt",
+        "BS-bid.txt",
+        "BS-bid-OCR.txt",
+        "BS-bid-the-one.txt",
+        "BS-bid-OCR+spelling.txt",
+        "nastase.txt"
+    ];
 });
 
 function set_prediction_options() {
@@ -82,9 +95,20 @@ function set_prediction_options() {
     $.get(results_dir, function(data) {
         $(data).find("a").each(function() {
             name = $(this).attr("href");
-            prediction_files.push(name);
-            $("#select_predictions").append(new Option(name, name));
+            if (name.endsWith(".txt")) {
+                prediction_files.push(name);
+            }
         });
+        for (approach of APPROACH_ORDER) {
+            if (prediction_files.includes(approach)) {
+                $("#select_predictions").append(new Option(approach, approach));
+            }
+        }
+        for (file of prediction_files) {
+            if (!APPROACH_ORDER.includes(file)) {
+                $("#select_predictions").append(new Option(file, file));
+            }
+        }
         $("#select_predictions").prop("selectedIndex", -1);
         $("#table").html("select a file above");
     });
@@ -427,18 +451,18 @@ function show_benchmark_results_table() {
     console.log(results_path);
     table_body = "";
     $.getJSON(results_path, function(results) {
-        keys = Object.keys(results);
-        keys.sort();
-        keys.reverse();
-        for (key of keys) {
-            console.log(results[key]);
-            table_body += "<tr>";
-            table_body += "<td>" + key + "</td>";
-            table_body += "<td>" + percent(results[key].precision) + "</td>";
-            table_body += "<td>" + percent(results[key].recall) + "</td>";
-            table_body += "<td>" + percent(results[key].f1) + "</td>";
-            table_body += "<td>" + percent(results[key].sequence_accuracy) + "</td>";
-            table_body += "</tr>";
+        for (approach of show_approaches) {
+            if (approach in results) {
+                key = approach;
+                console.log(results[key]);
+                table_body += "<tr>";
+                table_body += "<td>" + key + "</td>";
+                table_body += "<td>" + percent(results[key].precision) + "</td>";
+                table_body += "<td>" + percent(results[key].recall) + "</td>";
+                table_body += "<td>" + percent(results[key].f1) + "</td>";
+                table_body += "<td>" + percent(results[key].sequence_accuracy) + "</td>";
+                table_body += "</tr>";
+            }
         }
         $("#tbody_benchmark_results").html(table_body);
     });
@@ -469,6 +493,17 @@ function show_overview_table(subset) {
     overview_approaches = Array.from(overview_approaches);
     overview_approaches.sort();
     overview_approaches.reverse();
+    show_approaches = [];
+    for (approach of APPROACH_ORDER) {
+        if (overview_approaches.includes(approach)) {
+            show_approaches.push(approach);
+        }
+    }
+    for (approach of overview_approaches) {
+        if (!APPROACH_ORDER.includes(approach)) {
+            show_approaches.push(approach);
+        }
+    }
     // table head
     thead = "<tr>";
     thead += "<th rowspan=\"2\">Approach</th>";
@@ -484,7 +519,7 @@ function show_overview_table(subset) {
     $("#thead_overview_table_" + subset).html(thead);
     // table body
     tbody = "";
-    for (approach of overview_approaches) {
+    for (approach of show_approaches) {
         row = "<tr>";
         row += "<td>" + approach + "</td>";
         for (benchmark of overview_benchmarks) {

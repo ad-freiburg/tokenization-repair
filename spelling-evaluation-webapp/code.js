@@ -7,8 +7,10 @@ function get_result_files() {
     $.get("results/", function(data) {
         $(data).find("a").each(function() {
             name = $(this).attr("href");
-            result_files.push(name);
-            $("#select_results_file").append(new Option(name, name));
+            if (name.endsWith(".json")) {
+                result_files.push(name);
+                $("#select_results_file").append(new Option(name, name));
+            }
         });
         $("#select_results_file").val(-1);
         show_overview_table();

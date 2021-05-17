@@ -31,13 +31,23 @@ if __name__ == "__main__":
             # TODO "nastase",
             "google",
             "ours+google",
+            "ours+post+google",
         ]
+    elif benchmark == "arXiv.OCR.punctuation":
+        approaches = []
+    elif benchmark == "test":
+        approaches = [
+            "test"
+        ]
+    elif benchmark == "arXiv.OCR.punctuation":
+        approaches = []
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
     if benchmark == "ACL":
         approaches.append("nastase")
-    if benchmark == "arXiv.OCR":
-        approaches.append("BID-the-one-from-paper")
+    #if benchmark == "arXiv.OCR":
+    #    approaches.append("BID-the-one-from-paper")
+
 
     predicted_sequences = {
         approach: read_lines(benchmark_dir + approach + ".txt") for approach in approaches

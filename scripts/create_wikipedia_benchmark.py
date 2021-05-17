@@ -62,8 +62,7 @@ if __name__ == "__main__":
     benchmark_name = "Wiki"
 
     if typos:
-        typo_inducer = TypoNoiseInducer(0.1, seed=20210513)
-        benchmark_name += ".typos"
+        benchmark_name += ".typos-split"
 
     if spaces:
         corruptor = TokenCorruptor(p=0.1,
@@ -79,7 +78,12 @@ if __name__ == "__main__":
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
+    i = 0
     for set in ("tuning", "development", "test"):
+        if typos:
+            test = set == "test"
+            typo_inducer = TypoNoiseInducer(0.1, seed=20210513 + i, test=test)
+            i += 1
         subdir = out_dir + set + "/"
         if not os.path.exists(subdir):
             os.mkdir(subdir)

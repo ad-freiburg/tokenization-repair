@@ -54,7 +54,10 @@ if __name__ == "__main__":
     benchmark = Benchmark(benchmark, subset)
     correct_sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)
     corrupt_sequences = benchmark.get_sequences(BenchmarkFiles.CORRUPT)
-    predicted_sequences = benchmark.get_predicted_sequences(file_name)
+    if file_name == "corrupt.txt":
+        predicted_sequences = corrupt_sequences
+    else:
+        predicted_sequences = benchmark.get_predicted_sequences(file_name)
     original_sequences = correct_sequences if original_file_name is None \
         else list(read_sequences(paths.BENCHMARKS_DIR + original_file_name))
 
@@ -65,9 +68,6 @@ if __name__ == "__main__":
         if benchmark.name == "acl" and original.startswith("#"):
             print(original)
             continue
-
-        if benchmark.name == "ACL" and subset == SUBSETS["test"] and seq_id == 333:
-            break
 
         correct_processed, corrupt_processed, predicted_processed = \
             tolerant_preprocess_sequences(original, correct, corrupt, predicted)

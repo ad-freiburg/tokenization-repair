@@ -8,16 +8,28 @@ from src.helper.stochastic import flip_coin
 from create_gamma_benchmark import HyphenationIntroducer
 
 
+def is_punctuation(char):
+    return not char.isalnum()
+
+
 def corrupt_tokenization(text: str, p_insertion: float, p_deletion: float):
     if len(text) < 2:
         return text
     corrupt = text[0]
     for i in range(1, len(text)):
         if text[i] == " ":
-            if not flip_coin(random, p_deletion):
+            if is_punctuation(text[i - 1]) or (i + 1 < len(text) and is_punctuation(text[i + 1])):
+                p_del = 10 * p_deletion
+            else:
+                p_del = p_deletion
+            if not flip_coin(random, p_del):
                 corrupt += " "
         else:
-            if (i + 1 == len(text) or text[i + 1] != " ") and flip_coin(random, p_insertion):
+            if is_punctuation(text[i - 1]) or is_punctuation(text[i]):
+                p_ins = 10 * p_insertion
+            else:
+                p_ins = p_insertion
+            if (i + 1 == len(text) or text[i + 1] != " ") and flip_coin(random, p_ins):
                 corrupt += " "
             corrupt += text[i]
     return corrupt
