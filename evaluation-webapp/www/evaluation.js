@@ -73,9 +73,21 @@ $(document).ready(function() {
         "BS-fwd-OCR.txt",
         "BS-bid.txt",
         "BS-bid-OCR.txt",
-        "BS-bid-the-one.txt",
+        "nastase.txt",
+        "BS-fwd-OCR+spelling.txt",
         "BS-bid-OCR+spelling.txt",
-        "nastase.txt"
+        "BS-bid-the-one+spelling.txt",
+    ];
+    BENCHMARK_ORDER = [
+        "ACL",
+        "arXiv.OCR",
+        "arXiv.pdftotext",
+        "Wiki.spaces",
+        "Wiki.typos.spaces",
+        "Wiki.typos-split.spaces",
+        "Wiki.typos.no_spaces",
+        "Wiki.typos-split.no_spaces",
+        "doval",
     ];
 });
 
@@ -484,6 +496,17 @@ function show_overview_table(subset) {
     overview_benchmarks = Object.keys(benchmark_results);
     overview_benchmarks.sort();
     overview_benchmarks.reverse();
+    show_benchmarks = [];
+    for (benchmark of BENCHMARK_ORDER) {
+        if (overview_benchmarks.includes(benchmark)) {
+            show_benchmarks.push(benchmark);
+        }
+    }
+    for (benchmark of overview_benchmarks) {
+        if (!BENCHMARK_ORDER.includes(benchmark)) {
+            show_benchmarks.push(benchmark);
+        }
+    }
     overview_approaches = new Set();
     for (benchmark of overview_benchmarks) {
         for (approach of Object.keys(benchmark_results[benchmark])) {
@@ -507,11 +530,11 @@ function show_overview_table(subset) {
     // table head
     thead = "<tr>";
     thead += "<th rowspan=\"2\">Approach</th>";
-    for (benchmark of overview_benchmarks) {
+    for (benchmark of show_benchmarks) {
         thead += "<th colspan=\"2\">" + benchmark + "</th>";
     }
     thead += "</tr><tr>";
-    for (benchmark of overview_benchmarks) {
+    for (benchmark of show_benchmarks) {
         thead += "<th>F1</th>";
         thead += "<th>Acc</th>";
     }
@@ -522,7 +545,7 @@ function show_overview_table(subset) {
     for (approach of show_approaches) {
         row = "<tr>";
         row += "<td>" + approach + "</td>";
-        for (benchmark of overview_benchmarks) {
+        for (benchmark of show_benchmarks) {
             if (benchmark_results[benchmark][approach]) {
                 f1 = percent(benchmark_results[benchmark][approach].f1);
                 acc = percent(benchmark_results[benchmark][approach].sequence_accuracy);

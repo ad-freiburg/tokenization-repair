@@ -100,7 +100,7 @@ def get_labels(sequence: str, edit_operations: List[Tuple[int, EditOperation, st
         if pos in nospace_edit_positions or end in nospace_edit_positions:
             nospace_edited = True
         if pos in nospace_insertion_positions or end in nospace_insertion_positions:
-            space_edited = True
+            nospace_edited = True
         pos = end + 1
         if space_edited and nospace_edited:
             label = TokenErrorType.MIXED

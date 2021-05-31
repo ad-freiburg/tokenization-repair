@@ -1,4 +1,16 @@
 $("document").ready(function() {
+    BENCHMARK_ORDER = [
+        "ACL.test.json",
+        "arXiv.OCR.test.json",
+        "Wiki.typos.spaces.test.json",
+        "Wiki.typos.no_spaces.test.json",
+    ];
+    APPROACH_ORDER = [
+        "google",
+        "ours+post+google",
+        "oracle+post+google",
+        "nastase"
+    ];
     get_result_files();
 });
 
@@ -9,9 +21,24 @@ function get_result_files() {
             name = $(this).attr("href");
             if (name.endsWith(".json")) {
                 result_files.push(name);
-                $("#select_results_file").append(new Option(name, name));
             }
         });
+        ordered_result_files = [];
+        for (file_name of BENCHMARK_ORDER) {
+            if (result_files.includes(file_name)) {
+                ordered_result_files.push(file_name);
+            }
+        }
+        for (file_name of result_files) {
+            if (!BENCHMARK_ORDER.includes(file_name)) {
+                ordered_result_files.push(file_name);
+            }
+        }
+        result_files = ordered_result_files;
+        console.log(result_files);
+        for (name of result_files) {
+            $("#select_results_file").append(new Option(name, name));
+        }
         $("#select_results_file").val(-1);
         show_overview_table();
     });
@@ -46,7 +73,6 @@ function show_overview_table() {
 
 function create_overview_table() {
     benchmarks = Object.keys(overview_results);
-    benchmarks.sort();
     approaches = new Set();
     for (benchmark of benchmarks) {
         for (approach of Object.keys(overview_results[benchmark])) {
@@ -54,7 +80,18 @@ function create_overview_table() {
         }
     }
     approaches = Array.from(approaches);
-    approaches.sort()
+    ordered_approaches = [];
+    for (approach of APPROACH_ORDER) {
+        if (approaches.includes(approach)) {
+            ordered_approaches.push(approach);
+        }
+    }
+    for (approach of approaches) {
+        if (!APPROACH_ORDER.includes(approach)) {
+            ordered_approaches.push(approach);
+        }
+    }
+    approaches = ordered_approaches;
     // thead
     thead = "<tr>";
     thead += "<th>Approach</th>";
@@ -103,9 +140,10 @@ function fill_results_table() {
     tbody = $("#results_table_body");
     tbody.html("");
     row = "<tr><td></td><td>ground truth</td>";
-    row += "<td>" + gt_tokenization + "</td>";
-    row += "<td>" + gt_ocr + "</td>";
-    row += "<td>" + gt_mixed + "</td>";
+    row += "<td>" + gt_tokenization + " (" + (gt_tokenization / gt_total * 100).toFixed(1) + "%)</td>";
+    row += "<td>" + gt_ocr + " (" + (gt_ocr / gt_total * 100).toFixed(1) + "%)</td>";
+    row += "<td>" + gt_mixed + " (" + (gt_mixed / gt_total * 100).toFixed(1) + "%)</td>";
+    row += "<td>" + (gt_ocr + gt_mixed) + " (" + ((gt_ocr + gt_mixed) / gt_total * 100).toFixed(1) + "%)</td>";
     row += "<td>" + gt_total + "</td>";
     row += "<td>-</td>";
     row += "<td>-</td>";
@@ -131,6 +169,8 @@ function fill_results_table() {
         row += "<td>" + tokenization_correct + " (" + (tokenization_correct / gt_tokenization * 100).toFixed(1) + "%)</td>";
         row += "<td>" + ocr_correct + " (" + (ocr_correct / gt_ocr * 100).toFixed(1) + "%)</td>";
         row += "<td>" + mixed_correct + " (" + (mixed_correct / gt_mixed * 100).toFixed(1) + "%)</td>";
+        row += "<td>" + (ocr_correct + mixed_correct) + " (" + ((ocr_correct + mixed_correct) / (gt_mixed + gt_ocr) * 100).toFixed(1) + "%)</td>";
+        //row += "<td></td>";
         row += "<td>" + total_correct + " (" + (total_correct / gt_total * 100).toFixed(1) + "%)</td>";
         row += "<td>" + false_positives + " (" + (false_positives / gt_negatives * 100).toFixed(1) + "%)</td>";
         row += "<td>" + (precision * 100).toFixed(2) + "%</td>";

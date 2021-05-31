@@ -65,7 +65,7 @@ if __name__ == "__main__":
         benchmark_name += ".typos-split"
 
     if spaces:
-        corruptor = TokenCorruptor(p=0.1,
+        corruptor = TokenCorruptor(p=0.01,
                                    positions_per_token=constants.POSITIONS_PER_TOKEN,
                                    token_pairs_per_token=constants.TOKEN_PAIRS_PER_TOKEN,
                                    seed=13052021)

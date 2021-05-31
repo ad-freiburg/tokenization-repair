@@ -17,7 +17,7 @@ def get_token_errors(sequence_id, ground_truth, corrupt_sequence):
 if __name__ == "__main__":
     benchmark = sys.argv[1]  # "arXiv.OCR.no_spaces"  #"ACL"
     set = "test" if "-test" in sys.argv else "development"
-    n_sequences = 333 if benchmark == "ACL" else 1000
+    n_sequences = 1000
 
     benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/" + benchmark + "/" + set + "/"
     out_file = "/home/hertel/tr-adgit/spelling-evaluation-webapp/results/" + benchmark + "." + set + ".json"
@@ -30,8 +30,10 @@ if __name__ == "__main__":
         approaches = [
             # TODO "nastase",
             "google",
-            "ours+google",
+            #"ours+google",
             "ours+post+google",
+            #"ours.new+post+google",
+            "oracle+post+google"
         ]
     elif benchmark == "arXiv.OCR.punctuation":
         approaches = []
@@ -41,6 +43,12 @@ if __name__ == "__main__":
         ]
     elif benchmark == "arXiv.OCR.punctuation":
         approaches = []
+    elif benchmark in ("Wiki.typos-split.spaces", "Wiki.typos-split.no_spaces"):
+        approaches = [
+            "google",
+            "ours.new+post+google",
+            "oracle+post+google",
+        ]
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)
     if benchmark == "ACL":
