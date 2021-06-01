@@ -39,9 +39,9 @@ if __name__ == "__main__":
     model_name = sys.argv[1]  # "fwd1024_noise0.2"
     labeling_model_name = sys.argv[2]  # "labeling_noisy_ce"
     benchmark_name = sys.argv[3]  # "nastase-500.split"
-    approach = sys.argv[4] if len(sys.argv) > 4 else ""  # "BS-fwd wikipedia"
+    n = int(sys.argv[4]) if len(sys.argv) > 4 else -1
+    approach = sys.argv[5] if len(sys.argv) > 5 else ""  # "BS-fwd wikipedia"
     stepsize = 0.1
-    n = -1
 
     EPSILON = 1e-16
     lookahead = 2

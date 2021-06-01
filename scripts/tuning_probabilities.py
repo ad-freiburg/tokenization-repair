@@ -4,7 +4,7 @@ from src.interactive.parameters import Parameter, ParameterGetter
 
 params = [Parameter("model_name", "-m", "str"),
           Parameter("benchmark", "-b", "str"),
-          Parameter("noise", "-noise", "boolean")]
+          Parameter("n_sequences", "-n", "int")]
 getter = ParameterGetter(params)
 getter.print_help()
 parameters = getter.get()
@@ -19,12 +19,10 @@ from src.corrector.beam_search.penalty_tuning import Case
 
 if __name__ == "__main__":
     model_name = parameters["model_name"]
-    path = paths.CASES_FILE_NOISY if parameters["noise"] else paths.CASES_FILE_CLEAN
+    path = paths.CASES_FILE_CLEAN
     path = path % (model_name, parameters["benchmark"])
-    if parameters["benchmark"] == "wikipedia":
-        benchmark_name = "0.1_inf" if parameters["noise"] else "0_inf"
-    else:
-        benchmark_name = parameters["benchmark"]
+    benchmark_name = parameters["benchmark"]
+    n_sequences = parameters["n_sequences"]
 
     LOOKAHEAD = 2
 
@@ -39,7 +37,7 @@ if __name__ == "__main__":
     cases = []
 
     benchmark = Benchmark(benchmark_name, Subset.TUNING)
-    sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)
+    sequences = benchmark.get_sequences(BenchmarkFiles.CORRECT)[:n_sequences]
 
     for s_i, sequence in enumerate(sequences):
         if s_i < len(cases):
