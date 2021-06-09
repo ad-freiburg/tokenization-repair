@@ -129,7 +129,7 @@ class BatchedBeamSearchCorrector:
             new_beams.append(space_beam)
         return new_beams
 
-    def correct(self, sequence: str) -> str:
+    def correct(self, sequence: str, undeletable_space_positions: Optional[Set[int]] = None) -> str:
         merged = sequence.replace(' ', '')
         encoded = self.model.encoder.encode_sequence(merged)
         if self.backward:
@@ -151,6 +151,8 @@ class BatchedBeamSearchCorrector:
                                        original_space=i in original_spaces_in_merged,
                                        combined_model_space_prob=
                                        None if self.labeling_model is None else labeling_space_probs[i])
+            if undeletable_space_positions is not None and i in undeletable_space_positions:
+                beams = [beam for beam in beams if beam.sequence[-2] == " "]
             beams = self._best_beams(beams)
             if self.verbose:
                 print("step %i, symbol = %s" % (i, self.model.encoder.decode_label(encoded[i + 1])))

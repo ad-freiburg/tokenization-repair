@@ -32,6 +32,7 @@ if __name__ == "__main__":
             "google",
             #"ours+google",
             "ours+post+google",
+            "conll.ours+post+google",
             #"ours.new+post+google",
             "oracle+post+google"
         ]
@@ -47,6 +48,7 @@ if __name__ == "__main__":
         approaches = [
             "google",
             "ours.new+post+google",
+            "conll.ours+post+google",
             "oracle+post+google",
         ]
     else:
