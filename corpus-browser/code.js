@@ -1,7 +1,7 @@
 $("document").ready(function() {
     console.log("ready");
     raw_dir = "corpus/raw/";
-    repaired_dir = "corpus/raw.repaired/";
+    repaired_dir = "corpus/raw.repaired_hyphens/";
     file_select = document.getElementById("file");
     files = [];
     get_files();

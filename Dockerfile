@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.12.0-gpu-py3
+FROM tensorflow/tensorflow:1.12.0-py3
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y make vim
