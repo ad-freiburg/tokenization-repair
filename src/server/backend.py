@@ -20,11 +20,11 @@ QUERY_PREFIX = "repair?query="
 MAX_QUERY_LENGTH = 512
 
 
-MODES = [("unidir", "UNI wikipedia"),
-         ("bidir", "BID wikipedia"),
-         ("bidir-r", "BID wikipedia+"),
-         ("combo", "BID combo+"),
-         ("the-one", "BID the one"),
+MODES = [("unidir", "UNI"),
+         ("unidir-r", "UNI+"),
+         ("bidir", "BID"),
+         ("bidir-r", "BID+"),
+         ("the-one", "BID+ the one"),
          ("spell", "spelling correction")]
 DEFAULT_MODE = "the-one"
 
@@ -104,23 +104,19 @@ class Backend:
         fwd_robust = load_unidirectional_model(backward=False, robust=True)
         bidir = load_bidirectional_model(robust=False)
         bidir_robust = load_bidirectional_model(robust=True)
-        combo_fwd = UnidirectionalLMEstimator()
-        combo_fwd.load("combined_mixed_forward_robust")
-        combo_labeling = BidirectionalLabelingEstimator()
-        combo_labeling.load("combined_mixed_labeling_robust")
         self.unidir = get_bs_token_repairer(fwd)
+        self.unidir_robust = get_bs_token_repairer(fwd_robust)
         self.bidir = get_bs_token_repairer(fwd, bidir)
         self.bidir_robust = get_bs_token_repairer(fwd_robust, bidir_robust)
-        self.combo = get_bs_token_repairer(combo_fwd, combo_labeling)
-        self.the_one = get_bs_token_repairer(combo_fwd, combo_labeling)
-        self.the_one.insertion_penalty = -7.2
-        self.the_one.deletion_penalty = -8.3
+        self.the_one = get_bs_token_repairer(fwd_robust, bidir_robust)
+        self.the_one.insertion_penalty = -6.32
+        self.the_one.deletion_penalty = -6.8
         self.spelling_corrector = get_spelling_corrector(fwd)
         self.correctors = {
             "unidir": self.unidir,
+            "unidir-r": self.unidir_robust,
             "bidir": self.bidir,
             "bidir-r": self.bidir_robust,
-            "combo": self.combo,
             "the-one": self.the_one,
             "spell": self.spelling_corrector
         }

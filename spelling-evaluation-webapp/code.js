@@ -2,13 +2,13 @@ $("document").ready(function() {
     BENCHMARK_ORDER = [
         "ACL.test.json",
         "arXiv.OCR.test.json",
-        "Wiki.typos.spaces.test.json",
+        "Wiki.typos.test.json",
         "Wiki.typos.no_spaces.test.json",
     ];
     APPROACH_ORDER = [
         "google",
-        "ours+post+google",
-        "oracle+post+google",
+        "ours+google",
+        "oracle+google",
         "nastase"
     ];
     get_result_files();
@@ -72,7 +72,19 @@ function show_overview_table() {
 }
 
 function create_overview_table() {
-    benchmarks = Object.keys(overview_results);
+    overview_benchmarks = Object.keys(overview_results);
+    benchmarks = [];
+    for (benchmark of BENCHMARK_ORDER) {
+        benchmark_name = benchmark.substring(0, benchmark.length - 5);
+        if (overview_benchmarks.includes(benchmark_name)) {
+            benchmarks.push(benchmark_name);
+        }
+    }
+    for (benchmark of overview_benchmarks) {
+        if (!BENCHMARK_ORDER.includes(benchmark + ".json")) {
+            benchmarks.push(benchmark);
+        }
+    }
     approaches = new Set();
     for (benchmark of benchmarks) {
         for (approach of Object.keys(overview_results[benchmark])) {

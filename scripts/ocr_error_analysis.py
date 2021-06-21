@@ -26,30 +26,11 @@ if __name__ == "__main__":
     spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")[:n_sequences]
     n_sequences = len(corrupt_paragraphs)
 
-    if benchmark in ("ACL", "arXiv.OCR", "Wiki.typos.spaces", "Wiki.typos.no_spaces"):
-        approaches = [
-            # TODO "nastase",
-            "google",
-            #"ours+google",
-            "ours+post+google",
-            "conll.ours+post+google",
-            #"ours.new+post+google",
-            "oracle+post+google"
-        ]
-    elif benchmark == "arXiv.OCR.punctuation":
-        approaches = []
-    elif benchmark == "test":
-        approaches = [
-            "test"
-        ]
-    elif benchmark == "arXiv.OCR.punctuation":
-        approaches = []
-    elif benchmark in ("Wiki.typos-split.spaces", "Wiki.typos-split.no_spaces"):
+    if benchmark in ("ACL", "arXiv.OCR", "Wiki.typos", "Wiki.typos.no_spaces"):
         approaches = [
             "google",
-            "ours.new+post+google",
-            "conll.ours+post+google",
-            "oracle+post+google",
+            "ours+google",
+            "oracle+google"
         ]
     else:
         raise Exception("unknown benchmark '%s'" % benchmark)

@@ -1,9 +1,9 @@
-FWD = "fwd1024"
-FWD_ROBUST = "fwd1024_noise0.2"
+FWD = "conll.fwd1024"
+FWD_ROBUST = "conll.fwd1024.ocr+spelling"
 BWD = "bwd1024"
 BWD_ROBUST = "bwd1024_noise0.2"
-BIDIR = "labeling_ce"
-BIDIR_ROBUST = "labeling_noisy_ce"
+BIDIR = "conll.labeling"
+BIDIR_ROBUST = "conll.labeling.ocr+spelling"
 
 
 def unidirectional_model_name(backward: bool, robust: bool) -> str:
