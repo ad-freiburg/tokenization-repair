@@ -36,6 +36,10 @@ if __name__ == "__main__":
         raise Exception("unknown benchmark '%s'" % benchmark)
     if benchmark == "ACL":
         approaches.append("nastase")
+    if benchmark in ("Wiki.typos", "ACL", "arXiv.OCR", "Wiki.typos.no_spaces"):
+        approaches.append("google_new")
+        approaches.append("ours+google_new")
+        approaches.append("oracle+google_new")
     #if benchmark == "arXiv.OCR":
     #    approaches.append("BID-the-one-from-paper")
 
