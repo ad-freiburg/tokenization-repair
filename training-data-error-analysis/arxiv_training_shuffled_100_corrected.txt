@@ -7,7 +7,7 @@ If we introduce λ1 = λ̄1 = 1 in order to make the formulas look symmetric wit
 Inversion for rotation for δ Scuti like oscillations
 For almost empty resources, we will also need an upper bound on the slope of the the latency functions. Let νe denote the maximum slope on almost empty edges, i. e., ??? Finally, for [formula], let [formula] and choose ν such that [formula]
 Differences between the persistence diagrams can be assessed using a bottleneck distance defined as follows.
-Re μ ≤ 0, γIm μ ∈ R +, |Im μ| ≤c |γ| |Re μ|
+Re μ ≤ 0, γIm μ ∈ R+, |Im μ| ≤ c |γ| |Re μ|
 dμ: h ≥ 0 ↦ dim H Eμ(h),
 The proof is by induction on the number of nodes n of the input tree T. For the basic case n = 1 there is nothing to show. Assume that the claim holds for any tree with at most n - 1 nodes. In order to prove it true for T we proceed in two steps.
 whose determinant reads
