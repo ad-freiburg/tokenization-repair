@@ -8,7 +8,7 @@ $(document).ready(function() {
     $.get("../benchmarks/", function(data) {
         $(data).find("a").each(function() {
             name = $(this).attr("href");
-            if (!name.endsWith(".txt") && name[0] != "?") {
+            if (!name.endsWith(".txt") && name[0] != "?" && name[0] != "/") {
                 name = name.substring(0, name.length - 1);
                 benchmarks.push(name);
                 console.log(name);
