@@ -4,6 +4,10 @@ help:
 	@echo "Type 'make spelling' to start the interactive spell checking beam search."
 	@echo "Type 'make start-server' to start the web demo."
 
+download-data:
+	wget https://tokenization.cs.uni-freiburg.de/data.zip
+	unzip data.zip
+
 repair:
 	python3 demos/tokenization_repair.py -h
 

@@ -5,6 +5,7 @@ from src.benchmark.subset import Subset
 
 # BASE DIRECTORY
 DUMP_DIRS = [
+    "data/",
     #"/home/hertel/tokenization-repair-dumps/data_naacl2021/",  # repro
     "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
     "/local/data/hertelm/tokenization-repair-dumps/data/",  # sirba
