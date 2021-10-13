@@ -20,6 +20,10 @@ build:
 start:
 	docker run -it -p 1234:1234 -v ${PWD}/data:/external tokenization-repair
 
+download-data:
+	wget https://tokenization.cs.uni-freiburg.de/data.zip
+	unzip data.zip
+
 repair:
 	python3 demos/tokenization_repair.py -h
 
