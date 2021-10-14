@@ -79,3 +79,7 @@ The files are processed line by line.
 Per default, lines ending with a dash are concatenated with the next line before repairing the tokenization
 (and split again after the tokenization was repaired).
 
+### Run evaluations
+
+Type `make evaluation` to get a help text explaining how to run the tokenization repair evaluation,
+and `make spelling-evaluation` for the spelling evaluation.
