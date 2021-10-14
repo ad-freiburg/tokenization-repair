@@ -6,7 +6,9 @@ help:
 	@echo
 	@echo "-- Usage --"
 	@echo "Type 'make repair' to get a help text explaining how to run our tokenization repair methods."
+	@echo "Type 'make repair-corpus' to get a help text explaining how to repair all files in a directory."
 	@echo "Type 'make evaluation' to get a help text explaining how to run the evaluation."
+	@echo "Type 'make spelling-evaluation' to get a help text explaining how to run the spelling evaluation."
 	@echo "Type 'make web-demo' to start the web demo."
 
 download-data:
@@ -20,15 +22,17 @@ build:
 start:
 	docker run -it -p 1234:1234 -v ${PWD}/data:/external tokenization-repair
 
-download-data:
-	wget https://tokenization.cs.uni-freiburg.de/data.zip
-	unzip data.zip
+web-demo:
+	python3 scripts/web_demo.py
 
 repair:
-	python3 demos/tokenization_repair.py -h
+	python3 scripts/tokenization_repair.py -h
+
+repair-corpus:
+	python3 scripts/repair_corpus.py -h
 
 evaluation:
-	python3 demos/evaluation.py
+	python3 scripts/evaluation.py
 
-web-demo:
-	python3 scripts/server2.py
+spelling-evaluation:
+	python3 scripts/spelling_evaluation.py -h

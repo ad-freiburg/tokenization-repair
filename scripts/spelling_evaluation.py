@@ -1,11 +1,14 @@
+# -*- coding: future_fstrings -*-
+
 import json
-import sys
 import multiprocessing as mp
+import argparse
 
 import project
 from src.helper.files import read_lines, write_file
 from src.spelling.evaluation import TokenErrorType, longest_common_subsequence
 from src.spelling.space_preference import get_token_edit_labels
+from src.settings import paths
 
 
 def get_token_errors(sequence_id, ground_truth, corrupt_sequence):
@@ -14,35 +17,17 @@ def get_token_errors(sequence_id, ground_truth, corrupt_sequence):
     return get_token_edit_labels(ground_truth, corrupt_sequence)
 
 
-if __name__ == "__main__":
-    benchmark = sys.argv[1]  # "arXiv.OCR.no_spaces"  #"ACL"
-    set = "test" if "-test" in sys.argv else "development"
-    n_sequences = 1000
+def main(args):
+    benchmark = args.benchmark
+    set = "test" if args.test else "development"
+    n_sequences = args.n_sequences
+    approaches = args.approaches
 
-    benchmark_dir = "/home/hertel/tokenization-repair-dumps/data/spelling/" + benchmark + "/" + set + "/"
-    out_file = "/home/hertel/tr-adgit/spelling-evaluation-webapp/results/" + benchmark + "." + set + ".json"
+    benchmark_dir = paths.DUMP_DIR + "spelling/" + benchmark + "/" + set + "/"
+    out_file = paths.DUMP_DIR + "spelling/" + benchmark + "." + set + ".json"
 
     corrupt_paragraphs = read_lines(benchmark_dir + "corrupt.txt")[:n_sequences]
     spelling_paragraphs = read_lines(benchmark_dir + "spelling.txt")[:n_sequences]
-    n_sequences = len(corrupt_paragraphs)
-
-    if benchmark in ("ACL", "arXiv.OCR", "Wiki.typos", "Wiki.typos.no_spaces"):
-        approaches = [
-            "google",
-            "ours+google",
-            "oracle+google"
-        ]
-    else:
-        raise Exception("unknown benchmark '%s'" % benchmark)
-    if benchmark == "ACL":
-        approaches.append("nastase")
-    if benchmark in ("Wiki.typos", "ACL", "arXiv.OCR", "Wiki.typos.no_spaces"):
-        approaches.append("google_new")
-        approaches.append("ours+google_new")
-        approaches.append("oracle+google_new")
-    #if benchmark == "arXiv.OCR":
-    #    approaches.append("BID-the-one-from-paper")
-
 
     predicted_sequences = {
         approach: read_lines(benchmark_dir + approach + ".txt") for approach in approaches
@@ -118,3 +103,22 @@ if __name__ == "__main__":
         "sequences": sequences_data
     }
     write_file(out_file, json.dumps(data))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the spelling evaluation."
+                                                 "A JSON with the results will be saved at "
+                                                 "/external/spelling/.")
+    parser.add_argument("benchmark", type=str,
+                        help="Name of the benchmark. The benchmark must be located at /external/spelling.")
+    parser.add_argument("--test", action="store_true", required=False,
+                        help="Set this flag to use the test set of the benchmark (default: development set).")
+    parser.add_argument("-n", dest="n_sequences", type=int, default=1000,
+                        help="(Maximum) number of sequences used for the evaluation (default: 1000).")
+    parser.add_argument("-a", dest="approaches", type=str, nargs="+",
+                        default=["google", "ours+google", "oracle+google"],
+                        help="Specify a list of approaches to be evaluated. The approach name must be equal to a file "
+                             "name in /external/spelling/<benchmark>/<set>/, but without the '.txt' ending. "
+                             "Default: google ours+google oracle+google")
+    args = parser.parse_args()
+    main(args)

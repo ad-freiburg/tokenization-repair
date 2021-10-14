@@ -71,19 +71,3 @@ def longest_common_subsequence(seq1, seq2) -> List[Tuple[int, int]]:
             j -= 1
     return matched[::-1]
 
-
-def get_ground_truth_labels(correct_sequence: str, corrupt_sequence: str) -> List[TokenErrorType]:
-    correct_tokens = correct_sequence.split()
-    corrupt_tokens = corrupt_sequence.split()
-    if corrupt_sequence != correct_sequence:
-        d, matrix = levenshtein(corrupt_sequence, correct_sequence, return_matrix=True, substitutions=False)
-        operations = get_operations(corrupt_sequence, correct_sequence, matrix, substitutions=False)
-        error_types = get_token_errors(corrupt_sequence, operations)
-    errors = [TokenErrorType.NONE for _ in correct_tokens]
-    matched = longest_common_subsequence(correct_tokens, corrupt_tokens)
-    no_error_tokens = {i for i, j in matched}
-    for i in range(len(correct_tokens)):
-        if i not in no_error_tokens:
-            errors[i] = error_types[i]
-    assert len(errors) == len(correct_tokens)
-    return errors
