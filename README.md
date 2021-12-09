@@ -10,7 +10,7 @@ If you use the software in your research, please cite our [CoNLL 2021 paper](htt
 
 ## Quickstart with Docker
 
-Install and run our method on a text file in four easy steps.
+Install and run the software on a text file in four easy steps.
 For GPU support see the step-by-step guide below.
 
 1. Clone the repository.
