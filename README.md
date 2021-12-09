@@ -4,9 +4,9 @@ This software attempts to solve the following *Tokenization Repair* problem:
 Given a text with missing and spurious spaces, correct those.
 Spelling errors and OCR errors can be present, but it's not part of the problem to correct them.
 
-Visit https://tokenization.cs.uni-freiburg.de for a web demo and interactive evaluation results.
+Visit [tokenization.cs.uni-freiburg.de](https://tokenization.cs.uni-freiburg.de) for a web demo and interactive evaluation results.
 
-If you use the software in your research, please cite our CoNLL 2021 paper.
+If you use the software in your research, please cite our [CoNLL 2021 paper](https://aclanthology.org/2021.conll-1.22/) as below.
 
 ## Quickstart with Docker
 
@@ -124,3 +124,22 @@ and `make spelling-evaluation` for the spelling evaluation.
 ## Version
 
 This is version 1.2.1 of the Tokenization Repair software.
+
+## Paper
+
+```bibtex
+@inproceedings{bast-etal-2021-tokenization,
+    title = "Tokenization Repair in the Presence of Spelling Errors",
+    author = "Bast, Hannah  and
+      Hertel, Matthias  and
+      Mohamed, Mostafa M.",
+    booktitle = "Proceedings of the 25th Conference on Computational Natural Language Learning",
+    month = nov,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.conll-1.22",
+    pages = "279--289",
+    abstract = "We consider the following tokenization repair problem: Given a natural language text with any combination of missing or spurious spaces, correct these. Spelling errors can be present, but it{'}s not part of the problem to correct them. For example, given: {``}Tispa per isabout token izaionrep air{''}, compute {``}Tis paper is about tokenizaion repair{''}. We identify three key ingredients of high-quality tokenization repair, all missing from previous work: deep language models with a bidirectional component, training the models on text with spelling errors, and making use of the space information already present. Our methods also improve existing spell checkers by fixing not only more tokenization errors but also more spelling errors: once it is clear which characters form a word, it is much easier for them to figure out the correct word. We provide six benchmarks that cover three use cases (OCR errors, text extraction from PDF, human errors) and the cases of partially correct space information and all spaces missing. We evaluate our methods against the best existing methods and a non-trivial baseline. We provide full reproducibility under https://ad.informatik.uni-freiburg.de/publications.",
+}
+```
