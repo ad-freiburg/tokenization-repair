@@ -1,26 +1,59 @@
-This is version 1.2.1 of the Tokenization Repair software.
+# Tokenization Repair in the Presence of Spelling Errors
 
-## Installation guide ##
+This software attempts to solve the following *Tokenization Repair* problem:
+Given a text with missing and spurious spaces, correct those.
+Spelling errors and OCR errors can be present, but it's not part of the problem to correct them.
 
-1. Clone our repository.
+Visit https://tokenization.cs.uni-freiburg.de for a web demo and interactive evaluation results.
+
+If you use the software in your research, please cite our CoNLL 2021 paper.
+
+## Quickstart with Docker
+
+Install and run our method on a text file in four easy steps.
+For GPU support see the step-by-step guide below.
+
+1. Clone the repository.
+
+       git clone https://github.com/ad-freiburg/tokenization-repair.git
+       cd tokenization-repair
+
+2. Download the data, including trained models.
+
+       make download
+
+3. Build the docker container.
+
+       make build
+
+4. Run our method on a file *input_file.txt* in the current directory. 
+   The results will be written to a file *output_file.txt*.
+
+       docker run -v $(pwd)/data:/external -v $(pwd):/pwd tokenization-repair \
+         python3 scripts/tokenization_repair.py -f /pwd/input_file.txt -o /pwd/output_file.txt
+
+## Step-by-step installation guide ##
+
+1. Clone the repository.
    
        git clone https://github.com/ad-freiburg/tokenization-repair.git
+       cd tokenization-repair
 
-2. Download and extract the data with the command `make download-data`.
+3. Download and extract the data with the command `make download-data`.
    It contains benchmarks, result files and trained models.
    To be able to run the Docker container, the data directory must be writable by any user.
    This can be ensured with `chmod -R 777 data`.
 
-3. If you have a GPU that supports tensorflow 1.12, change the base image in the first line of the Dockerfile to:
+4. If you have a GPU that supports tensorflow 1.12, change the base image in the first line of the Dockerfile to:
     tensorflow/tensorflow:1.12.0-gpu-py3
 
-4. Build the Docker container. For help with Docker visit: https://docs.docker.com/get-docker/
+5. Build the Docker container. For help with Docker visit: https://docs.docker.com/get-docker/
 
        docker build -t tokenization-repair .
     
     The build command can also be called with `make build`.
 
-5. Start the Docker container and mount the data directory.
+6. Start the Docker container and mount the data directory.
 
        docker run -it -p <PORT>:1234 -v <DATA-DIRECTORY>:/external tokenization-repair
     
@@ -32,6 +65,10 @@ This is version 1.2.1 of the Tokenization Repair software.
    Type `make help` to get a specification of all the make targets.
 
 ## User guide
+
+Inside the Docker container, you can start the interactive web demo,
+run our method on a file (or all files from a directory), 
+and run the evaluations from our paper.
 
 ### Web demo
 
@@ -83,3 +120,7 @@ Per default, lines ending with a dash are concatenated with the next line before
 
 Type `make evaluation` to get a help text explaining how to run the tokenization repair evaluation,
 and `make spelling-evaluation` for the spelling evaluation.
+
+## Version
+
+This is version 1.2.1 of the Tokenization Repair software.
