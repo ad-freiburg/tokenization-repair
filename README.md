@@ -20,7 +20,7 @@ For GPU support see the step-by-step guide below.
 
 2. Download the data, including trained models.
 
-       make download
+       make download-data
 
 3. Build the docker container.
 
