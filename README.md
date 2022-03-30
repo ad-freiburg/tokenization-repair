@@ -8,7 +8,15 @@ Visit [tokenization.cs.uni-freiburg.de](https://tokenization.cs.uni-freiburg.de)
 
 If you use the software in your research, please cite our [CoNLL 2021 paper](https://aclanthology.org/2021.conll-1.22/) as below.
 
-## Quickstart with Docker
+## Table of contents
+1. [Quickstart with Docker](#quickstart)
+2. [Installation guide](#installation)
+3. [User guide](#user-guide)
+4. [Training models on custom data](#custom-models)
+5. [Version](#version)
+6. [Paper](#paper)
+
+## Quickstart with Docker <a name="quickstart"></a>
 
 Install and run the software on a text file in four easy steps.
 For GPU support see the step-by-step guide below.
@@ -32,7 +40,7 @@ For GPU support see the step-by-step guide below.
        docker run -v $(pwd)/data:/external -v $(pwd):/pwd tokenization-repair \
          python3 scripts/tokenization_repair.py -f /pwd/input_file.txt -o /pwd/output_file.txt
 
-## Step-by-step installation guide ##
+## Step-by-step installation guide <a name="installation"></a>
 
 1. Clone the repository.
    
@@ -64,7 +72,7 @@ For GPU support see the step-by-step guide below.
 7. Inside the container, repair some tokens!
    Type `make help` to get a specification of all the make targets.
 
-## User guide
+## User guide <a name="user-guide"></a>
 
 Inside the Docker container, you can start the interactive web demo,
 run our method on a file (or all files from a directory), 
@@ -121,7 +129,7 @@ Per default, lines ending with a dash are concatenated with the next line before
 Type `make evaluation` to get a help text explaining how to run the tokenization repair evaluation,
 and `make spelling-evaluation` for the spelling evaluation.
 
-## Training models on custom data
+## Training models on custom data <a name="custom-models"></a>
 
 ### Training data
 
@@ -167,11 +175,11 @@ For the best performance, the penalties P_ins and P_del must be set to values > 
 You can try the penalties `-p_ins 6.9 -p_del 6.32`, which gave good results on all our benchmarks,
 or optimize them on a held-out dataset with ground truth.
 
-## Version
+## Version <a name="version"></a>
 
 This is version 1.2.2 of the Tokenization Repair software.
 
-## Paper
+## Paper <a name="paper"></a>
 
 ```bibtex
 @inproceedings{bast-etal-2021-tokenization,
