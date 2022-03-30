@@ -142,7 +142,7 @@ like spelling mistakes or wrongly OCR'd characters.
 To induce noise into a clean training text file, run this command:
 
 ```commandline
-python3 scripts/induce_noise.py --src-path <INPUT_FILE> --dest-path <OUTPUT_FILE> \
+python3 scripts/insert_noise.py --src-path <INPUT_FILE> --dest-path <OUTPUT_FILE> \
   --typos-file data/noise/typos_training.txt \
   --ocr-file data/noise/ocr_error_frequencies.ACL+ICDAR.weighted.tsv
 ```
