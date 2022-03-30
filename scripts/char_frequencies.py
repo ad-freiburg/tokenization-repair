@@ -7,12 +7,12 @@ from src.helper.files import read_sequences
 
 
 def main(args):
-    print(f"counting chars in {args.text_file}...")
+    print("counting chars in %s..." % args.text_file)
     frequencies = {}
     for line in tqdm(read_sequences(args.text_file)):
         for char in line:
             frequencies[char] = frequencies.get(char, 0) + 1
-    print(f"dumping result to {args.output_file}...")
+    print("dumping result to %s..." % args.output_file)
     dump_object(frequencies, args.output_file)
     print("done")
 
