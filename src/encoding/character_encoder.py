@@ -36,9 +36,9 @@ class CharacterEncoder:
         return ''.join(self.decode_label(label) for label in labels)
 
 
-def get_encoder(n: int = 0) -> CharacterEncoder:
+def get_encoder(n: int = 0, char_frequency_dict_path: str = paths.CHARACTER_FREQUENCY_DICT) -> CharacterEncoder:
     if n > 0:
-        frequencies = load_object(paths.CHARACTER_FREQUENCY_DICT)
+        frequencies = load_object(char_frequency_dict_path)
         sorted_frequencies = sort_dict_by_value(frequencies)
         most_frequent_chars = [char for char, frequency in sorted_frequencies[:n]]
         code_symbols = most_frequent_chars + [symbols.SOS, symbols.EOS, symbols.UNKNOWN]
