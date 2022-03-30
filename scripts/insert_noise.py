@@ -14,6 +14,9 @@ from src.helper.stochastic import flip_coin
 warnings.filterwarnings("ignore")
 
 
+ENCODING = "utf8"
+
+
 def hyphenate(token):
     if len(token) < 2:
         return token
@@ -66,7 +69,7 @@ def corrupt_sequence_function(sequence):
 def corrupt_all(path, outpath, take=None, freq=10000):
     total = 108068848 if take is None else take
     last_out = ''
-    with open(path, 'r') as src_file, open(outpath, 'w') as out_file:
+    with open(path, 'r', encoding=ENCODING) as src_file, open(outpath, 'w', encoding=ENCODING) as out_file:
         with multiprocessing.Pool(12) as pool:
             tic = time.time()
             # for idx, corrupt in enumerate(map(corrupt_sequence_function, src_file)):
