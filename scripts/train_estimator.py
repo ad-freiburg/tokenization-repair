@@ -10,14 +10,15 @@ from src.encoding.character_encoder import get_encoder
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-name", dest="model_name", type=str)
-    parser.add_argument("-chars", dest="char_frequencies_file", type=str)
-    parser.add_argument("-v", dest="voc_size", type=int)
-    parser.add_argument("-ru", dest="recurrent_units", type=int, nargs="+")
-    parser.add_argument("-du", dest="dense_units", type=int, nargs="+")
+    parser.add_argument("-chars", dest="char_frequencies_file", type=str,
+                        default="/external/dictionaries/character_frequencies.pkl")
+    parser.add_argument("-v", dest="voc_size", type=int, default=200)
+    parser.add_argument("-ru", dest="recurrent_units", type=int, nargs="+", default=[1024])
+    parser.add_argument("-du", dest="dense_units", type=int, nargs="+", default=[1024])
     parser.add_argument("-data", dest="dataset", type=str)
-    parser.add_argument("-e", dest="epochs", type=int)
-    parser.add_argument("-bs", dest="batch_size", type=int)
-    parser.add_argument("-sl", dest="sequence_length", type=int)
+    parser.add_argument("-e", dest="epochs", type=int, default=1)
+    parser.add_argument("-bs", dest="batch_size", type=int, default=128)
+    parser.add_argument("-sl", dest="sequence_length", type=int, default=256)
 
     args = parser.parse_args()
     tf.logging.set_verbosity(tf.logging.INFO)
