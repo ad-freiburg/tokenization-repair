@@ -54,9 +54,10 @@ def sample(rdm: random.Random, lst: List[Tuple[Any, int]], cumsums: List[int]) -
 
 
 class ACLNoiseInducer(NoiseInducer):
-    def __init__(self, p: float, insertion_prob: float, seed: int):
+    def __init__(self, p: float, insertion_prob: float, seed: int,
+                 replacements_file: str = paths.OCR_ERROR_FREQUENCIES_FILE):
         super().__init__(seed)
-        self.error_dict = read_error_dict(paths.OCR_ERROR_FREQUENCIES_FILE)
+        self.error_dict = read_error_dict(replacements_file)
         self.p = p
         self.insertion_prob = insertion_prob
         self.csum_error_dict = {k: cumsum([y for x, y in v]) for k, v in self.error_dict.items()}

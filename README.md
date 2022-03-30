@@ -129,24 +129,41 @@ Prepare a text file with one example sequence (e.g., a paragraph of text) per li
 The spaces in the text must be correct, but the text may contain other errors
 like spelling mistakes or wrongly OCR'd characters.
 
+### Generating noisy training data
+
+To induce noise into a clean training text file, run this command:
+
+```commandline
+python3 scripts-old/efficient_acl_corruption.py --src-path <INPUT_FILE> --dest-path <OUTPUT_FILE> \
+  --typos-file data/noise/typos_training.txt \
+  --ocr-file data/noise/ocr_error_frequencies.ACL+ICDAR.weighted.tsv
+```
+
+The typos file contains word replacements as a triple (correct word, misspelled word, frequency) in each line,
+with the three elements separated by spaces.
+
+The OCR file contains multi-character replacements as (correct characters, wrong characters, frequency)
+in each line, with the three elements separated by spaces.
+Replacements containing a space or where the correct pattern is longer than three characters will be ignored. 
+
 ### Unidirectional model
 
 Run `python3 scripts/train_estimator.py -name <UNI_MODEL_NAME> -data <TEXT_FILE>`
-to train the unidirectional model.
+to train the unidirectional model on the given text file.
 List additional arguments with `python3 scripts/train_estimator.py -h`.
 
 ### Bidirectional model
 
 Run `python3 scripts/train_labeling_estimator.py -name <BID_MODEL_NAME> -data <TEXT_FILE>`
-to train the bidirectional model.
+to train the bidirectional model on the given text file.
 List additional arguments with `python3 scripts/train_labeling_estimator.py -h`.
 
 ### Use custom models
 
 Run `python3 scripts/tokenization_repair.py -a CUSTOM -fwd <UNI_MODEL_NAME> -bid <BID_MODEL_NAME>`
-to use the models with the specified names interactively, and specify`-f <INPUT_TEXT_FILE>`
+to query the models interactively, and specify`-f <INPUT_TEXT_FILE>`
 to run them on a text file with tokenization errors.
-For the best performance, the penalties P_ins and P_del must be set.
+For the best performance, the penalties P_ins and P_del must be set to values > 0.
 You can try the penalties `-p_ins 6.9 -p_del 6.32`, which gave good results on all our benchmarks,
 or optimize them on a held-out dataset with ground truth.
 

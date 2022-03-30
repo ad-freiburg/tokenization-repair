@@ -10,7 +10,7 @@ from src.noise.token_corruptor import TokenCorruptor
 from src.settings import constants
 
 
-TYPO_DIR = DUMP_DIR + "typos/"
+TYPO_DIR = "data/noise/"
 
 
 def add_typo(typo_dict, correct_spelling, misspelling, frequency=1):
@@ -20,9 +20,8 @@ def add_typo(typo_dict, correct_spelling, misspelling, frequency=1):
         typo_dict[correct_spelling].append(misspelling)
 
 
-def read_typos(typo_dict, test: bool):
-    file_name = "typos_test.txt" if test else "typos_training.txt"
-    for line in read_lines(TYPO_DIR + file_name):
+def read_typos(typo_dict, typos_file: str):
+    for line in read_lines(typos_file):
         vals = line.split(" ")
         correct = vals[0]
         for i in range(1, len(vals), 2):
@@ -32,10 +31,10 @@ def read_typos(typo_dict, test: bool):
 
 
 class TypoNoiseInducer:
-    def __init__(self, p: float, seed: int, test: bool):
+    def __init__(self, p: float, seed: int, test: bool, typos_file: str):
         self.p = p
         self.typos = {}
-        read_typos(self.typos, test)
+        read_typos(self.typos, typos_file)
         self.rdm = random.Random(seed)
 
     def corrupt(self, sequence: str) -> str:

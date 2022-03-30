@@ -56,12 +56,12 @@ def corrupt_all(path, outpath, take=None, freq=10000):
 
 
 class CombinedNoiseInducer:
-    def __init__(self):
+    def __init__(self, typos_file, ocr_file):
         self.chars = string.ascii_lowercase
         self.p_hyphen = 0.0114
         self.p_typo = 0.1
-        self.typos = TypoNoiseInducer(p=0.1, seed=41, test=False).typos
-        self.acl_inducer = ACLNoiseInducer(p=0.1, insertion_prob=0.2079, seed=42)
+        self.typos = TypoNoiseInducer(p=0.1, seed=41, test=False, typos_file=typos_file).typos
+        self.acl_inducer = ACLNoiseInducer(p=0.1, insertion_prob=0.2079, seed=42, replacements_file=ocr_file)
         self.seed_is_set = False
 
     def random_char(self):
@@ -116,8 +116,16 @@ if __name__ == '__main__':
         '--dest-path', help='destination dataset path',
         default='/nfs/students/mostafa-mohamed/tokenization-repair-paper/training_ocr.txt'
     )
+    parser.add_argument(
+        "--typos-file", help="File with word replacements",
+        default="data/noise/typos_training.txt"
+    )
+    parser.add_argument(
+        "--ocr-file", help="File with OCR replacement frequencies",
+        default="data/noise/ocr_error_frequencies.ACL+ICDAR.weighted.tsv"
+    )
     args = parser.parse_args()
 
     random.seed(40)
-    noise_inducer = CombinedNoiseInducer()
+    noise_inducer = CombinedNoiseInducer(args.typos_file, args.ocr_file)
     corrupt_all(args.src_path, args.dest_path)
