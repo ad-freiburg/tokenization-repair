@@ -5,12 +5,12 @@ from src.benchmark.subset import Subset
 
 # BASE DIRECTORY
 DUMP_DIRS = [
-    "data/",
     #"/home/hertel/tokenization-repair-dumps/data_naacl2021/",  # repro
     "/home/hertel/tokenization-repair-dumps/data/",  # wunderfitz
     "/local/data/hertelm/tokenization-repair-dumps/data/",  # sirba
     "/data/1/matthias-hertel/tokenization-repair-dumps/data/",  # polyaxon
-    "/external/"  # docker
+    "/external/",  # docker
+    "data/"
 ]
 DUMP_DIR = None
 for dir in DUMP_DIRS:
