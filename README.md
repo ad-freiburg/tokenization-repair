@@ -8,7 +8,15 @@ Visit [tokenization.cs.uni-freiburg.de](https://tokenization.cs.uni-freiburg.de)
 
 If you use the software in your research, please cite our [CoNLL 2021 paper](https://aclanthology.org/2021.conll-1.22/) as below.
 
-## Quickstart with Docker
+## Table of contents
+1. [Quickstart with Docker](#quickstart)
+2. [Installation guide](#installation)
+3. [User guide](#user-guide)
+4. [Training models on custom data](#custom-models)
+5. [Version](#version)
+6. [Paper](#paper)
+
+## Quickstart with Docker <a name="quickstart"></a>
 
 Install and run the software on a text file in four easy steps.
 For GPU support see the step-by-step guide below.
@@ -32,7 +40,7 @@ For GPU support see the step-by-step guide below.
        docker run -v $(pwd)/data:/external -v $(pwd):/pwd tokenization-repair \
          python3 scripts/tokenization_repair.py -f /pwd/input_file.txt -o /pwd/output_file.txt
 
-## Step-by-step installation guide ##
+## Step-by-step installation guide <a name="installation"></a>
 
 1. Clone the repository.
    
@@ -64,7 +72,7 @@ For GPU support see the step-by-step guide below.
 7. Inside the container, repair some tokens!
    Type `make help` to get a specification of all the make targets.
 
-## User guide
+## User guide <a name="user-guide"></a>
 
 Inside the Docker container, you can start the interactive web demo,
 run our method on a file (or all files from a directory), 
@@ -121,11 +129,62 @@ Per default, lines ending with a dash are concatenated with the next line before
 Type `make evaluation` to get a help text explaining how to run the tokenization repair evaluation,
 and `make spelling-evaluation` for the spelling evaluation.
 
-## Version
+## Training models on custom data <a name="custom-models"></a>
 
-This is version 1.2.1 of the Tokenization Repair software.
+### Training data
 
-## Paper
+Prepare a text file with one example sequence (e.g., a paragraph of text) per line.
+The spaces in the text must be correct, but the text may contain other errors
+like spelling mistakes or wrongly OCR'd characters.
+
+### Generate noisy training data
+
+To induce noise into a clean training text file, run this command:
+
+```commandline
+python3 scripts/insert_noise.py --src-path <INPUT_FILE> --dest-path <OUTPUT_FILE> \
+  --typos-file data/noise/typos_training.txt \
+  --ocr-file data/noise/ocr_error_frequencies.ACL+ICDAR.weighted.tsv
+```
+
+The typos file contains word replacements as a triple (correct word, misspelled word, frequency) in each line,
+with the three elements separated by spaces.
+
+The OCR file contains multi-character replacements as (correct characters, wrong characters, frequency)
+in each line, with the three elements separated by spaces.
+Replacements containing a space or where the correct pattern is longer than three characters will be ignored. 
+
+### Character frequencies
+
+Run `python3 scripts/char_frequencies.py -i <TEXT_FILE> -o <CHAR_FREQUENCIES_FILE>` to create the input character
+vocabulary from the most frequent characters in the given text file and save it at `<CHAR_FREQUENCIES_FILE>`.
+
+### Unidirectional model
+
+Run `python3 scripts/train_estimator.py -name <UNI_MODEL_NAME> -data <TEXT_FILE> -chars <CHAR_FREQUENCIES_FILE>`
+to train a unidirectional model on the given text file.
+List additional arguments with `python3 scripts/train_estimator.py -h`.
+
+### Bidirectional model
+
+Run `python3 scripts/train_labeling_estimator.py -name <BID_MODEL_NAME> -data <TEXT_FILE> -chars <CHAR_FREQUENCIES_FILE>`
+to train a bidirectional model on the given text file.
+List additional arguments with `python3 scripts/train_labeling_estimator.py -h`.
+
+### Use custom models
+
+Run `python3 scripts/tokenization_repair.py -a CUSTOM -fwd <UNI_MODEL_NAME> -bid <BID_MODEL_NAME>`
+to query the models interactively, and specify`-f <INPUT_TEXT_FILE>`
+to run them on a text file with tokenization errors.
+For the best performance, the penalties P_ins and P_del must be set to values > 0.
+You can try the penalties `-p_ins 6.9 -p_del 6.32`, which gave good results on all our benchmarks,
+or optimize them on a held-out dataset with ground truth.
+
+## Version <a name="version"></a>
+
+This is version 1.2.2 of the Tokenization Repair software.
+
+## Paper <a name="paper"></a>
 
 ```bibtex
 @inproceedings{bast-etal-2021-tokenization,

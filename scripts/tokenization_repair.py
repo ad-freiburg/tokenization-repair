@@ -14,7 +14,7 @@ from src.settings.penalties import PENALTIES
 from src.helper.files import read_lines
 
 
-APPROACHES = ("UNI", "UNI+", "BID", "BID+", "ONE")
+APPROACHES = ("UNI", "UNI+", "BID", "BID+", "ONE", "CUSTOM")
 BENCHMARKS = ("ACL", "arXiv.OCR", "arXiv.pdftotext", "Wiki", "Wiki.typos", "Wiki.typos.no_spaces")
 APPROACHES2MODELS = {
     "UNI": ("conll.fwd1024", None),
@@ -28,8 +28,11 @@ APPROACHES2MODELS = {
 def get_corrector(approach: str,
                   penalties: Optional[str],
                   insertion_penalty: float = 0,
-                  deletion_penalty: float = 0):
-    fwd_model_name, bid_model_name = APPROACHES2MODELS[approach]
+                  deletion_penalty: float = 0,
+                  fwd_model_name: Optional[str] = None,
+                  bid_model_name: Optional[str] = None):
+    if approach != "CUSTOM":
+        fwd_model_name, bid_model_name = APPROACHES2MODELS[approach]
     fwd_model = UnidirectionalLMEstimator()
     fwd_model.load(fwd_model_name)
     if bid_model_name is None:
@@ -62,10 +65,10 @@ if __name__ == "__main__":
     parser.add_argument("-p", dest="penalties", type=str, choices=BENCHMARKS, required=False,
                         help="Choose penalties optimized for one of the benchmarks (default: no penalties, "
                              "except for approach 'ONE').")
-    parser.add_argument("-p_ins", dest="p_ins", type=float, required=False, default=None,
-                        help="Set the insertion penalty explicitly (default: None).")
-    parser.add_argument("-p_del", dest="p_del", type=float, required=False, default=None,
-                        help="Set the deletion penalty explicitly (default: None).")
+    parser.add_argument("-p_ins", dest="p_ins", type=float, required=False, default=0,
+                        help="Set the insertion penalty explicitly (default: 0).")
+    parser.add_argument("-p_del", dest="p_del", type=float, required=False, default=0,
+                        help="Set the deletion penalty explicitly (default: 0).")
     parser.add_argument("-b", dest="benchmark", type=str, required=False,
                         help="Select a benchmark to run the approach on.")
     parser.add_argument("--test", action="store_true",
@@ -76,6 +79,11 @@ if __name__ == "__main__":
                         help="Specify a file to save your results (not used in the interactive mode). "
                              "If a benchmark is selected, specify only the file name "
                              "(it will be saved in /external/results), otherwise the full path.")
+    parser.add_argument("-fwd", dest="fwd_model_name", type=str, required=False, default=None,
+                        help="Name of the unidirectional model to be used (only when approach=CUSTOM).")
+    parser.add_argument("-bid", dest="bid_model_name", type=str, required=False, default=None,
+                        help="Name of the bidirectional model to be used (only when approach=CUSTOM). "
+                             "When not specified, only the unidirectional model is used.")
     args = parser.parse_args()
 
     approach = args.approach
@@ -89,6 +97,12 @@ if __name__ == "__main__":
 
     print("== arguments ==")
     print("approach:", approach)
+    if approach == "CUSTOM":
+        if args.fwd_model_name is None:
+            print("ERROR: Specify a model with the -fwd argument for approach 'CUSTOM'.")
+            exit(1)
+        print("fwd:", args.fwd_model_name)
+        print("bid:", args.bid_model_name)
     print("penalties:", penalties)
     print("p_ins:", p_ins)
     print("p_del:", p_del)
@@ -97,7 +111,8 @@ if __name__ == "__main__":
     print("in file:", in_file)
     print("out file:", out_file)
 
-    corrector = get_corrector(approach, penalties, p_ins, p_del)
+    corrector = get_corrector(approach, penalties, p_ins, p_del,
+                              fwd_model_name=args.fwd_model_name, bid_model_name=args.bid_model_name)
     print("== penalties ==")
     print("P_ins = %.2f" % -corrector.insertion_penalty)
     print("P_del = %.2f" % -corrector.deletion_penalty)

@@ -10,6 +10,7 @@ COPY test test
 COPY src src
 COPY scripts scripts
 COPY html html
+COPY data data
 ENV PYTHONIOENCODING=utf-8
 CMD ["/bin/bash", "--rcfile", "bashrc"]
 
