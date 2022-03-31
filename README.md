@@ -154,16 +154,21 @@ The OCR file contains multi-character replacements as (correct characters, wrong
 in each line, with the three elements separated by spaces.
 Replacements containing a space or where the correct pattern is longer than three characters will be ignored. 
 
+### Character frequencies
+
+Run `python3 scripts/char_frequencies.py -i <TEXT_FILE> -o <CHAR_FREQUENCIES_FILE>` to create the input character
+vocabulary from the most frequent characters in the given text file and save it at `<CHAR_FREQUENCIES_FILE>`.
+
 ### Unidirectional model
 
-Run `python3 scripts/train_estimator.py -name <UNI_MODEL_NAME> -data <TEXT_FILE>`
-to train the unidirectional model on the given text file.
+Run `python3 scripts/train_estimator.py -name <UNI_MODEL_NAME> -data <TEXT_FILE> -chars <CHAR_FREQUENCIES_FILE>`
+to train a unidirectional model on the given text file.
 List additional arguments with `python3 scripts/train_estimator.py -h`.
 
 ### Bidirectional model
 
-Run `python3 scripts/train_labeling_estimator.py -name <BID_MODEL_NAME> -data <TEXT_FILE>`
-to train the bidirectional model on the given text file.
+Run `python3 scripts/train_labeling_estimator.py -name <BID_MODEL_NAME> -data <TEXT_FILE> -chars <CHAR_FREQUENCIES_FILE>`
+to train a bidirectional model on the given text file.
 List additional arguments with `python3 scripts/train_labeling_estimator.py -h`.
 
 ### Use custom models
