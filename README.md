@@ -4,9 +4,10 @@ This software attempts to solve the following *Tokenization Repair* problem:
 Given a text with missing and spurious spaces, correct those.
 Spelling errors and OCR errors can be present, but it's not part of the problem to correct them.
 
-Visit [tokenization.cs.uni-freiburg.de](https://tokenization.cs.uni-freiburg.de) for a web demo and interactive evaluation results.
-
 If you use the software in your research, please cite our [CoNLL 2021 paper](https://aclanthology.org/2021.conll-1.22/) as below.
+
+**Update (August 2022):** We developed a new method based on Transformer neural networks, which gives equally good results 300 times faster.
+See the [web demo](https://whitespace-correction.cs.uni-freiburg.de/) and [repository](https://github.com/ad-freiburg/whitespace-correction).
 
 ## Table of contents
 1. [Quickstart with Docker](#quickstart)
