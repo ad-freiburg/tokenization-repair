@@ -12,7 +12,7 @@ help:
 	@echo "Type 'make web-demo' to start the web demo."
 
 download-data:
-	wget https://tokenization.cs.uni-freiburg.de/data.zip
+	wget https://ad-publications.informatik.uni-freiburg.de/CoNLL_tokenization_repair_BHM_2021.materials/data.zip
 	unzip data.zip
 	chmod -R 777 data
 
